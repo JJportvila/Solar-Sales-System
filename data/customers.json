@@ -1,0 +1,488 @@
+{
+  "items": [
+    {
+      "id": "crm-1774850670190",
+      "archiveNo": "VSLM-CRM-2026-009",
+      "name": "Jasonwong",
+      "contactName": "黄俊新",
+      "phone": "8885522",
+      "email": "uoyo520@gmail.com",
+      "province": "Shefa Province",
+      "location": "Port Vila",
+      "address": "宝安区西乡航空路30号同安物流园A121（Jason）",
+      "customerType": "end_customer",
+      "customerTypeLabel": "终端客户",
+      "usageType": "住宅用电",
+      "installDate": "2026-03-30",
+      "salesPersonId": "emp-sales-001",
+      "salesPersonName": "Lina Vatoko",
+      "payment": {
+        "cycleLabel": "1星期一期 / 共6期",
+        "completedWeeks": 0,
+        "totalWeeks": 6,
+        "paidAmount": 20000,
+        "balanceAmount": 35000,
+        "nextDueLabel": "1周后"
+      },
+      "paymentHistory": [],
+      "orders": [
+        {
+          "id": "1774850670188",
+          "name": "M-BOX300",
+          "status": "分期中",
+          "date": "2026-03-30"
+        }
+      ],
+      "devices": [],
+      "photos": [],
+      "warrantyHistory": [],
+      "warrantyEndsAt": ""
+    },
+    {
+      "id": "merchant-1774839750237",
+      "archiveNo": "VSLM-WHOLESALE-2026-003",
+      "name": "TIAN YI",
+      "contactName": "JUNXIN",
+      "phone": "7775552",
+      "email": "66531@QQ.COM",
+      "province": "Shefa Province",
+      "location": "Port Vila",
+      "address": "Cathdral Area",
+      "customerType": "local_wholesale",
+      "customerTypeLabel": "本地商家",
+      "usageType": "本地批发商",
+      "installDate": "2026-03-30",
+      "salesPersonId": "emp-sales-mgr-001",
+      "salesPersonName": "Mele Tari",
+      "payment": {
+        "cycleLabel": "批发月结",
+        "completedWeeks": 0,
+        "totalWeeks": 4,
+        "paidAmount": 25000,
+        "balanceAmount": 222500,
+        "nextDueLabel": "月末结算"
+      },
+      "paymentHistory": [],
+      "orders": [
+        {
+          "id": "WHO-20260330-0304",
+          "name": "M-BOX300 x 5",
+          "status": "部分收款",
+          "date": "2026-03-30"
+        }
+      ],
+      "devices": [],
+      "photos": [],
+      "warrantyHistory": [],
+      "warrantyEndsAt": ""
+    },
+    {
+      "id": "merchant-port-vila-solar-mart",
+      "archiveNo": "VSLM-WHOLESALE-2026-002",
+      "name": "Port Vila Solar Mart",
+      "contactName": "Moses Tari",
+      "phone": "+678 771 2201",
+      "email": "orders@solarmart.vu",
+      "province": "Shefa Province",
+      "location": "Port Vila",
+      "address": "Kumul Highway, Port Vila, Vanuatu",
+      "customerType": "local_wholesale",
+      "customerTypeLabel": "本地商家",
+      "usageType": "本地批发商",
+      "installDate": "2026-03-30",
+      "salesPersonId": "emp-sales-001",
+      "salesPersonName": "Lina Vatoko",
+      "payment": {
+        "cycleLabel": "批发月结",
+        "completedWeeks": 0,
+        "totalWeeks": 4,
+        "paidAmount": 196000,
+        "balanceAmount": 49500,
+        "nextDueLabel": "月末结算"
+      },
+      "paymentHistory": [],
+      "orders": [
+        {
+          "id": "WHO-20260330-5988",
+          "name": "M-BOX300 x 1",
+          "status": "待付款",
+          "date": "2026-03-30"
+        }
+      ],
+      "devices": [],
+      "photos": [],
+      "warrantyHistory": [],
+      "warrantyEndsAt": ""
+    },
+    {
+      "id": "merchant-santo-energy-shop",
+      "archiveNo": "VSLM-WHOLESALE-2026-001",
+      "name": "Santo Energy Shop",
+      "contactName": "Lio Sam",
+      "phone": "+678 772 1188",
+      "email": "sales@santoenergy.vu",
+      "province": "Shefa Province",
+      "location": "Luganville",
+      "address": "Main Street, Luganville, Santo, Vanuatu",
+      "customerType": "local_wholesale",
+      "customerTypeLabel": "本地商家",
+      "usageType": "本地批发商",
+      "installDate": "2026-03-30",
+      "salesPersonId": "emp-sales-mgr-001",
+      "salesPersonName": "Mele Tari",
+      "payment": {
+        "cycleLabel": "批发月结",
+        "completedWeeks": 0,
+        "totalWeeks": 4,
+        "paidAmount": 1,
+        "balanceAmount": 335999,
+        "nextDueLabel": "月末结算"
+      },
+      "paymentHistory": [],
+      "orders": [],
+      "devices": [],
+      "photos": [],
+      "warrantyHistory": [],
+      "warrantyEndsAt": ""
+    },
+    {
+      "id": "crm-1774832891816",
+      "archiveNo": "VSLM-CRM-2026-005",
+      "name": "Installment Demo",
+      "contactName": "Installment Demo",
+      "phone": "77001122",
+      "email": "demo@example.com",
+      "province": "Shefa Province",
+      "location": "Port Vila",
+      "address": "Port Vila",
+      "customerType": "end_customer",
+      "customerTypeLabel": "终端客户",
+      "usageType": "分期客户",
+      "installDate": "2026-03-30",
+      "salesPersonId": "emp-sales-001",
+      "salesPersonName": "Lina Vatoko",
+      "payment": {
+        "cycleLabel": "Weekly / 12 weeks",
+        "completedWeeks": 0,
+        "totalWeeks": 12,
+        "paidAmount": 33000,
+        "balanceAmount": 77000,
+        "nextDueLabel": "Next week"
+      },
+      "paymentHistory": [],
+      "orders": [
+        {
+          "id": "1774832891813",
+          "name": "M-BOX1200",
+          "status": "分期中",
+          "date": "2026-03-30"
+        }
+      ],
+      "devices": [],
+      "photos": [],
+      "warrantyHistory": [],
+      "warrantyEndsAt": ""
+    },
+    {
+      "id": "vslm-crm-test-001",
+      "archiveNo": "VSLM-CRM-TEST-001",
+      "name": "UBER",
+      "contactName": "Teney",
+      "phone": "+678 000 0000",
+      "email": "",
+      "province": "",
+      "location": "",
+      "address": "",
+      "customerType": "end_customer",
+      "customerTypeLabel": "终端客户",
+      "usageType": "住宅用电",
+      "installDate": "",
+      "salesPersonId": "",
+      "salesPersonName": "",
+      "payment": {
+        "cycleLabel": "Monthly",
+        "completedWeeks": 1,
+        "totalWeeks": 2,
+        "paidAmount": 1000,
+        "balanceAmount": 2000,
+        "nextDueLabel": "Tomorrow"
+      },
+      "paymentHistory": [],
+      "orders": [],
+      "devices": [],
+      "photos": [],
+      "warrantyHistory": [],
+      "warrantyEndsAt": ""
+    },
+    {
+      "id": "crm-emae-village-center",
+      "archiveNo": "VSLM-CRM-2024-089",
+      "name": "Emae Village Center",
+      "contactName": "Samuel Kalo",
+      "phone": "+678 555 0123",
+      "email": "samuel.kalo@emae.vu",
+      "province": "Shefa Province",
+      "location": "Emae Island, Vanuatu",
+      "address": "Emae Village Center, Shefa Province, Vanuatu",
+      "customerType": "end_customer",
+      "customerTypeLabel": "终端客户",
+      "usageType": "社区公共用电",
+      "installDate": "2024-01-15",
+      "salesPersonId": "emp-sales-001",
+      "salesPersonName": "Lina Vatoko",
+      "payment": {
+        "cycleLabel": "Weekly",
+        "completedWeeks": 26,
+        "totalWeeks": 52,
+        "paidAmount": 150000,
+        "balanceAmount": 140000,
+        "nextDueLabel": "周四 09:00"
+      },
+      "paymentHistory": [
+        {
+          "id": "CPAY-1774858071579",
+          "amount": 5000,
+          "paidAt": "2026-03-30",
+          "collectorName": "Mele Tari",
+          "note": "follow-up payment",
+          "receiptNo": "CPAY-1774858071579"
+        }
+      ],
+      "orders": [
+        {
+          "id": "ORD-99201",
+          "name": "Helios 5kW 套装",
+          "status": "已完成",
+          "date": "2024-01-15"
+        },
+        {
+          "id": "ORD-88122",
+          "name": "备用储能电池单元",
+          "status": "退款记录",
+          "date": "2024-03-02"
+        }
+      ],
+      "devices": [
+        {
+          "id": "dev-main-controller",
+          "type": "主控制器",
+          "name": "主控制器",
+          "sn": "HEL-882-C1"
+        },
+        {
+          "id": "dev-panel-a",
+          "type": "太阳能板",
+          "name": "太阳能板 A",
+          "sn": "PNL-VX-001"
+        },
+        {
+          "id": "dev-panel-b",
+          "type": "太阳能板",
+          "name": "太阳能板 B",
+          "sn": "PNL-VX-002"
+        },
+        {
+          "id": "dev-battery",
+          "type": "储能电池",
+          "name": "锂电池",
+          "sn": "BAT-LITH-440"
+        }
+      ],
+      "photos": [
+        {
+          "id": "photo-1774858071586",
+          "title": "Uploaded test photo",
+          "takenAt": "2026-03-30 19:15",
+          "imageUrl": "/uploads/customer-crm-emae-village-center-1774858071586.png"
+        },
+        {
+          "id": "photo-site-1",
+          "title": "实景外观",
+          "takenAt": "2024-01-15 14:30",
+          "imageUrl": "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+          "id": "photo-site-2",
+          "title": "配电箱细节",
+          "takenAt": "2024-01-15 15:45",
+          "imageUrl": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80"
+        }
+      ],
+      "warrantyHistory": [
+        {
+          "id": "war-1774858071583",
+          "title": "Site inspection",
+          "detail": "Completed cabinet inspection",
+          "date": "2026-03-30",
+          "serialNo": ""
+        },
+        {
+          "id": "war-1",
+          "title": "逆变器固件更新",
+          "detail": "2024-03-22 / 远程执行",
+          "date": "2024-03-22",
+          "serialNo": ""
+        },
+        {
+          "id": "war-2",
+          "title": "清洁与物理检查",
+          "detail": "2024-06-10 / 工程师 Tom V.",
+          "date": "2024-06-10",
+          "serialNo": ""
+        },
+        {
+          "id": "war-3",
+          "title": "预约年度性能评估",
+          "detail": "计划中 / 2025-01-15",
+          "date": "2025-01-15",
+          "serialNo": ""
+        }
+      ],
+      "warrantyEndsAt": "2026-01-15"
+    },
+    {
+      "id": "crm-malo-solar-coop",
+      "archiveNo": "VSLM-CRM-2024-146",
+      "name": "Malo Solar Coop",
+      "contactName": "Risa Molou",
+      "phone": "+678 555 0168",
+      "email": "risa@malo.coop",
+      "province": "Sanma Province",
+      "location": "Malo Island, Vanuatu",
+      "address": "Malo Solar Coop, Sanma Province, Vanuatu",
+      "customerType": "end_customer",
+      "customerTypeLabel": "终端客户",
+      "usageType": "社区微网",
+      "installDate": "2024-05-09",
+      "salesPersonId": "emp-sales-mgr-001",
+      "salesPersonName": "Mele Tari",
+      "payment": {
+        "cycleLabel": "Monthly",
+        "completedWeeks": 8,
+        "totalWeeks": 12,
+        "paidAmount": 820000,
+        "balanceAmount": 210000,
+        "nextDueLabel": "4月 05日"
+      },
+      "paymentHistory": [],
+      "orders": [
+        {
+          "id": "ORD-10551",
+          "name": "M-BOX1500 x 12",
+          "status": "履约中",
+          "date": "2024-05-09"
+        },
+        {
+          "id": "ORD-10628",
+          "name": "屋顶支架补充件",
+          "status": "已完成",
+          "date": "2024-06-11"
+        }
+      ],
+      "devices": [
+        {
+          "id": "malo-ctrl",
+          "type": "主控制器",
+          "name": "主控制器",
+          "sn": "HEL-MALO-201"
+        },
+        {
+          "id": "malo-panel",
+          "type": "太阳能板阵列",
+          "name": "550W 阵列",
+          "sn": "PNL-MALO-55X"
+        },
+        {
+          "id": "malo-battery",
+          "type": "储能电池",
+          "name": "储能电池组",
+          "sn": "BAT-MALO-18"
+        }
+      ],
+      "photos": [
+        {
+          "id": "photo-malo-1",
+          "title": "机房外部",
+          "takenAt": "2024-05-09 11:20",
+          "imageUrl": "https://images.unsplash.com/photo-1497436072909-f5e4be0b1c5e?auto=format&fit=crop&w=1200&q=80"
+        }
+      ],
+      "warrantyHistory": [
+        {
+          "id": "war-m1",
+          "title": "阵列巡检",
+          "detail": "2024-07-14 / 正常",
+          "date": "2024-07-14",
+          "serialNo": ""
+        }
+      ],
+      "warrantyEndsAt": "2027-05-09"
+    },
+    {
+      "id": "crm-tanna-heights-lodge",
+      "archiveNo": "VSLM-CRM-2025-018",
+      "name": "Tanna Heights Lodge",
+      "contactName": "Jean Vira",
+      "phone": "+678 555 0221",
+      "email": "ops@tannaheights.vu",
+      "province": "Tafea Province",
+      "location": "Tanna Island, Vanuatu",
+      "address": "Tanna Heights Lodge, Tafea Province, Vanuatu",
+      "customerType": "end_customer",
+      "customerTypeLabel": "终端客户",
+      "usageType": "酒店商用",
+      "installDate": "2025-01-08",
+      "salesPersonId": "emp-sales-002",
+      "salesPersonName": "Tom Bani",
+      "payment": {
+        "cycleLabel": "Monthly",
+        "completedWeeks": 3,
+        "totalWeeks": 6,
+        "paidAmount": 360000,
+        "balanceAmount": 360000,
+        "nextDueLabel": "周一 15:00"
+      },
+      "paymentHistory": [],
+      "orders": [
+        {
+          "id": "ORD-12018",
+          "name": "LS6.2K + 10kWh 套装",
+          "status": "已完成",
+          "date": "2025-01-08"
+        }
+      ],
+      "devices": [
+        {
+          "id": "tanna-main",
+          "type": "主控制器",
+          "name": "主控制器",
+          "sn": "HEL-TAN-801"
+        },
+        {
+          "id": "tanna-panels",
+          "type": "太阳能板阵列",
+          "name": "590W 阵列",
+          "sn": "PNL-TAN-590"
+        }
+      ],
+      "photos": [
+        {
+          "id": "photo-tan-1",
+          "title": "屋顶阵列",
+          "takenAt": "2025-01-08 16:12",
+          "imageUrl": "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=1200&q=80"
+        }
+      ],
+      "warrantyHistory": [
+        {
+          "id": "war-t1",
+          "title": "年度保养待排期",
+          "detail": "计划中 / 2026-01-10",
+          "date": "2026-01-10",
+          "serialNo": ""
+        }
+      ],
+      "warrantyEndsAt": "2028-01-08"
+    }
+  ]
+}

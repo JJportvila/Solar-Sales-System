@@ -1,0 +1,64 @@
+{
+  "bookings": [
+    {
+      "id": "SV-1774830770796",
+      "island": "Efate",
+      "preferredDate": "2026-03-31",
+      "preferredTime": "09:00-12:00",
+      "latitude": -17.726274,
+      "longitude": 168.322239,
+      "status": "scheduled",
+      "sitePhotos": [],
+      "customer": {
+        "name": "ESS",
+        "phone": "7788855",
+        "address": "no2 downtown"
+      },
+      "reviewChecklist": {
+        "photosOk": true,
+        "gpsOk": true,
+        "contactOk": true
+      },
+      "reviewNotes": "Auto queue test",
+      "reviewedBy": "Survey Desk",
+      "reviewedAt": "2026-03-30T00:40:58.141Z",
+      "scheduleTask": {
+        "id": "SCH-SV-1774830770796",
+        "status": "scheduled",
+        "notes": "Confirmed access with customer",
+        "engineerId": "emp-eng-001",
+        "engineerName": "陈家成",
+        "visitDate": "2026-04-01",
+        "visitTime": "13:00-16:00",
+        "createdAt": "2026-03-30T00:40:58.140Z",
+        "updatedAt": "2026-03-30T00:48:02.522Z"
+      },
+      "createdAt": "2026-03-30T00:32:50.796Z"
+    },
+    {
+      "id": "SV-20260330-001",
+      "island": "Efate",
+      "preferredDate": "2026-04-02",
+      "preferredTime": "09:00-12:00",
+      "latitude": -17.7333,
+      "longitude": 168.3167,
+      "status": "scheduled",
+      "sitePhotos": [],
+      "customer": {
+        "name": "Malo Solar Project",
+        "phone": "+678 555 0182",
+        "address": "Port Vila, Efate"
+      },
+      "reviewChecklist": {
+        "photosOk": true,
+        "gpsOk": true,
+        "contactOk": true
+      },
+      "reviewNotes": "GPS and contact checked",
+      "reviewedBy": "Survey Desk",
+      "reviewedAt": "2026-03-30T00:37:54.970Z",
+      "scheduleTask": null,
+      "createdAt": "2026-03-30T08:20:00+11:00"
+    }
+  ]
+}

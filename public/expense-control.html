@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>光伏管理系统 / 费用管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0b2b5a",
+              secondary: "#9a6b00",
+              accent: "#f2b233",
+              background: "#f6f7fb",
+              panel: "#ffffff",
+              line: "#d9deea",
+              muted: "#6b7280"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3 { font-family: "Manrope", sans-serif; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-background text-slate-900 flex" data-nav="expense-control" data-header-title="光伏管理系统 / 费用管理">
+    <aside id="app-sidebar" class="hidden md:flex fixed left-0 top-0 z-40 h-screen w-64 flex-col bg-slate-50 py-6 shadow-[4px_0_24px_rgba(0,0,0,0.02)]"></aside>
+    <header id="app-header" class="fixed top-0 z-30 h-16 w-full border-b border-slate-100/10 bg-white/80 px-6 backdrop-blur-md md:w-[calc(100%-16rem)]"></header>
+
+    <main class="flex-1 pb-12 md:ml-64">
+      <div class="mx-auto mt-16 w-full max-w-[1520px] space-y-8 px-6 py-6 lg:px-8 xl:px-10">
+        <section class="space-y-3">
+          <p class="text-xs font-bold uppercase tracking-[0.28em] text-secondary">费用管理</p>
+          <h1 class="text-3xl font-extrabold tracking-tight text-primary md:text-4xl">费用管理中心</h1>
+          <p class="max-w-3xl text-sm text-muted">所有费用项都支持上传原始发票或票据图片备份，并且可以在页面里直接预览原图。</p>
+        </section>
+
+        <section class="grid grid-cols-1 gap-6 xl:grid-cols-[0.92fr_1.08fr]">
+          <div class="rounded-[2rem] border border-line/60 bg-panel p-6 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <h2 class="flex items-center gap-2 text-xl font-extrabold text-primary">
+                  <span class="material-symbols-outlined text-secondary">verified_user</span>
+                  <span>支付审核队列</span>
+                </h2>
+                <p class="mt-1 text-xs text-muted">审核首付款、手工收款和异常入账，也支持上传付款票据。</p>
+              </div>
+              <span id="expense-queue-count" class="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white">0 条待处理</span>
+            </div>
+            <div id="expense-payment-queue" class="mt-6 space-y-4"></div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <a href="/installment.html" class="rounded-[2rem] border border-line/60 bg-panel p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <h2 class="text-xl font-extrabold text-primary">分期管理</h2>
+                  <p class="mt-2 text-sm text-muted">分期计划、完成周数、逾期风险全部单独查看。</p>
+                </div>
+                <span class="material-symbols-outlined text-3xl text-primary">calendar_month</span>
+              </div>
+              <div class="mt-6 text-sm font-bold text-primary">进入分期管理</div>
+            </a>
+            <a href="/commission.html" class="rounded-[2rem] border border-line/60 bg-primary p-6 text-white shadow-lg shadow-blue-900/10 transition hover:-translate-y-0.5 hover:shadow-xl">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <h2 class="text-xl font-extrabold">佣金管理</h2>
+                  <p class="mt-2 text-sm text-blue-100">佣金池、释放比例、锁定金额全部独立管理。</p>
+                </div>
+                <span class="material-symbols-outlined text-3xl text-accent">savings</span>
+              </div>
+              <div class="mt-6 text-sm font-bold text-accent">进入佣金管理</div>
+            </a>
+          </div>
+        </section>
+
+        <section class="rounded-[2rem] border border-line/60 bg-panel p-6 shadow-sm">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 class="text-xl font-extrabold text-primary">最近流水追踪</h2>
+              <p class="mt-1 text-xs text-muted">支付审核、生活成本、税收、发票和房租的记录都会沉淀在这里。</p>
+            </div>
+            <div class="relative">
+              <input id="expense-search" class="w-72 rounded-xl border border-line bg-slate-50 px-10 py-3 text-sm" placeholder="搜索流水号、客户或类型" type="text" />
+              <span class="material-symbols-outlined absolute left-3 top-3 text-slate-400">search</span>
+            </div>
+          </div>
+          <div class="mt-6 overflow-x-auto">
+            <table class="w-full min-w-[860px] text-left">
+              <thead class="border-b border-line text-xs uppercase tracking-[0.24em] text-slate-400">
+                <tr>
+                  <th class="pb-4 pl-4">流水号</th>
+                  <th class="pb-4">类型</th>
+                  <th class="pb-4">对象</th>
+                  <th class="pb-4">金额</th>
+                  <th class="pb-4">状态</th>
+                  <th class="pb-4 pr-4 text-right">说明</th>
+                </tr>
+              </thead>
+              <tbody id="expense-transactions-body" class="text-sm"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <div class="rounded-[2rem] border border-line/60 bg-panel p-6 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h2 class="text-xl font-extrabold text-primary">生活成本</h2>
+                <p class="mt-1 text-xs text-muted">员工宿舍、餐补、交通、水电网等支出。</p>
+              </div>
+              <div id="expense-living-total" class="text-2xl font-black text-primary">VT 0</div>
+            </div>
+            <form id="expense-living-form" class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_140px_120px]">
+              <input id="expense-living-name" class="rounded-xl border border-line px-4 py-3 text-sm" placeholder="名称" type="text" />
+              <input id="expense-living-amount" class="rounded-xl border border-line px-4 py-3 text-sm" min="0" placeholder="金额" type="number" />
+              <button class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white" type="submit">新增</button>
+            </form>
+            <div id="expense-living-list" class="mt-6 space-y-3"></div>
+          </div>
+
+          <div class="rounded-[2rem] border border-line/60 bg-panel p-6 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h2 class="text-xl font-extrabold text-primary">税收管理</h2>
+                <p class="mt-1 text-xs text-muted">VAT、工资税、进口税等税项登记。</p>
+              </div>
+              <div id="expense-tax-total" class="text-2xl font-black text-primary">VT 0</div>
+            </div>
+            <form id="expense-tax-form" class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_140px_140px_120px]">
+              <input id="expense-tax-name" class="rounded-xl border border-line px-4 py-3 text-sm" placeholder="税项名称" type="text" />
+              <input id="expense-tax-period" class="rounded-xl border border-line px-4 py-3 text-sm" placeholder="期间" type="text" />
+              <input id="expense-tax-amount" class="rounded-xl border border-line px-4 py-3 text-sm" min="0" placeholder="金额" type="number" />
+              <button class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white" type="submit">新增</button>
+            </form>
+            <div id="expense-tax-list" class="mt-6 space-y-3"></div>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <div class="rounded-[2rem] border border-line/60 bg-panel p-6 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h2 class="text-xl font-extrabold text-primary">发票管理</h2>
+                <p class="mt-1 text-xs text-muted">新增发票、切换开票状态、记录开票时间。</p>
+              </div>
+              <div id="expense-invoice-total" class="text-2xl font-black text-primary">VT 0</div>
+            </div>
+            <form id="expense-invoice-form" class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_140px_120px]">
+              <input id="expense-invoice-customer" class="rounded-xl border border-line px-4 py-3 text-sm" placeholder="客户名称" type="text" />
+              <input id="expense-invoice-amount" class="rounded-xl border border-line px-4 py-3 text-sm" min="0" placeholder="金额" type="number" />
+              <button class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white" type="submit">新增</button>
+            </form>
+            <div id="expense-invoice-list" class="mt-6 space-y-3"></div>
+          </div>
+
+          <div class="rounded-[2rem] border border-line/60 bg-panel p-6 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h2 class="text-xl font-extrabold text-primary">房租</h2>
+                <p class="mt-1 text-xs text-muted">办公点、仓库、服务站租金统一登记。</p>
+              </div>
+              <div id="expense-rent-total" class="text-2xl font-black text-primary">VT 0</div>
+            </div>
+            <form id="expense-rent-form" class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_120px_140px_120px]">
+              <input id="expense-rent-location" class="rounded-xl border border-line px-4 py-3 text-sm" placeholder="站点名称" type="text" />
+              <input id="expense-rent-month" class="rounded-xl border border-line px-4 py-3 text-sm" placeholder="月份" type="text" />
+              <input id="expense-rent-amount" class="rounded-xl border border-line px-4 py-3 text-sm" min="0" placeholder="金额" type="number" />
+              <button class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white" type="submit">新增</button>
+            </form>
+            <div id="expense-rent-list" class="mt-6 space-y-3"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <input id="expense-attachment-input" class="hidden" type="file" accept="image/png,image/jpeg,image/webp" />
+
+    <div id="expense-image-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 p-4">
+      <div class="w-full max-w-4xl rounded-[2rem] bg-white p-5 shadow-2xl">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-extrabold text-primary">原图预览</h2>
+            <p id="expense-image-caption" class="mt-1 text-sm text-muted"></p>
+          </div>
+          <button id="expense-image-close" class="rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold text-primary">关闭</button>
+        </div>
+        <div class="mt-5 overflow-auto rounded-2xl bg-slate-100 p-4">
+          <img id="expense-image-preview" class="mx-auto max-h-[72vh] rounded-xl object-contain" alt="发票原图" />
+        </div>
+      </div>
+    </div>
+
+    <script src="/shared-nav.js"></script>
+    <script src="/shared-header.js"></script>
+    <script src="/expense-control.js"></script>
+  </body>
+</html>

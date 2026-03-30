@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>光伏管理系统 / 员工管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              secondary: "#7f5700",
+              "secondary-container": "#feb316",
+              background: "#f8f9fa",
+              primary: "#001d44",
+              "surface-container-low": "#f3f4f5",
+              "outline-variant": "#c3c6d1"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+    </style>
+  </head>
+  <body class="bg-background text-slate-900 min-h-screen flex" data-nav="employee">
+    <aside id="app-sidebar" class="hidden md:flex flex-col h-screen w-64 bg-slate-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed left-0 top-0 z-40 py-6"></aside>
+    <header id="app-header"></header>
+
+    <main class="flex-1 md:ml-64 pb-16">
+      <div class="w-full max-w-[1520px] mx-auto px-6 lg:px-8 xl:px-10 py-6 lg:py-8 space-y-8">
+        <section class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.28em] text-secondary">员工管理</p>
+            <h1 class="mt-3 text-3xl md:text-4xl font-extrabold text-primary tracking-tight">员工档案与工资结算</h1>
+            <p class="mt-3 max-w-3xl text-sm text-slate-600">统一管理工程师、销售、销售经理和管理员。离职员工保留历史数据，工资按角色规则自动结算。</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="employee-export-btn" class="rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary border border-outline-variant/20 flex items-center gap-2">
+              <span class="material-symbols-outlined">download</span>
+              <span>导出员工表</span>
+            </button>
+            <button id="employee-add-btn" class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white flex items-center gap-2 shadow-lg shadow-blue-900/10">
+              <span class="material-symbols-outlined">person_add</span>
+              <span>新增员工</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(340px,0.75fr)]">
+          <div class="rounded-[2rem] bg-white p-8 shadow-sm border border-outline-variant/10">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-extrabold text-primary">月度任务趋势</h2>
+              <p class="mt-1 text-sm text-slate-500">按月查看团队目标与完成量。</p>
+            </div>
+            <div class="rounded-full bg-primary/5 px-4 py-2 text-xs font-bold text-primary">最近 6 个月</div>
+          </div>
+            <div id="employee-trend" class="mt-8 grid h-[260px] grid-cols-6 items-end gap-3"></div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-1">
+            <div class="rounded-[2rem] bg-white p-8 shadow-sm border border-outline-variant/10">
+              <h2 class="text-xl font-extrabold text-primary">人员构成</h2>
+              <div id="employee-role-summary" class="mt-6 space-y-4"></div>
+              <div class="mt-6 grid grid-cols-2 gap-4">
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs uppercase tracking-[0.22em] text-slate-400">员工总数</div>
+                  <div id="employee-total" class="mt-2 text-3xl font-black text-primary">0</div>
+                </div>
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs uppercase tracking-[0.22em] text-slate-400">离职留档</div>
+                  <div id="employee-resigned" class="mt-2 text-3xl font-black text-rose-600">0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-[2rem] bg-primary p-8 text-white shadow-lg shadow-blue-900/10">
+              <div class="text-xs uppercase tracking-[0.24em] text-blue-200">在岗率</div>
+              <div id="employee-attendance" class="mt-3 text-4xl font-black">0%</div>
+              <p class="mt-2 text-sm text-blue-100">离职人员不计入在岗率，历史仍保留。</p>
+              <div class="mt-8 h-2 overflow-hidden rounded-full bg-white/10">
+                <div id="employee-attendance-bar" class="h-full rounded-full bg-secondary-container" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-[2rem] bg-white p-6 shadow-sm border border-outline-variant/10 space-y-5">
+          <div class="grid grid-cols-1 gap-4 lg:grid-cols-[220px_220px_minmax(0,1fr)]">
+            <select id="employee-role-filter" class="w-full rounded-2xl border border-outline-variant/25 bg-surface-container-low px-4 py-3 text-sm">
+              <option value="all">全部角色</option>
+              <option value="engineer">工程师</option>
+              <option value="sales">销售</option>
+              <option value="sales_manager">销售经理</option>
+              <option value="admin">管理员</option>
+            </select>
+            <select id="employee-status-filter" class="w-full rounded-2xl border border-outline-variant/25 bg-surface-container-low px-4 py-3 text-sm">
+              <option value="all">全部状态</option>
+              <option value="active">在岗</option>
+              <option value="training">培训中</option>
+              <option value="leave">休假</option>
+              <option value="resigned">离职</option>
+            </select>
+            <input id="employee-search" class="w-full rounded-2xl border border-outline-variant/25 bg-surface-container-low px-4 py-3 text-sm" placeholder="搜索姓名、员工编号、机构、电话、邮箱" type="text" />
+          </div>
+          <div id="employee-list" class="space-y-4"></div>
+        </section>
+      </div>
+    </main>
+
+    <div id="employee-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/40 px-4 py-6">
+      <div class="w-full max-w-5xl rounded-[2rem] bg-white p-6 md:p-8 shadow-2xl">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-secondary">员工管理</p>
+            <h2 id="employee-modal-title" class="mt-2 text-2xl font-extrabold text-primary">新增员工</h2>
+          </div>
+          <button id="employee-modal-close" class="rounded-full bg-slate-100 p-2 text-slate-500">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <form id="employee-form" class="mt-6 space-y-5">
+          <input id="employee-id" type="hidden" />
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">姓名</span>
+              <input id="employee-name" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" required type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">员工编号</span>
+              <input id="employee-no" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" required type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">角色</span>
+              <select id="employee-role" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm">
+                <option value="engineer">工程师</option>
+                <option value="sales">销售</option>
+                <option value="sales_manager">销售经理</option>
+                <option value="admin">管理员</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">状态</span>
+              <select id="employee-status" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm">
+                <option value="active">在岗</option>
+                <option value="training">培训中</option>
+                <option value="leave">休假</option>
+                <option value="resigned">离职</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">所属机构</span>
+              <input id="employee-branch" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">电话</span>
+              <input id="employee-phone" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">邮箱</span>
+              <input id="employee-email" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="email" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">入职日期</span>
+              <input id="employee-hire-date" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="date" />
+            </label>
+          </div>
+
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">技能标签</span>
+            <input id="employee-skills" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" placeholder="多个标签用逗号分隔，例如：PV-Expert, CRM-Pro" type="text" />
+          </label>
+
+          <div class="rounded-[1.75rem] border border-outline-variant/20 bg-surface-container-low p-5">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <h3 class="text-lg font-extrabold text-primary">工资结算规则</h3>
+                <p class="mt-1 text-sm text-slate-500">销售：工时工资 + 佣金。销售经理：基本工资 + 佣金 + 绩效工资。</p>
+              </div>
+            </div>
+            <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">工时单价</span>
+                <input id="employee-hourly-rate" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="number" min="0" />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">月工时</span>
+                <input id="employee-work-hours" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="number" min="0" />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">基本工资</span>
+                <input id="employee-base-salary" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="number" min="0" />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">绩效工资</span>
+                <input id="employee-performance-salary" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="number" min="0" />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">销售提成 %</span>
+                <input id="employee-commission-rate" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="number" min="0" step="0.1" />
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">主指标名称</span>
+              <input id="employee-primary-label" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">主指标数值</span>
+              <input id="employee-primary-value" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">第二指标名称</span>
+              <input id="employee-secondary-label" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">第二指标数值</span>
+              <input id="employee-secondary-value" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">评分名称</span>
+              <input id="employee-rating-label" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">评分数值</span>
+              <input id="employee-rating-value" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+          </div>
+
+          <div class="flex flex-wrap justify-end gap-3 pt-3">
+            <button id="employee-cancel-btn" class="rounded-xl bg-slate-100 px-5 py-3 text-sm font-bold text-slate-600" type="button">取消</button>
+            <button class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">保存员工</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="/shared-nav.js"></script>
+    <script src="/shared-header.js"></script>
+    <script src="/employee.js"></script>
+  </body>
+</html>

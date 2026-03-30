@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>光伏管理系统 / 本地批发</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              secondary: "#7f5700",
+              "secondary-container": "#feb316",
+              background: "#f8f9fa",
+              primary: "#001d44",
+              "surface-container-low": "#f3f4f5",
+              "outline-variant": "#c3c6d1",
+              success: "#047857"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+    </style>
+  </head>
+  <body class="bg-background text-slate-900 min-h-screen flex" data-nav="wholesale">
+    <aside id="app-sidebar" class="hidden md:flex flex-col h-screen w-64 bg-slate-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed left-0 top-0 z-40 py-6"></aside>
+    <header id="app-header" class="fixed top-0 w-full md:w-[calc(100%-16rem)] z-30 bg-white/80 backdrop-blur-md flex justify-between items-center px-6 h-16 shadow-sm border-b border-slate-100/10"></header>
+
+    <main class="flex-1 md:ml-64 pb-16">
+      <div class="mt-16 w-full max-w-[1520px] mx-auto px-6 lg:px-8 xl:px-10 py-6 lg:py-8 space-y-8">
+        <section class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div class="max-w-3xl">
+            <p class="text-xs font-bold uppercase tracking-[0.28em] text-secondary">Local Wholesale</p>
+            <h1 class="mt-3 text-3xl md:text-4xl font-extrabold text-primary tracking-tight">本地批发中心</h1>
+            <p class="mt-3 text-sm text-slate-600 leading-relaxed">给本地商家批发销售太阳能套装，统一使用后台维护的批发价，并同步商家档案、订单和库存。</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="wholesale-refresh-btn" class="rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary border border-outline-variant/20 flex items-center gap-2">
+              <span class="material-symbols-outlined">refresh</span>
+              <span>刷新数据</span>
+            </button>
+            <button id="wholesale-add-merchant-btn" class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white flex items-center gap-2 shadow-lg shadow-blue-900/10">
+              <span class="material-symbols-outlined">store</span>
+              <span>新增本地商家</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <button id="wholesale-summary-merchants" class="rounded-[1.75rem] bg-white border border-outline-variant/10 px-5 py-5 text-left shadow-sm">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400">本地商家总数</div>
+            <div id="wholesale-summary-merchant-count" class="mt-3 text-3xl font-black text-primary">0</div>
+            <div class="mt-2 text-sm text-slate-500">点击查看商家名单</div>
+          </button>
+          <button id="wholesale-summary-orders" class="rounded-[1.75rem] bg-white border border-outline-variant/10 px-5 py-5 text-left shadow-sm">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400">批发订单数</div>
+            <div id="wholesale-summary-order-count" class="mt-3 text-3xl font-black text-primary">0</div>
+            <div class="mt-2 text-sm text-slate-500">点击查看订单明细</div>
+          </button>
+          <button id="wholesale-summary-pending" class="rounded-[1.75rem] bg-white border border-outline-variant/10 px-5 py-5 text-left shadow-sm">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400">待收批发金额</div>
+            <div id="wholesale-summary-pending-amount" class="mt-3 text-3xl font-black text-secondary">VT 0</div>
+            <div class="mt-2 text-sm text-slate-500">点击查看未结订单</div>
+          </button>
+          <button id="wholesale-summary-revenue" class="rounded-[1.75rem] bg-primary px-5 py-5 text-left shadow-sm text-white">
+            <div class="text-xs uppercase tracking-[0.22em] text-blue-200">累计批发销售额</div>
+            <div id="wholesale-summary-revenue-amount" class="mt-3 text-3xl font-black">VT 0</div>
+            <div class="mt-2 text-sm text-blue-100">点击查看成交订单</div>
+          </button>
+        </section>
+
+        <section id="wholesale-detail-panel" class="hidden rounded-[2rem] border border-outline-variant/10 bg-white p-6 shadow-sm">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p id="wholesale-detail-kicker" class="text-xs font-bold uppercase tracking-[0.24em] text-secondary">详情</p>
+              <h2 id="wholesale-detail-title" class="mt-2 text-2xl font-extrabold text-primary">明细</h2>
+              <p id="wholesale-detail-summary" class="mt-2 text-sm text-slate-500"></p>
+            </div>
+            <button id="wholesale-detail-close" class="rounded-full bg-slate-100 p-2 text-slate-500">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div class="mt-6 overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead id="wholesale-detail-head" class="text-left text-slate-500"></thead>
+              <tbody id="wholesale-detail-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="space-y-6">
+          <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(360px,0.9fr)_minmax(0,1.1fr)]">
+            <div class="rounded-[2rem] bg-white border border-outline-variant/10 p-6 shadow-sm">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <h2 class="text-lg font-extrabold text-primary">本地商家列表</h2>
+                  <p class="mt-1 text-sm text-slate-500">点击左侧商家，右侧详情会同步变化。</p>
+                </div>
+                <input id="wholesale-merchant-search" class="w-56 rounded-xl border border-outline-variant/20 bg-white px-4 py-2 text-sm" placeholder="搜索商家/联系人" type="text" />
+              </div>
+              <div id="wholesale-merchant-list" class="mt-5 space-y-3"></div>
+            </div>
+
+            <div class="rounded-[2rem] bg-white border border-outline-variant/10 p-6 shadow-sm">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-[0.24em] text-secondary">Merchant Detail</p>
+                  <h2 id="wholesale-merchant-title" class="mt-2 text-2xl font-extrabold text-primary">请选择本地商家</h2>
+                  <p id="wholesale-merchant-subtitle" class="mt-2 text-sm text-slate-500">右侧会显示商家档案、销售负责人和批发订单情况。</p>
+                </div>
+              </div>
+              <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">联系人</div>
+                  <div id="wholesale-merchant-contact" class="mt-2 text-lg font-bold text-primary">-</div>
+                </div>
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">联系电话</div>
+                  <div id="wholesale-merchant-phone" class="mt-2 text-lg font-bold text-primary">-</div>
+                </div>
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">所属销售</div>
+                  <div id="wholesale-merchant-sales" class="mt-2 text-lg font-bold text-primary">-</div>
+                </div>
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">商家类型</div>
+                  <div id="wholesale-merchant-type" class="mt-2 text-lg font-bold text-primary">-</div>
+                </div>
+              </div>
+              <div class="mt-4 rounded-2xl border border-outline-variant/10 px-5 py-4">
+                <div class="text-xs text-slate-500">地址</div>
+                <div id="wholesale-merchant-address" class="mt-2 text-sm font-semibold text-slate-700">-</div>
+              </div>
+              <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">批发订单数</div>
+                  <div id="wholesale-merchant-order-count" class="mt-2 text-2xl font-black text-primary">0</div>
+                </div>
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">累计批发额</div>
+                  <div id="wholesale-merchant-lifetime" class="mt-2 text-2xl font-black text-primary">VT 0</div>
+                </div>
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">待收金额</div>
+                  <div id="wholesale-merchant-pending" class="mt-2 text-2xl font-black text-secondary">VT 0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-[2rem] bg-white border border-outline-variant/10 p-6 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <h2 class="text-lg font-extrabold text-primary">快速下批发单</h2>
+                <p class="mt-1 text-sm text-slate-500">选择商家、销售和套餐后，直接按批发价下单。</p>
+              </div>
+            </div>
+            <form id="wholesale-order-form" class="mt-5 space-y-4">
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <label class="block">
+                  <span class="mb-2 block text-sm font-semibold text-slate-700">本地商家</span>
+                  <select id="wholesale-merchant-select" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm"></select>
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-sm font-semibold text-slate-700">所属销售</span>
+                  <select id="wholesale-sales-select" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm"></select>
+                </label>
+              </div>
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1.4fr)_220px]">
+                <label class="block">
+                  <span class="mb-2 block text-sm font-semibold text-slate-700">批发套装</span>
+                  <select id="wholesale-package-select" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm"></select>
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-sm font-semibold text-slate-700">数量</span>
+                  <input id="wholesale-quantity-input" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" min="1" step="1" type="number" value="1" />
+                </label>
+              </div>
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">批发单价</div>
+                  <div id="wholesale-unit-price" class="mt-2 text-2xl font-black text-primary">VT 0</div>
+                </div>
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">当前库存</div>
+                  <div id="wholesale-package-stock" class="mt-2 text-2xl font-black text-primary">0</div>
+                </div>
+                <div class="rounded-2xl bg-primary px-5 py-4 text-white">
+                  <div class="text-xs text-blue-200">订单总额</div>
+                  <div id="wholesale-total-price" class="mt-2 text-2xl font-black">VT 0</div>
+                </div>
+              </div>
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">备注</span>
+                <textarea id="wholesale-order-notes" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm min-h-[92px]" placeholder="例如：首批铺货、门店补货、月结 30 天"></textarea>
+              </label>
+              <button class="w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white" type="submit">提交批发订单</button>
+            </form>
+          </div>
+
+          <div class="rounded-[2rem] bg-white border border-outline-variant/10 p-6 shadow-sm">
+            <h2 class="text-lg font-extrabold text-primary">最近批发订单</h2>
+            <div class="mt-5 overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead class="text-left text-slate-500">
+                  <tr>
+                    <th class="py-3 pr-4">订单号</th>
+                    <th class="py-3 pr-4">商家</th>
+                    <th class="py-3 pr-4">套装</th>
+                    <th class="py-3 pr-4">销售</th>
+                    <th class="py-3 pr-4">订单金额</th>
+                    <th class="py-3 pr-4">已收 / 未收</th>
+                    <th class="py-3 pr-4">付款状态</th>
+                    <th class="py-3 pr-4">付款金额</th>
+                  </tr>
+                </thead>
+                <tbody id="wholesale-orders-table" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="wholesale-merchant-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/40 px-4 py-6">
+      <div class="w-full max-w-3xl rounded-[2rem] bg-white p-6 md:p-8 shadow-2xl">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-secondary">Wholesale CRM</p>
+            <h2 class="mt-2 text-2xl font-extrabold text-primary">新增本地商家</h2>
+          </div>
+          <button id="wholesale-merchant-modal-close" class="rounded-full bg-slate-100 p-2 text-slate-500">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <form id="wholesale-merchant-form" class="mt-6 space-y-5">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">商家名称</span>
+              <input id="merchant-name" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" required type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">联系人</span>
+              <input id="merchant-contact" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" required type="text" />
+            </label>
+          </div>
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">联系电话</span>
+              <input id="merchant-phone" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" required type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">邮箱</span>
+              <input id="merchant-email" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="email" />
+            </label>
+          </div>
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">城市 / 地点</span>
+              <input id="merchant-location" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" value="Port Vila" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">所属销售</span>
+              <select id="merchant-sales-select" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm"></select>
+            </label>
+          </div>
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">地址</span>
+            <textarea id="merchant-address" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm min-h-[92px]" required></textarea>
+          </label>
+          <button class="w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white" type="submit">保存本地商家</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="/shared-nav.js"></script>
+    <script src="/shared-header.js"></script>
+    <script src="/wholesale.js"></script>
+  </body>
+</html>

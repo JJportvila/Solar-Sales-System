@@ -1,0 +1,204 @@
+{
+  "monthlyTrend": [
+    {
+      "label": "10月",
+      "completed": 28,
+      "target": 32
+    },
+    {
+      "label": "11月",
+      "completed": 24,
+      "target": 30
+    },
+    {
+      "label": "12月",
+      "completed": 35,
+      "target": 36
+    },
+    {
+      "label": "1月",
+      "completed": 18,
+      "target": 26
+    },
+    {
+      "label": "2月",
+      "completed": 31,
+      "target": 34
+    },
+    {
+      "label": "3月",
+      "completed": 38,
+      "target": 40
+    }
+  ],
+  "items": [
+    {
+      "id": "emp-eng-001",
+      "employeeNo": "VSLM-ENG-20240901",
+      "name": "陈家成",
+      "role": "engineer",
+      "roleLabel": "工程师",
+      "branch": "Efate 服务中心",
+      "status": "active",
+      "statusLabel": "在岗",
+      "phone": "+678 555 0101",
+      "email": "chen.jiacheng@vslm.vu",
+      "hireDate": "2024-09-01",
+      "resignedAt": "",
+      "skills": [
+        "PV-Expert",
+        "并网安装",
+        "高空作业"
+      ],
+      "metrics": {
+        "primaryLabel": "完工率",
+        "primaryValue": "98%",
+        "secondaryLabel": "本月工单",
+        "secondaryValue": "42",
+        "ratingLabel": "客户评分",
+        "ratingValue": "4.9"
+      },
+      "payroll": {
+        "hourlyRate": 780,
+        "workHours": 184,
+        "baseSalary": 0,
+        "performanceSalary": 12000,
+        "commissionRate": 0
+      }
+    },
+    {
+      "id": "emp-sales-001",
+      "employeeNo": "VSLM-ID-20241105",
+      "name": "Lina Vatoko",
+      "role": "sales",
+      "roleLabel": "销售",
+      "branch": "Port Vila 销售中心",
+      "status": "active",
+      "statusLabel": "在岗",
+      "phone": "+678 553 1022",
+      "email": "lina@vslm.vu",
+      "hireDate": "2024-11-05",
+      "resignedAt": "",
+      "skills": [
+        "Sales-L3",
+        "CRM-Pro"
+      ],
+      "metrics": {
+        "primaryLabel": "回款率",
+        "primaryValue": "100%",
+        "secondaryLabel": "签约额",
+        "secondaryValue": "VT 240000",
+        "ratingLabel": "评分",
+        "ratingValue": "5.0"
+      },
+      "payroll": {
+        "hourlyRate": 850,
+        "workHours": 176,
+        "baseSalary": 0,
+        "performanceSalary": 0,
+        "commissionRate": 0.045
+      }
+    },
+    {
+      "id": "emp-sales-mgr-001",
+      "employeeNo": "VSLM-MGR-20240218",
+      "name": "Mele Tari",
+      "role": "sales_manager",
+      "roleLabel": "销售经理",
+      "branch": "Port Vila 总部",
+      "status": "active",
+      "statusLabel": "在岗",
+      "phone": "+678 555 0208",
+      "email": "mele.tari@vslm.vu",
+      "hireDate": "2024-02-18",
+      "resignedAt": "",
+      "skills": [
+        "区域管理",
+        "渠道策略",
+        "重点客户"
+      ],
+      "metrics": {
+        "primaryLabel": "团队达成",
+        "primaryValue": "94%",
+        "secondaryLabel": "团队签约",
+        "secondaryValue": "VT 58.4M",
+        "ratingLabel": "团队评分",
+        "ratingValue": "4.8"
+      },
+      "payroll": {
+        "hourlyRate": 0,
+        "workHours": 0,
+        "baseSalary": 185000,
+        "performanceSalary": 42000,
+        "commissionRate": 0.018
+      }
+    },
+    {
+      "id": "emp-admin-001",
+      "employeeNo": "VSLM-ADM-20230112",
+      "name": "Ruth Moli",
+      "role": "admin",
+      "roleLabel": "管理员",
+      "branch": "Port Vila 总部",
+      "status": "active",
+      "statusLabel": "在岗",
+      "phone": "+678 555 0180",
+      "email": "ruth.moli@vslm.vu",
+      "hireDate": "2023-01-12",
+      "resignedAt": "",
+      "skills": [
+        "系统权限",
+        "流程审批",
+        "报表管理"
+      ],
+      "metrics": {
+        "primaryLabel": "流程及时率",
+        "primaryValue": "97%",
+        "secondaryLabel": "本月审批",
+        "secondaryValue": "186",
+        "ratingLabel": "协作评分",
+        "ratingValue": "4.7"
+      },
+      "payroll": {
+        "hourlyRate": 0,
+        "workHours": 0,
+        "baseSalary": 165000,
+        "performanceSalary": 18000,
+        "commissionRate": 0
+      }
+    },
+    {
+      "id": "emp-sales-002",
+      "employeeNo": "VSLM-SAL-20240815",
+      "name": "Tom Bani",
+      "role": "sales",
+      "roleLabel": "销售",
+      "branch": "Tanna 销售点",
+      "status": "resigned",
+      "statusLabel": "离职",
+      "phone": "+678 555 0161",
+      "email": "tom.bani@vslm.vu",
+      "hireDate": "2024-08-15",
+      "resignedAt": "2026-03-30",
+      "skills": [
+        "门店销售",
+        "客户回访"
+      ],
+      "metrics": {
+        "primaryLabel": "成交率",
+        "primaryValue": "88%",
+        "secondaryLabel": "签约金额",
+        "secondaryValue": "VT 12.6M",
+        "ratingLabel": "客户评分",
+        "ratingValue": "4.5"
+      },
+      "payroll": {
+        "hourlyRate": 850,
+        "workHours": 176,
+        "baseSalary": 0,
+        "performanceSalary": 0,
+        "commissionRate": 0.03
+      }
+    }
+  ]
+}

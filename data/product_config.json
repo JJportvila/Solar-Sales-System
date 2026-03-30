@@ -1,0 +1,70 @@
+{
+  "vatRate": 15,
+  "packages": [
+    {
+      "id": "m-box-300",
+      "sku": "M-BOX300",
+      "name": "M-BOX300",
+      "status": "active",
+      "storageKwh": 0.6,
+      "panelCount": 1,
+      "panelWatts": 200,
+      "loadCapacityW": 300,
+      "inverterModel": "300W Inverter",
+      "stock": 18,
+      "costVt": 42000,
+      "retailVt": 55000,
+      "wholesaleVt": 49500,
+      "featured": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "m-box-1200",
+      "sku": "M-BOX1200",
+      "name": "M-BOX1200",
+      "status": "active",
+      "storageKwh": 1.2,
+      "panelCount": 1,
+      "panelWatts": 550,
+      "loadCapacityW": 1200,
+      "inverterModel": "1200W Inverter",
+      "stock": 16,
+      "costVt": 86000,
+      "retailVt": 110000,
+      "wholesaleVt": 99000,
+      "featured": true,
+      "sortOrder": 2
+    },
+    {
+      "id": "m-box-1500",
+      "sku": "M-BOX1500",
+      "name": "M-BOX1500",
+      "status": "active",
+      "storageKwh": 2.56,
+      "panelCount": 2,
+      "panelWatts": 550,
+      "loadCapacityW": 1500,
+      "inverterModel": "1.5kW Inverter",
+      "stock": 10,
+      "costVt": 152000,
+      "retailVt": 187000,
+      "wholesaleVt": 168300,
+      "featured": true,
+      "sortOrder": 3
+    }
+  ],
+  "discounts": [
+    {
+      "id": "discount-new-island",
+      "name": "New Island Launch",
+      "description": "All kits 5% off",
+      "active": false
+    },
+    {
+      "id": "discount-rainy-season",
+      "name": "Rainy Season Promo",
+      "description": "Fixed VT 15,000 discount",
+      "active": false
+    }
+  ]
+}

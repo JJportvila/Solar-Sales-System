@@ -1,0 +1,101 @@
+{
+  "id": "RE-20240912-042",
+  "title": "Inverter Array Fault",
+  "status": "in_progress",
+  "statusLabel": "Under Maintenance",
+  "priority": "P1",
+  "priorityLabel": "Urgent (P1)",
+  "etaLabel": "Today 17:30",
+  "description": "Customer reported that inverter group #03 disconnected automatically during peak sunlight hours. Initial inspection shows abnormal bus voltage, likely caused by a blown 100A DC fuse or carbonized contactor.",
+  "customer": {
+    "name": "Efate Plantation Ltd",
+    "phone": "+678 555 0198",
+    "email": "ops@efateplantation.vu",
+    "address": "Teouma Road, Efate"
+  },
+  "assignedEngineer": {
+    "id": "manual-1774844831878",
+    "name": "Zhang Wei",
+    "role": "Field Engineer"
+  },
+  "assetLocation": {
+    "name": "Solar Park A-03",
+    "address": "Solar Park A-03, Port Vila",
+    "coordinates": "17.7333° S, 168.3271° E",
+    "latitude": -17.7333,
+    "longitude": 168.3271
+  },
+  "technicianFeedback": "Cooling fan bearing on unit #03 also has abnormal noise. Recommend lubrication and follow-up check during this repair cycle to avoid overheating trips later.",
+  "notes": [],
+  "spareParts": [
+    {
+      "id": "repair-fuse-100a",
+      "name": "Inverter DC Fuse (100A)",
+      "sku": "SOL-FUSE-100A-DC",
+      "quantity": 2,
+      "unit": "pcs",
+      "status": "issued",
+      "statusLabel": "Issued"
+    },
+    {
+      "id": "repair-seal-v2",
+      "name": "Multi-purpose Connector Seal",
+      "sku": "SOL-SEAL-V2",
+      "quantity": 4,
+      "unit": "pcs",
+      "status": "pending",
+      "statusLabel": "Pending"
+    }
+  ],
+  "timeline": [
+    {
+      "id": "timeline-1774844831878",
+      "timeLabel": "3/30/2026, 3:27:11 PM",
+      "title": "Engineer reassigned",
+      "detail": "Assigned engineer: Zhang Wei",
+      "type": "current"
+    },
+    {
+      "id": "timeline-1774827270400",
+      "timeLabel": "3/30/2026, 10:34:30 AM",
+      "title": "Engineer reassigned",
+      "detail": "Assigned engineer: Zhang Wei",
+      "type": "done"
+    },
+    {
+      "id": "timeline-1774827252309",
+      "timeLabel": "3/30/2026, 10:34:12 AM",
+      "title": "Engineer reassigned",
+      "detail": "Assigned engineer: Jason Test",
+      "type": "done"
+    },
+    {
+      "id": "tl-1",
+      "timeLabel": "Today 14:15",
+      "title": "In Progress: Internal cleaning and component replacement",
+      "detail": "Technician: Zhang Wei (L3)",
+      "type": "done"
+    },
+    {
+      "id": "tl-2",
+      "timeLabel": "Today 13:45",
+      "title": "On-site diagnosis completed: confirmed blown fuse",
+      "detail": "Initial conclusion: transient voltage fluctuation",
+      "type": "done"
+    },
+    {
+      "id": "tl-3",
+      "timeLabel": "Today 11:20",
+      "title": "Work order assigned",
+      "detail": "Dispatcher: system auto assignment",
+      "type": "done"
+    },
+    {
+      "id": "tl-4",
+      "timeLabel": "Yesterday 23:05",
+      "title": "Customer submitted repair request",
+      "detail": "Submitted via app",
+      "type": "start"
+    }
+  ]
+}

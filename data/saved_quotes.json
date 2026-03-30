@@ -1,0 +1,587 @@
+[
+  {
+    "id": "1774782164302",
+    "customerName": "???",
+    "location": "Port Vila",
+    "packageName": "VSLM START FLEX",
+    "total": 669300,
+    "dailyWh": 3960,
+    "createdAt": "2026-03-29T11:02:44.302Z",
+    "payload": {
+      "recommendation": {
+        "packageName": "VSLM START FLEX"
+      },
+      "metrics": {
+        "dailyWh": 3960
+      },
+      "location": "Port Vila",
+      "customerName": "???",
+      "quote": {
+        "total": 669300
+      }
+    }
+  },
+  {
+    "id": "1774782605426",
+    "customer": {
+      "name": "Jason",
+      "phone": "123456",
+      "email": "a@b.com",
+      "address": "Port Vila"
+    },
+    "location": "Port Vila",
+    "packageName": "VSLM HOME PRO",
+    "total": 945300,
+    "dailyWh": 3600,
+    "createdAt": "2026-03-29T11:10:05.426Z",
+    "payload": {
+      "metrics": {
+        "dailyWh": 3600
+      },
+      "recommendation": {
+        "packageName": "VSLM HOME PRO"
+      },
+      "customer": {
+        "email": "a@b.com",
+        "name": "Jason",
+        "phone": "123456",
+        "address": "Port Vila"
+      },
+      "location": "Port Vila",
+      "quote": {
+        "total": 945300
+      }
+    }
+  },
+  {
+    "id": "1774783893307",
+    "customer": {
+      "name": "Jason",
+      "phone": "123",
+      "email": "a@b.com",
+      "address": "Port Vila"
+    },
+    "location": "Port Vila",
+    "packageName": "VSLM HOME PRO",
+    "total": 936750,
+    "dailyWh": 6400,
+    "createdAt": "2026-03-29T11:31:33.307Z",
+    "payload": {
+      "metrics": {
+        "dailyWh": 6400
+      },
+      "recommendation": {
+        "packageName": "VSLM HOME PRO"
+      },
+      "customer": {
+        "email": "a@b.com",
+        "name": "Jason",
+        "phone": "123",
+        "address": "Port Vila"
+      },
+      "location": "Port Vila",
+      "quote": {
+        "displayTotal": 936750
+      }
+    },
+    "status": "draft"
+  },
+  {
+    "id": "1774788336214",
+    "customer": {
+      "name": "林金坡",
+      "phone": "",
+      "email": "uoyo520@gmail.com",
+      "address": "宝安区西乡航空路30号同安物流园A121（Jason）"
+    },
+    "location": "Port Vila",
+    "packageName": "VSLM HOME PRO",
+    "total": 945300,
+    "dailyWh": 5160,
+    "status": "draft",
+    "createdAt": "2026-03-29T12:45:36.214Z",
+    "payload": {
+      "customer": {
+        "name": "林金坡",
+        "phone": "",
+        "email": "uoyo520@gmail.com",
+        "address": "宝安区西乡航空路30号同安物流园A121（Jason）"
+      },
+      "location": "Port Vila",
+      "devices": [
+        {
+          "id": 1,
+          "name": "LED灯泡",
+          "power": 10,
+          "hours": 6,
+          "quantity": 4,
+          "dailyWh": 240
+        },
+        {
+          "id": 2,
+          "name": "冰箱",
+          "power": 150,
+          "hours": 24,
+          "quantity": 1,
+          "dailyWh": 3600
+        },
+        {
+          "id": 3,
+          "name": "风扇",
+          "power": 45,
+          "hours": 8,
+          "quantity": 2,
+          "dailyWh": 720
+        },
+        {
+          "id": 4,
+          "name": "电视",
+          "power": 120,
+          "hours": 5,
+          "quantity": 1,
+          "dailyWh": 600
+        }
+      ],
+      "metrics": {
+        "dailyWh": 5160,
+        "dailyKwh": 5.16,
+        "peakPower": 400,
+        "autonomyDays": 2
+      },
+      "recommendation": {
+        "packageName": "VSLM HOME PRO",
+        "fitScore": 98,
+        "solarPanels": "4 x 450W Mono Solar Panels",
+        "battery": "10kWh LiFePO4 Battery Bank",
+        "inverter": "3kW Pure Sine Inverter",
+        "inverterKw": 3,
+        "loadCapacityW": 3000,
+        "energyTargetWh": 2500,
+        "estimatedPrice": 765000,
+        "compatible": true
+      },
+      "packages": [
+        {
+          "packageName": "VSLM START FLEX",
+          "fitScore": 98,
+          "solarPanels": "2 x 450W Mono Solar Panels",
+          "battery": "5kWh LiFePO4 Battery Bank",
+          "inverter": "3kW Pure Sine Inverter",
+          "inverterKw": 3,
+          "loadCapacityW": 3000,
+          "energyTargetWh": 0,
+          "estimatedPrice": 525000,
+          "compatible": true
+        },
+        {
+          "packageName": "VSLM HOME PRO",
+          "fitScore": 98,
+          "solarPanels": "4 x 450W Mono Solar Panels",
+          "battery": "10kWh LiFePO4 Battery Bank",
+          "inverter": "3kW Pure Sine Inverter",
+          "inverterKw": 3,
+          "loadCapacityW": 3000,
+          "energyTargetWh": 2500,
+          "estimatedPrice": 765000,
+          "compatible": true
+        },
+        {
+          "packageName": "VSLM MBOX ULTRA",
+          "fitScore": 98,
+          "solarPanels": "6 x 450W Mono Solar Panels",
+          "battery": "15kWh LiFePO4 Battery Bank",
+          "inverter": "5kW Pure Sine Inverter",
+          "inverterKw": 5,
+          "loadCapacityW": 5000,
+          "energyTargetWh": 5000,
+          "estimatedPrice": 1080000,
+          "compatible": true
+        },
+        {
+          "packageName": "VSLM GRID MAX",
+          "fitScore": 72,
+          "solarPanels": "10 x 450W Mono Solar Panels",
+          "battery": "20kWh LiFePO4 Battery Bank",
+          "inverter": "8kW Pure Sine Inverter",
+          "inverterKw": 8,
+          "loadCapacityW": 8000,
+          "energyTargetWh": 9000,
+          "estimatedPrice": 1580000,
+          "compatible": false
+        }
+      ],
+      "quote": {
+        "equipmentPrice": 765000,
+        "installFee": 45000,
+        "logisticsFee": 12000,
+        "subtotalExclTax": 822000,
+        "vat": 123300,
+        "totalInclTax": 945300,
+        "displayMode": "tax_inclusive",
+        "displayTotal": 945300,
+        "currency": "VUV"
+      },
+      "settings": {
+        "audToVuv": 80,
+        "nzdToVuv": 72,
+        "quoteDisplayMode": "tax_inclusive",
+        "homepage": "dashboard"
+      },
+      "qrPayload": "https://smart-sizing.local/quote?customer=%E6%9E%97%E9%87%91%E5%9D%A1&package=VSLM%20HOME%20PRO&total=945300"
+    }
+  },
+  {
+    "id": "1774832891813",
+    "customer": {
+      "name": "Installment Demo",
+      "phone": "77001122",
+      "email": "demo@example.com",
+      "address": "Port Vila"
+    },
+    "location": "Port Vila",
+    "salesPersonId": "emp-sales-001",
+    "salesPersonName": "Lina Vatoko",
+    "salesPersonRole": "Sales-1",
+    "packageName": "M-BOX1200",
+    "total": 110000,
+    "dailyWh": 3600,
+    "installmentPlan": {
+      "enabled": true,
+      "termWeeks": 12,
+      "totalAmount": 110000,
+      "downPayment": 33000,
+      "financedAmount": 77000,
+      "weeklyAmount": 6417,
+      "cycleLabel": "Weekly / 12 weeks",
+      "nextDueLabel": "Next week",
+      "startDate": "2026-03-30"
+    },
+    "status": "draft",
+    "createdAt": "2026-03-30T01:08:11.813Z",
+    "payload": {
+      "quote": {
+        "displayTotal": 110000
+      },
+      "recommendation": {
+        "packageName": "M-BOX1200"
+      },
+      "installmentPlan": {
+        "startDate": "2026-03-30",
+        "weeklyAmount": 6417,
+        "cycleLabel": "Weekly / 12 weeks",
+        "termWeeks": 12,
+        "financedAmount": 77000,
+        "downPayment": 33000,
+        "enabled": true,
+        "nextDueLabel": "Next week"
+      },
+      "salesPersonId": "emp-sales-001",
+      "customer": {
+        "email": "demo@example.com",
+        "name": "Installment Demo",
+        "phone": "77001122",
+        "address": "Port Vila"
+      },
+      "salesPersonName": "Lina Vatoko",
+      "location": "Port Vila",
+      "metrics": {
+        "dailyWh": 3600
+      },
+      "salesPerson": {
+        "roleLabel": "Sales-1",
+        "name": "Lina Vatoko",
+        "id": "emp-sales-001"
+      },
+      "salesPersonRole": "Sales-1"
+    }
+  },
+  {
+    "id": "1774850670188",
+    "customer": {
+      "name": "黄俊新",
+      "phone": "8885522",
+      "email": "uoyo520@gmail.com",
+      "address": "宝安区西乡航空路30号同安物流园A121（Jason）"
+    },
+    "location": "Port Vila",
+    "salesPersonId": "emp-sales-001",
+    "salesPersonName": "Lina Vatoko",
+    "salesPersonRole": "销售",
+    "packageName": "M-BOX300",
+    "total": 55000,
+    "dailyWh": 1560,
+    "installmentPlan": {
+      "enabled": true,
+      "termWeeks": 6,
+      "termCount": 6,
+      "totalAmount": 55000,
+      "downPayment": 20000,
+      "financedAmount": 35000,
+      "weeklyAmount": 6000,
+      "installments": [
+        {
+          "index": 1,
+          "label": "第1期",
+          "amount": 6000
+        },
+        {
+          "index": 2,
+          "label": "第2期",
+          "amount": 6000
+        },
+        {
+          "index": 3,
+          "label": "第3期",
+          "amount": 6000
+        },
+        {
+          "index": 4,
+          "label": "第4期",
+          "amount": 6000
+        },
+        {
+          "index": 5,
+          "label": "第5期",
+          "amount": 6000
+        },
+        {
+          "index": 6,
+          "label": "第6期",
+          "amount": 5000
+        }
+      ],
+      "cycleLabel": "1星期一期 / 共6期",
+      "nextDueLabel": "1周后",
+      "startDate": "2026-03-30"
+    },
+    "status": "draft",
+    "createdAt": "2026-03-30T06:04:30.188Z",
+    "payload": {
+      "customer": {
+        "name": "黄俊新",
+        "phone": "8885522",
+        "email": "uoyo520@gmail.com",
+        "address": "宝安区西乡航空路30号同安物流园A121（Jason）"
+      },
+      "location": "Port Vila",
+      "devices": [
+        {
+          "id": 1,
+          "name": "LED灯泡",
+          "power": 10,
+          "hours": 6,
+          "quantity": 4,
+          "dailyWh": 240
+        },
+        {
+          "id": 2,
+          "name": "风扇",
+          "power": 45,
+          "hours": 8,
+          "quantity": 2,
+          "dailyWh": 720
+        },
+        {
+          "id": 3,
+          "name": "电视",
+          "power": 120,
+          "hours": 5,
+          "quantity": 1,
+          "dailyWh": 600
+        }
+      ],
+      "metrics": {
+        "dailyWh": 1560,
+        "dailyKwh": 1.56,
+        "peakPower": 250,
+        "autonomyDays": 3
+      },
+      "recommendation": {
+        "packageId": "m-box-300",
+        "packageName": "M-BOX300",
+        "sku": "M-BOX300",
+        "fitScore": 98,
+        "solarPanels": "1 x 200W Mono Solar Panels",
+        "battery": "0.6kWh LiFePO4 Battery Bank",
+        "inverter": "300W Inverter",
+        "loadCapacityW": 300,
+        "energyTargetWh": 540,
+        "estimatedPrice": 55000,
+        "compatible": true,
+        "stock": 18,
+        "status": "active"
+      },
+      "packages": [
+        {
+          "packageId": "m-box-300",
+          "packageName": "M-BOX300",
+          "sku": "M-BOX300",
+          "fitScore": 98,
+          "solarPanels": "1 x 200W Mono Solar Panels",
+          "battery": "0.6kWh LiFePO4 Battery Bank",
+          "inverter": "300W Inverter",
+          "loadCapacityW": 300,
+          "energyTargetWh": 540,
+          "estimatedPrice": 55000,
+          "compatible": true,
+          "stock": 18,
+          "status": "active"
+        },
+        {
+          "packageId": "m-box-1200",
+          "packageName": "M-BOX1200",
+          "sku": "M-BOX1200",
+          "fitScore": 98,
+          "solarPanels": "1 x 550W Mono Solar Panels",
+          "battery": "1.2kWh LiFePO4 Battery Bank",
+          "inverter": "1200W Inverter",
+          "loadCapacityW": 1200,
+          "energyTargetWh": 1080,
+          "estimatedPrice": 110000,
+          "compatible": true,
+          "stock": 16,
+          "status": "active"
+        },
+        {
+          "packageId": "m-box-1500",
+          "packageName": "M-BOX1500",
+          "sku": "M-BOX1500",
+          "fitScore": 92,
+          "solarPanels": "2 x 550W Mono Solar Panels",
+          "battery": "2.56kWh LiFePO4 Battery Bank",
+          "inverter": "1.5kW Inverter",
+          "loadCapacityW": 1500,
+          "energyTargetWh": 2304,
+          "estimatedPrice": 187000,
+          "compatible": false,
+          "stock": 10,
+          "status": "active"
+        }
+      ],
+      "quote": {
+        "equipmentPrice": 55000,
+        "installFee": 0,
+        "logisticsFee": 0,
+        "subtotalExclTax": 55000,
+        "vatRate": 0,
+        "vat": 0,
+        "totalInclTax": 55000,
+        "displayMode": "tax_inclusive",
+        "displayTotal": 55000,
+        "currency": "VUV",
+        "total": 55000
+      },
+      "settings": {
+        "audToVuv": 80,
+        "nzdToVuv": 72,
+        "quoteDisplayMode": "tax_inclusive",
+        "homepage": "dashboard",
+        "backup": {
+          "autoDaily": true,
+          "autoWeekly": true,
+          "googleDriveEnabled": true,
+          "googleDriveFolderId": "1E2UzfgJ4GJowOpHYI1l009vkLp8eb9jj",
+          "googleDriveAccessToken": "",
+          "lastDailyBackupAt": "2026-03-30T03:16:37.364Z",
+          "lastWeeklyBackupAt": "2026-03-30T03:16:37.364Z"
+        },
+        "vatRate": 15
+      },
+      "qrPayload": "https://smart-sizing.local/quote?customer=%E9%BB%84%E4%BF%8A%E6%96%B0&package=M-BOX300&total=111550",
+      "installmentPlan": {
+        "enabled": true,
+        "termWeeks": 6,
+        "termCount": 6,
+        "downPayment": 20000,
+        "financedAmount": 35000,
+        "weeklyAmount": 6000,
+        "installments": [
+          {
+            "index": 1,
+            "label": "第1期",
+            "amount": 6000,
+            "dueDate": "2026-04-05"
+          },
+          {
+            "index": 2,
+            "label": "第2期",
+            "amount": 6000,
+            "dueDate": "2026-04-12"
+          },
+          {
+            "index": 3,
+            "label": "第3期",
+            "amount": 6000,
+            "dueDate": "2026-04-19"
+          },
+          {
+            "index": 4,
+            "label": "第4期",
+            "amount": 6000,
+            "dueDate": "2026-04-26"
+          },
+          {
+            "index": 5,
+            "label": "第5期",
+            "amount": 6000,
+            "dueDate": "2026-05-03"
+          },
+          {
+            "index": 6,
+            "label": "第6期",
+            "amount": 5000,
+            "dueDate": "2026-05-10"
+          }
+        ],
+        "cycleLabel": "1星期一期 / 共6期",
+        "nextDueLabel": "1周后",
+        "depositDate": "2026-03-30"
+      },
+      "salesPerson": {
+        "id": "emp-sales-001",
+        "employeeNo": "VSLM-SAL-20241105",
+        "name": "Lina Vatoko",
+        "role": "sales",
+        "roleLabel": "销售",
+        "branch": "Santo 销售点",
+        "status": "active",
+        "statusLabel": "在岗",
+        "phone": "+678 555 0148",
+        "email": "lina.vatoko@vslm.vu",
+        "hireDate": "2024-11-05",
+        "resignedAt": "",
+        "skills": [
+          "Sales-L3",
+          "CRM-Pro",
+          "报价顾问"
+        ],
+        "metrics": {
+          "primaryLabel": "成交率",
+          "primaryValue": "100%",
+          "secondaryLabel": "签约金额",
+          "secondaryValue": "VT 24.0M",
+          "ratingLabel": "客户评分",
+          "ratingValue": "5.0"
+        },
+        "payroll": {
+          "hourlyRate": 850,
+          "workHours": 176,
+          "baseSalary": 0,
+          "performanceSalary": 0
+        },
+        "payrollSummary": {
+          "hourlyRate": 850,
+          "workHours": 176,
+          "workSalary": 149600,
+          "baseSalary": 0,
+          "performanceSalary": 0,
+          "commission": 3300,
+          "total": 152900
+        }
+      },
+      "salesPersonId": "emp-sales-001",
+      "salesPersonName": "Lina Vatoko",
+      "salesPersonRole": "销售"
+    }
+  }
+]

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>发票管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              secondary: "#7f5700",
+              "secondary-container": "#feb316",
+              background: "#f8f9fa",
+              primary: "#001d44",
+              "primary-container": "#00326b",
+              "surface-container-low": "#f3f4f5",
+              "surface-container-high": "#e7e8e9",
+              outline: "#737780",
+              "outline-variant": "#c3c6d1"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+      @page { size: A4; margin: 8mm; }
+      @media print {
+        html, body {
+          background: #ffffff !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 210mm;
+          min-height: auto !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+        body > *:not(#printable-invoice) { display: none !important; }
+        #printable-invoice {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #ffffff !important;
+          box-shadow: none !important;
+          page-break-after: avoid !important;
+          break-after: avoid-page !important;
+        }
+        #printable-invoice * {
+          visibility: visible !important;
+          box-shadow: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-background text-slate-900 flex" data-nav="invoices">
+    <aside id="app-sidebar" class="hidden md:flex fixed left-0 top-0 z-40 h-screen w-64 flex-col bg-slate-50 py-6 shadow-[4px_0_24px_rgba(0,0,0,0.02)]"></aside>
+    <main class="flex-1 md:ml-64">
+      <div class="mx-auto w-full max-w-[1520px] px-6 py-8 lg:px-8 xl:px-10">
+        <div class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div class="flex flex-col gap-3">
+            <span class="mb-2 block text-xs font-bold uppercase tracking-widest text-secondary">发票中心</span>
+            <h1 class="text-3xl font-extrabold text-primary">发票管理</h1>
+            <p class="mt-3 text-sm text-slate-600">统一查看、修改、预览和打印已生成发票。</p>
+            <div class="flex flex-wrap gap-2">
+              <button id="invoice-doc-type-invoice" class="invoice-doc-type-button rounded-full bg-primary px-4 py-2 text-xs font-bold text-white" data-doc-type="invoice" type="button">发票</button>
+              <button id="invoice-doc-type-quotation" class="invoice-doc-type-button rounded-full bg-slate-100 px-4 py-2 text-xs font-bold text-primary" data-doc-type="quotation" type="button">报价单</button>
+              <button id="invoice-doc-type-inquiry" class="invoice-doc-type-button rounded-full bg-slate-100 px-4 py-2 text-xs font-bold text-primary" data-doc-type="inquiry" type="button">询价单</button>
+            </div>
+          </div>
+          <div class="w-full max-w-md rounded-[1.5rem] border border-outline-variant/15 bg-white p-4 shadow-sm">
+            <label class="text-xs font-bold uppercase tracking-widest text-outline">搜索发票 / 客户 / 套装</label>
+            <input id="invoice-search" class="mt-3 w-full rounded-xl border-none bg-surface-container-low px-4 py-3 text-sm font-semibold text-primary focus:ring-0" placeholder="输入关键字" type="search" />
+          </div>
+        </div>
+
+        <div class="mb-8 grid gap-6 md:grid-cols-3">
+          <button id="invoice-kpi-total" class="rounded-[1.75rem] bg-primary p-6 text-left text-white shadow-xl">
+            <div class="text-xs font-bold uppercase tracking-widest text-white/60">发票总数</div>
+            <div id="invoice-count" class="mt-4 text-4xl font-black">0</div>
+            <div class="mt-3 text-sm text-white/70">点击查看全部发票</div>
+          </button>
+          <button id="invoice-kpi-amount" class="rounded-[1.75rem] border border-outline-variant/15 bg-white p-6 text-left shadow-sm">
+            <div class="text-xs font-bold uppercase tracking-widest text-outline">发票总额</div>
+            <div id="invoice-total-amount" class="mt-4 text-4xl font-black text-primary">VT 0</div>
+            <div class="mt-3 text-sm text-slate-500">点击查看金额明细</div>
+          </button>
+          <button id="invoice-kpi-issued" class="rounded-[1.75rem] border border-outline-variant/15 bg-white p-6 text-left shadow-sm">
+            <div class="text-xs font-bold uppercase tracking-widest text-outline">已开票数量</div>
+            <div id="invoice-issued-count" class="mt-4 text-4xl font-black text-primary">0</div>
+            <div class="mt-3 text-sm text-slate-500">点击查看已开票记录</div>
+          </button>
+        </div>
+
+        <div class="rounded-[2rem] border border-outline-variant/15 bg-white p-6 shadow-sm">
+          <div class="mb-5 flex items-center justify-between gap-4">
+            <h2 class="text-xl font-extrabold text-primary">INVOICE 列表</h2>
+            <a class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white" href="/index.html#calculator">前往销售报价</a>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 text-left text-xs uppercase tracking-widest text-slate-500">
+                  <th class="px-4 py-3">发票编号</th>
+                  <th class="px-4 py-3">客户</th>
+                  <th class="px-4 py-3">套装</th>
+                  <th class="px-4 py-3">销售</th>
+                  <th class="px-4 py-3">金额</th>
+                  <th class="px-4 py-3">开票日期</th>
+                  <th class="px-4 py-3">状态</th>
+                  <th class="px-4 py-3 text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="invoice-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="invoice-preview-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+      <div class="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+        <div class="flex flex-col gap-4 border-b border-slate-200 px-6 py-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h3 class="text-xl font-extrabold text-primary">INVOICE 预览</h3>
+            <p class="mt-1 text-sm text-slate-500">可直接打印或导出 PDF</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="invoice-print-button" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white">打印</button>
+            <button id="invoice-preview-close" class="rounded-full bg-slate-200 px-4 py-2 text-sm font-bold text-primary">关闭</button>
+          </div>
+        </div>
+        <div id="invoice-preview-content" class="max-h-[75vh] overflow-y-auto bg-slate-100 p-6"></div>
+      </div>
+    </div>
+
+    <div id="invoice-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+      <div class="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-primary">发票详情</h3>
+            <p class="mt-1 text-sm text-slate-500">点击统计卡片可查看不同范围的发票数据</p>
+          </div>
+          <button id="invoice-detail-close" class="rounded-full bg-slate-200 px-4 py-2 text-sm font-bold text-primary">关闭</button>
+        </div>
+        <div id="invoice-detail-content" class="max-h-[75vh] overflow-y-auto p-6"></div>
+      </div>
+    </div>
+
+    <div id="invoice-edit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+      <div class="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-primary">修改发票</h3>
+            <p class="mt-1 text-sm text-slate-500">可直接修改发票基础资料、金额、状态和客户信息</p>
+          </div>
+          <button id="invoice-edit-close" class="rounded-full bg-slate-200 px-4 py-2 text-sm font-bold text-primary">关闭</button>
+        </div>
+        <form id="invoice-edit-form" class="max-h-[78vh] overflow-y-auto p-6">
+          <div class="grid gap-4 md:grid-cols-2">
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">发票编号</span>
+              <input id="invoice-edit-no" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">状态</span>
+              <select id="invoice-edit-status" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm">
+                <option value="draft">草稿</option>
+                <option value="issued">已开票</option>
+                <option value="paid">已付款</option>
+                <option value="cancelled">已取消</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">客户姓名</span>
+              <input id="invoice-edit-customer-name" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">客户电话</span>
+              <input id="invoice-edit-customer-phone" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">客户邮箱</span>
+              <input id="invoice-edit-customer-email" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">销售</span>
+              <input id="invoice-edit-sales-person" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+            </label>
+            <label class="block md:col-span-2">
+              <span class="mb-2 block text-sm font-bold text-primary">客户地址</span>
+              <input id="invoice-edit-customer-address" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">套装名称</span>
+              <input id="invoice-edit-package-name" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">发票金额</span>
+              <input id="invoice-edit-amount" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" min="0" step="1" type="number" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">开票日期</span>
+              <input id="invoice-edit-issued-at" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" type="date" />
+            </label>
+            <label class="block md:col-span-2">
+              <span class="mb-2 block text-sm font-bold text-primary">备注</span>
+              <textarea id="invoice-edit-note" class="min-h-[100px] w-full rounded-xl border border-slate-200 px-4 py-3 text-sm"></textarea>
+            </label>
+          </div>
+          <div class="mt-6 flex justify-end gap-3">
+            <button id="invoice-edit-cancel" class="rounded-full bg-slate-200 px-5 py-3 text-sm font-bold text-primary" type="button">取消</button>
+            <button class="rounded-full bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">保存修改</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="printable-invoice" class="hidden"></div>
+
+    <script src="/shared-nav.js"></script>
+    <script src="/invoices.js?v=20260330-edit"></script>
+  </body>
+</html>

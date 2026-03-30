@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title data-i18n="productConfig.metaTitle">光伏管理系统 产品与定价设置</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              secondary: "#7f5700",
+              "secondary-container": "#feb316",
+              background: "#f8f9fa",
+              primary: "#001d44",
+              "primary-container": "#00326b",
+              "surface-container-low": "#f3f4f5",
+              "surface-container-high": "#e7e8e9",
+              outline: "#737780",
+              "outline-variant": "#c3c6d1",
+              error: "#ba1a1a",
+              success: "#047857"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+    </style>
+  </head>
+  <body class="bg-background text-slate-900 min-h-screen flex" data-nav="product-config" data-header-key="productConfig.headerTitle">
+    <aside id="app-sidebar" class="hidden md:flex flex-col h-screen w-64 bg-slate-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed left-0 top-0 z-40 py-6"></aside>
+    <header id="app-header" class="fixed top-0 w-full md:w-[calc(100%-16rem)] z-30 bg-white/80 backdrop-blur-md flex justify-between items-center px-6 h-16 shadow-sm border-b border-slate-100/10"></header>
+
+    <main class="flex-1 md:ml-64 pb-16">
+      <div class="mt-16 w-full max-w-[1520px] mx-auto px-6 lg:px-8 xl:px-10 py-6 lg:py-8 space-y-8">
+        <section class="flex flex-col md:flex-row md:items-start justify-between gap-6">
+          <div class="max-w-3xl">
+            <span class="text-secondary font-bold text-xs tracking-widest uppercase mb-2 block" data-i18n="productConfig.badge">Configuration Module</span>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-primary tracking-tight" data-i18n="productConfig.title">产品与定价设置</h1>
+            <p class="text-slate-600 mt-3 text-sm leading-relaxed" data-i18n="productConfig.description">管理标准套装、零售价、成本、库存和税率，前台计算报价会实时使用这里的数据。</p>
+          </div>
+          <div class="flex items-center gap-3 self-start">
+            <button id="save-package-button-top" class="rounded-2xl bg-primary px-4 py-4 text-white shadow-lg shadow-primary/20">
+              <span class="material-symbols-outlined">save</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.45fr)_420px] gap-8">
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xl font-bold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined">inventory</span>
+                <span data-i18n="productConfig.listTitle">标准套装列表</span>
+              </h3>
+              <button id="new-package-button" class="inline-flex items-center gap-2 rounded-full bg-secondary-container px-4 py-2 text-sm font-bold text-primary">
+                <span class="material-symbols-outlined text-base">add</span>
+                <span data-i18n="productConfig.newPackage">新增套装</span>
+              </button>
+            </div>
+            <div id="product-package-list" class="space-y-4"></div>
+          </div>
+
+          <aside class="space-y-6">
+            <div class="rounded-[2rem] bg-white p-6 border border-outline-variant/15 shadow-sm">
+              <h3 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">settings_suggest</span>
+                <span id="editor-title" data-i18n="productConfig.editorTitle">套装参数编辑</span>
+              </h3>
+
+              <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldSku">SKU</label>
+                    <input id="pkg-sku" class="w-full rounded-xl border-none bg-surface-container-low h-12 px-4 text-sm" type="text" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldStatus">状态</label>
+                    <select id="pkg-status" class="w-full rounded-xl border-none bg-surface-container-low h-12 px-4 text-sm">
+                      <option value="active" data-i18n="productConfig.statusActive">启用</option>
+                      <option value="draft" data-i18n="productConfig.statusDraft">草稿</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldName">套装名称</label>
+                  <input id="pkg-name" class="w-full rounded-xl border-none bg-surface-container-low h-12 px-4 text-sm" type="text" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldStorage">储能容量 (kWh)</label>
+                    <input id="pkg-storage" class="w-full rounded-xl border-none bg-surface-container-low h-12 px-4 text-sm" min="0" step="0.1" type="number" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldLoadCapacity">负载功率 (W)</label>
+                    <input id="pkg-load-capacity" class="w-full rounded-xl border-none bg-surface-container-low h-12 px-4 text-sm" min="0" step="1" type="number" />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldPanelCount">光伏板数量</label>
+                    <input id="pkg-panel-count" class="w-full rounded-xl border-none bg-surface-container-low h-12 px-4 text-sm" min="0" step="1" type="number" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldPanelWatts">单板功率 (W)</label>
+                    <input id="pkg-panel-watts" class="w-full rounded-xl border-none bg-surface-container-low h-12 px-4 text-sm" min="0" step="1" type="number" />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldInverter">逆变器型号</label>
+                    <input id="pkg-inverter" class="w-full rounded-xl border-none bg-surface-container-low h-12 px-4 text-sm" type="text" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldStock">库存数量</label>
+                    <input id="pkg-stock" class="w-full rounded-xl border-none bg-surface-container-low h-12 px-4 text-sm" min="0" step="1" type="number" />
+                  </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 space-y-4">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldCost">成本价 (VT)</label>
+                      <input id="pkg-cost" class="w-full rounded-xl border-none bg-surface-container-low h-12 px-4 text-sm" min="0" step="1000" type="number" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold uppercase text-outline mb-2" data-i18n="productConfig.fieldRetail">建议零售价 (VT)</label>
+                      <input id="pkg-retail" class="w-full rounded-xl border-none bg-secondary/5 h-12 px-4 text-sm font-bold text-secondary" min="0" step="1000" type="number" />
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="rounded-2xl bg-surface-container-low p-4">
+                      <p class="text-[10px] uppercase text-outline font-bold" data-i18n="productConfig.margin">利润率</p>
+                      <p id="pkg-margin" class="mt-2 text-2xl font-black text-success">0%</p>
+                    </div>
+                    <div class="rounded-2xl bg-surface-container-low p-4">
+                      <p class="text-[10px] uppercase text-outline font-bold" data-i18n="productConfig.featured">首页推荐</p>
+                      <label class="mt-3 inline-flex items-center gap-3 text-sm font-bold text-primary">
+                        <input id="pkg-featured" class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" />
+                        <span data-i18n="productConfig.featuredHelp">标记为重点套装</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <button id="save-package-button" class="w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white" data-i18n="productConfig.applyChanges">应用更改</button>
+              </div>
+            </div>
+
+            <div class="rounded-[2rem] bg-primary text-white p-6 shadow-xl shadow-primary/20 relative overflow-hidden">
+              <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+              <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary-container">account_balance</span>
+                <span data-i18n="productConfig.vatTitle">税率配置 (VAT)</span>
+              </h3>
+              <div class="flex items-end gap-4">
+                <div class="flex-1">
+                  <p class="text-xs text-slate-300 mb-2" data-i18n="productConfig.vatHelp">计算页和报价单会同步使用这里的税率。</p>
+                  <div class="flex items-center gap-2">
+                    <input id="vat-rate-input" class="w-24 rounded-xl bg-white/10 border-none text-white text-center text-2xl font-black focus:ring-secondary-container" min="0" step="0.01" type="number" />
+                    <span class="text-2xl font-black text-secondary-container">%</span>
+                  </div>
+                </div>
+                <button id="save-vat-button" class="rounded-xl bg-secondary-container px-4 py-3 text-sm font-black text-primary" data-i18n="productConfig.updateVat">更新税率</button>
+              </div>
+            </div>
+
+            <div class="rounded-[2rem] bg-white p-6 border border-outline-variant/15 shadow-sm">
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-primary flex items-center gap-2">
+                  <span class="material-symbols-outlined">sell</span>
+                  <span data-i18n="productConfig.discountTitle">促销 / 折扣模板</span>
+                </h3>
+              </div>
+              <div id="discount-list" class="space-y-3"></div>
+              <div class="mt-5 space-y-3 border-t border-slate-100 pt-5">
+                <input id="discount-name" class="w-full rounded-xl border-none bg-surface-container-low h-11 px-4 text-sm" data-i18n-attr="placeholder:productConfig.discountName" placeholder="折扣名称" type="text" />
+                <input id="discount-description" class="w-full rounded-xl border-none bg-surface-container-low h-11 px-4 text-sm" data-i18n-attr="placeholder:productConfig.discountDescription" placeholder="折扣说明" type="text" />
+                <label class="inline-flex items-center gap-3 text-sm font-bold text-primary">
+                  <input id="discount-active" class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" />
+                  <span data-i18n="productConfig.discountActive">立即启用</span>
+                </label>
+                <button id="save-discount-button" class="w-full rounded-xl bg-primary py-3 text-sm font-bold text-white" data-i18n="productConfig.saveDiscount">保存折扣模板</button>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <div id="product-config-message" class="hidden rounded-2xl p-4 text-sm"></div>
+      </div>
+    </main>
+
+    <script src="/shared-nav.js"></script>
+    <script src="/shared-header.js"></script>
+    <script src="/product-config.js"></script>
+  </body>
+</html>

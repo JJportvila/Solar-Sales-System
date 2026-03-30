@@ -1,0 +1,9 @@
+{
+  "name": "smart_sizing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart sizing web demo with integrated frontend and backend",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

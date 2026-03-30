@@ -1,0 +1,371 @@
+{
+  "paymentQueue": [
+    {
+      "id": "ORD-88291",
+      "customer": "John T. Malvatumauri",
+      "amount": 45000,
+      "createdAt": "2026-03-24T14:20:00+11:00",
+      "status": "待审核",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    },
+    {
+      "id": "ORD-88304",
+      "customer": "Efate Solar Co-op",
+      "amount": 128500,
+      "createdAt": "2026-03-24T11:05:00+11:00",
+      "status": "已核销",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    },
+    {
+      "id": "ORD-88310",
+      "customer": "Samuel K. Rau",
+      "amount": 12000,
+      "createdAt": "2026-03-24T09:15:00+11:00",
+      "status": "已核销",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    }
+  ],
+  "installmentPlans": [
+    {
+      "id": "plan-home-a",
+      "name": "家庭能源套装 A",
+      "cycleLabel": "52 周计划",
+      "completedWeeks": 43,
+      "totalWeeks": 52,
+      "progress": 82.7,
+      "totalAmount": 240000,
+      "status": "履约中",
+      "paymentAmount": 6000,
+      "paymentDate": "2026-03-30",
+      "collectorName": "Mele Tari",
+      "paymentRecords": [
+        {
+          "id": "PAY-1774862797954",
+          "receiptNo": "RCPT-4862797954",
+          "amount": 6000,
+          "paidAt": "2026-03-30",
+          "collectorName": "Mele Tari",
+          "note": ""
+        },
+        {
+          "id": "PAY-1774855730152",
+          "receiptNo": "RCPT-4855730152",
+          "amount": 6000,
+          "paidAt": "2026-03-30",
+          "collectorName": "Mele Tari",
+          "note": "?6???"
+        }
+      ]
+    },
+    {
+      "id": "plan-villa-b",
+      "name": "村落微电网系统",
+      "cycleLabel": "26 周计划",
+      "completedWeeks": 24,
+      "totalWeeks": 26,
+      "progress": 92.3,
+      "totalAmount": 1200000,
+      "status": "即将结清",
+      "paymentAmount": 0,
+      "paymentDate": "",
+      "collectorName": "",
+      "paymentRecords": []
+    },
+    {
+      "id": "plan-cold-1",
+      "name": "便携式农用储能组",
+      "cycleLabel": "52 周计划",
+      "completedWeeks": 12,
+      "totalWeeks": 26,
+      "progress": 46.2,
+      "totalAmount": 55000,
+      "status": "逾期风险",
+      "paymentAmount": 0,
+      "paymentDate": "",
+      "collectorName": "",
+      "paymentRecords": []
+    },
+    {
+      "id": "plan-market-4",
+      "name": "商务型太阳能末端",
+      "cycleLabel": "52 周计划",
+      "completedWeeks": 15,
+      "totalWeeks": 52,
+      "progress": 28.8,
+      "totalAmount": 85000,
+      "status": "履约中",
+      "paymentAmount": 0,
+      "paymentDate": "",
+      "collectorName": "",
+      "paymentRecords": []
+    }
+  ],
+  "commissionPool": [
+    {
+      "id": "com-001",
+      "name": "Alick M.",
+      "role": "销售经理",
+      "type": "sales",
+      "amount": 120000,
+      "releaseRate": 98.2,
+      "releasedAmount": 117840,
+      "lockedAmount": 2160,
+      "releaseStatus": "申请释放"
+    },
+    {
+      "id": "com-002",
+      "name": "Jean S.",
+      "role": "销售",
+      "type": "sales",
+      "amount": 78000,
+      "releaseRate": 64.5,
+      "releasedAmount": 50310,
+      "lockedAmount": 27690,
+      "releaseStatus": "锁定中"
+    },
+    {
+      "id": "com-003",
+      "name": "Tom V.",
+      "role": "工程师",
+      "type": "engineer",
+      "amount": 24000,
+      "releaseRate": 100,
+      "releasedAmount": 24000,
+      "lockedAmount": 0,
+      "releaseStatus": "已释放"
+    }
+  ],
+  "transactionLogs": [
+    {
+      "id": "TRX-1774844886703",
+      "type": "支付审核更新",
+      "customer": "John T. Malvatumauri",
+      "amount": 45000,
+      "status": "待审核"
+    },
+    {
+      "id": "TRX-009212",
+      "type": "分期还款",
+      "customer": "Kasper Toara",
+      "amount": 8500,
+      "status": "已到账"
+    },
+    {
+      "id": "TRX-009211",
+      "type": "首付款",
+      "customer": "Luganville Solar Center",
+      "amount": 150000,
+      "status": "待核销"
+    },
+    {
+      "id": "TRX-009208",
+      "type": "佣金扣减",
+      "customer": "Sales Rep: Jean S.",
+      "amount": -4200,
+      "status": "坏账抵扣"
+    }
+  ],
+  "livingCosts": [
+    {
+      "id": "LIFE-001",
+      "name": "员工宿舍与餐补",
+      "amount": 185000,
+      "status": "已入账",
+      "note": "3 月员工生活补贴",
+      "category": "生活成本",
+      "period": "",
+      "customer": "",
+      "issuedAt": "2026-03-30T04:47:57.868Z",
+      "month": "",
+      "location": "",
+      "attachmentUrl": "/uploads/expense-livingCosts-1774846077860.png",
+      "attachmentName": "receipt-test.png",
+      "attachmentUploadedAt": "2026-03-30T04:47:57.868Z"
+    },
+    {
+      "id": "LIFE-002",
+      "name": "办公区水电网",
+      "amount": 92000,
+      "status": "待支付",
+      "note": "Port Vila 办公点",
+      "category": "生活成本",
+      "period": "",
+      "customer": "",
+      "issuedAt": "2026-03-30T04:47:57.868Z",
+      "month": "",
+      "location": "",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    },
+    {
+      "id": "LIFE-003",
+      "name": "员工通勤与船票",
+      "amount": 46000,
+      "status": "已入账",
+      "note": "外岛往返交通",
+      "category": "生活成本",
+      "period": "",
+      "customer": "",
+      "issuedAt": "2026-03-30T04:47:57.868Z",
+      "month": "",
+      "location": "",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    }
+  ],
+  "taxes": [
+    {
+      "id": "TAX-001",
+      "name": "VAT 申报",
+      "amount": 126000,
+      "status": "待申报",
+      "note": "",
+      "category": "",
+      "period": "2026-03",
+      "customer": "",
+      "issuedAt": "2026-03-30T04:47:57.868Z",
+      "month": "",
+      "location": "",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    },
+    {
+      "id": "TAX-002",
+      "name": "工资税",
+      "amount": 88000,
+      "status": "已申报",
+      "note": "",
+      "category": "",
+      "period": "2026-03",
+      "customer": "",
+      "issuedAt": "2026-03-30T04:47:57.868Z",
+      "month": "",
+      "location": "",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    },
+    {
+      "id": "TAX-003",
+      "name": "进口税费",
+      "amount": 143000,
+      "status": "处理中",
+      "note": "",
+      "category": "",
+      "period": "2026-03",
+      "customer": "",
+      "issuedAt": "2026-03-30T04:47:57.868Z",
+      "month": "",
+      "location": "",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    }
+  ],
+  "invoices": [
+    {
+      "id": "INV-3001",
+      "name": "INV-1",
+      "amount": 428500,
+      "status": "已开票",
+      "note": "",
+      "category": "",
+      "period": "",
+      "customer": "Emae Village Center",
+      "issuedAt": "2026-03-12T10:30:00+11:00",
+      "month": "",
+      "location": "",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    },
+    {
+      "id": "INV-3002",
+      "name": "INV-2",
+      "amount": 890000,
+      "status": "待开票",
+      "note": "",
+      "category": "",
+      "period": "",
+      "customer": "Tanna Heights Lodge",
+      "issuedAt": "2026-03-15T14:10:00+11:00",
+      "month": "",
+      "location": "",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    },
+    {
+      "id": "INV-3003",
+      "name": "INV-3",
+      "amount": 56000,
+      "status": "待开票",
+      "note": "",
+      "category": "",
+      "period": "",
+      "customer": "测试客户",
+      "issuedAt": "2026-03-30T15:30:00+11:00",
+      "month": "",
+      "location": "",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    }
+  ],
+  "rentLedger": [
+    {
+      "id": "RENT-001",
+      "location": "Port Vila 办公室",
+      "amount": 120000,
+      "status": "已支付",
+      "note": "",
+      "category": "",
+      "period": "",
+      "customer": "",
+      "issuedAt": "2026-03-30T04:47:57.868Z",
+      "month": "2026-03",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    },
+    {
+      "id": "RENT-002",
+      "location": "仓库与备件间",
+      "amount": 86000,
+      "status": "待支付",
+      "note": "",
+      "category": "",
+      "period": "",
+      "customer": "",
+      "issuedAt": "2026-03-30T04:47:57.868Z",
+      "month": "2026-03",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    },
+    {
+      "id": "RENT-003",
+      "location": "Santo 服务点",
+      "amount": 54000,
+      "status": "已支付",
+      "note": "",
+      "category": "",
+      "period": "",
+      "customer": "",
+      "issuedAt": "2026-03-30T04:47:57.868Z",
+      "month": "2026-03",
+      "attachmentUrl": "",
+      "attachmentName": "",
+      "attachmentUploadedAt": ""
+    }
+  ]
+}

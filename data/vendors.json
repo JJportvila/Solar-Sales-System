@@ -1,0 +1,259 @@
+{
+  "items": [
+    {
+      "id": "vendor-shenzhen-solar",
+      "name": "赛力斯光伏技术（深圳）",
+      "region": "中国港口供应商",
+      "locationTag": "深圳 / 盐田港",
+      "reliabilityScore": 98.5,
+      "category": "太阳能板",
+      "secondaryCategory": "成套系统",
+      "contactName": "陈建国",
+      "contactRole": "采购总监",
+      "pendingOrders": 4,
+      "inTransitOrders": 4,
+      "transitMode": "中国港口直达",
+      "isActive": true,
+      "leadTimeDays": 18,
+      "minOrderVt": 120000,
+      "supportedItems": [
+        "光伏板550W",
+        "光伏板590W",
+        "光伏板350W",
+        "光伏板200W",
+        "M-BOX300",
+        "M-BOX1200",
+        "M-BOX1500"
+      ]
+    },
+    {
+      "id": "vendor-ningbo-battery",
+      "name": "东极能源系统有限公司",
+      "region": "中国港口供应商",
+      "locationTag": "宁波 / 北仑港",
+      "reliabilityScore": 92,
+      "category": "逆变器与电池",
+      "secondaryCategory": "储能设备",
+      "contactName": "Li Na",
+      "contactRole": "海外商务",
+      "pendingOrders": 2,
+      "inTransitOrders": 2,
+      "transitMode": "中国港口直达",
+      "isActive": true,
+      "leadTimeDays": 22,
+      "minOrderVt": 180000,
+      "supportedItems": [
+        "LS6.2K",
+        "LS3.6K",
+        "DML8K",
+        "TL6K/10KWH",
+        "铅酸胶体电池12V/200Ah",
+        "M-BOX300",
+        "M-BOX1200",
+        "M-BOX1500"
+      ]
+    },
+    {
+      "id": "vendor-guangzhou-cable",
+      "name": "广州安联线缆配件",
+      "region": "中国港口供应商",
+      "locationTag": "广州 / 南沙港",
+      "reliabilityScore": 93.6,
+      "category": "PV线材",
+      "secondaryCategory": "连接器配件",
+      "contactName": "Zhou Ming",
+      "contactRole": "外贸主管",
+      "pendingOrders": 3,
+      "inTransitOrders": 2,
+      "transitMode": "中国港口直达",
+      "isActive": true,
+      "leadTimeDays": 16,
+      "minOrderVt": 90000,
+      "supportedItems": [
+        "PV黑线",
+        "PV红线",
+        "MC4接头/双",
+        "PV二合一转接线",
+        "PV三合一转接线",
+        "空开",
+        "空开盒",
+        "汇流箱四进一"
+      ]
+    },
+    {
+      "id": "vendor-pacific-green",
+      "name": "Pacific Green Logistics",
+      "region": "维拉港本地供应商",
+      "locationTag": "维拉港 / 本地",
+      "reliabilityScore": 96.8,
+      "category": "末端配送",
+      "secondaryCategory": "物流服务",
+      "contactName": "Samuel Kalo",
+      "contactRole": "本地协调",
+      "pendingOrders": 7,
+      "inTransitOrders": 0,
+      "transitMode": "本地网络",
+      "isActive": true,
+      "leadTimeDays": 3,
+      "minOrderVt": 30000,
+      "supportedItems": [
+        "末端配送服务",
+        "仓储转运",
+        "上门送货"
+      ]
+    },
+    {
+      "id": "vendor-vse-local",
+      "name": "维拉港太阳能工程（VSE）",
+      "region": "维拉港本地供应商",
+      "locationTag": "维拉港 / 本地",
+      "reliabilityScore": 94.8,
+      "category": "安装工程",
+      "secondaryCategory": "本地服务",
+      "contactName": "Tom V.",
+      "contactRole": "服务经理",
+      "pendingOrders": 8,
+      "inTransitOrders": 0,
+      "transitMode": "本地网络",
+      "isActive": true,
+      "leadTimeDays": 2,
+      "minOrderVt": 25000,
+      "supportedItems": [
+        "上门安装",
+        "现场支架施工",
+        "系统调试",
+        "屋顶支架",
+        "地面支架"
+      ]
+    },
+    {
+      "id": "vendor-shanghai-logistics",
+      "name": "上海联达海运",
+      "region": "中国港口供应商",
+      "locationTag": "上海 / 洋山港",
+      "reliabilityScore": 88.2,
+      "category": "海上运输",
+      "secondaryCategory": "清关物流",
+      "contactName": "Wang Jun",
+      "contactRole": "航运协调",
+      "pendingOrders": 3,
+      "inTransitOrders": 6,
+      "transitMode": "中国港口直达",
+      "isActive": true,
+      "leadTimeDays": 26,
+      "minOrderVt": 80000,
+      "supportedItems": [
+        "集装箱海运",
+        "拼柜运输",
+        "到港清关协调"
+      ]
+    }
+  ],
+  "orders": [
+    {
+      "id": "PO-20260330-2413",
+      "vendorId": "vendor-shenzhen-solar",
+      "vendorName": "赛力斯光伏技术（深圳）",
+      "currency": "CNY",
+      "totalAmount": 4860,
+      "status": "pending",
+      "statusLabel": "待审批",
+      "requestedBy": "????",
+      "createdAt": "2026-03-30T02:28:42.413Z",
+      "notes": "multi-line-check",
+      "lines": [
+        {
+          "id": "PO-20260330-2413-1",
+          "itemName": "M-BOX1200",
+          "quantity": 3,
+          "unit": "sets",
+          "unitPrice": 780,
+          "currency": "CNY",
+          "lineTotal": 2340
+        },
+        {
+          "id": "PO-20260330-2413-2",
+          "itemName": "M-BOX1500",
+          "quantity": 2,
+          "unit": "sets",
+          "unitPrice": 1260,
+          "currency": "CNY",
+          "lineTotal": 2520
+        }
+      ],
+      "itemSummary": "M-BOX1200 x3、M-BOX1500 x2"
+    },
+    {
+      "id": "PO-20260330-001",
+      "vendorId": "vendor-shenzhen-solar",
+      "vendorName": "赛力斯光伏技术（深圳）",
+      "currency": "CNY",
+      "totalAmount": 51600,
+      "status": "pending",
+      "statusLabel": "待审批",
+      "requestedBy": "采购中心",
+      "createdAt": "2026-03-30T14:20:00+11:00",
+      "notes": "补充四月安装批次",
+      "lines": [
+        {
+          "id": "PO-20260330-001-1",
+          "itemName": "光伏板550W",
+          "quantity": 120,
+          "unit": "pcs",
+          "unitPrice": 430,
+          "currency": "CNY",
+          "lineTotal": 51600
+        }
+      ],
+      "itemSummary": "光伏板550W x120"
+    },
+    {
+      "id": "PO-20260329-003",
+      "vendorId": "vendor-ningbo-battery",
+      "vendorName": "东极能源系统有限公司",
+      "currency": "USD",
+      "totalAmount": 3840,
+      "status": "in_transit",
+      "statusLabel": "海运在途",
+      "requestedBy": "仓储经理",
+      "createdAt": "2026-03-29T11:05:00+11:00",
+      "notes": "跟并柜批次一同到港",
+      "lines": [
+        {
+          "id": "PO-20260329-003-1",
+          "itemName": "铅酸胶体电池12V/200Ah",
+          "quantity": 24,
+          "unit": "pcs",
+          "unitPrice": 160,
+          "currency": "USD",
+          "lineTotal": 3840
+        }
+      ],
+      "itemSummary": "铅酸胶体电池12V/200Ah x24"
+    },
+    {
+      "id": "PO-20260328-006",
+      "vendorId": "vendor-pacific-green",
+      "vendorName": "Pacific Green Logistics",
+      "currency": "USD",
+      "totalAmount": 900,
+      "status": "approved",
+      "statusLabel": "已下单执行",
+      "requestedBy": "销售工作台",
+      "createdAt": "2026-03-28T09:40:00+11:00",
+      "notes": "覆盖本周 6 个客户点位",
+      "lines": [
+        {
+          "id": "PO-20260328-006-1",
+          "itemName": "末端配送服务",
+          "quantity": 6,
+          "unit": "jobs",
+          "unitPrice": 150,
+          "currency": "USD",
+          "lineTotal": 900
+        }
+      ],
+      "itemSummary": "末端配送服务 x6"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title data-i18n="onlineQuote.metaTitle">光伏管理系统 网上报价</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              secondary: "#8a6200",
+              "secondary-container": "#feb316",
+              primary: "#001d44",
+              background: "#f5f7fb",
+              "surface-container-low": "#eef2f7",
+              "outline-variant": "#c8d0dd"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+    </style>
+  </head>
+  <body class="bg-background text-slate-900 min-h-screen">
+    <header class="border-b border-slate-200 bg-primary text-white">
+      <div class="mx-auto flex w-full max-w-[1520px] items-center justify-between px-6 py-5 lg:px-10">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-[0.3em] text-secondary-container">VSLM</div>
+          <h1 class="mt-1 text-2xl font-extrabold" data-i18n="onlineQuote.title">网上报价</h1>
+        </div>
+        <a href="/dashboard.html" class="rounded-2xl bg-secondary-container px-5 py-3 text-sm font-bold text-primary" data-i18n="onlineQuote.backAdmin">返回后台</a>
+      </div>
+    </header>
+
+    <main class="mx-auto w-full max-w-[1520px] px-6 py-8 lg:px-10">
+      <section class="grid grid-cols-1 gap-8 xl:grid-cols-[0.72fr_1.28fr]">
+        <div class="rounded-[2rem] bg-white p-8 shadow-sm border border-outline-variant/20">
+          <p class="text-xs font-bold uppercase tracking-[0.3em] text-secondary" data-i18n="onlineQuote.badge">Instant Pricing</p>
+          <h2 class="mt-3 text-3xl font-extrabold text-primary" data-i18n="onlineQuote.formTitle">填写负载信息获取推荐报价</h2>
+          <p class="mt-3 text-sm text-slate-600" data-i18n="onlineQuote.formHelp">这是全屏独立页，不使用后台左侧菜单。填写客户和设备信息后，直接调用系统计算接口。</p>
+
+          <div class="mt-8 space-y-5">
+            <div>
+              <label class="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-primary" for="oq-name" data-i18n="onlineQuote.customerName">客户姓名</label>
+              <input id="oq-name" class="w-full rounded-2xl border border-outline-variant/25 bg-surface-container-low px-4 py-3.5 text-sm" type="text" />
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-primary" for="oq-phone" data-i18n="onlineQuote.customerPhone">电话</label>
+                <input id="oq-phone" class="w-full rounded-2xl border border-outline-variant/25 bg-surface-container-low px-4 py-3.5 text-sm" type="text" />
+              </div>
+              <div>
+                <label class="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-primary" for="oq-location" data-i18n="onlineQuote.location">地区</label>
+                <select id="oq-location" class="w-full rounded-2xl border border-outline-variant/25 bg-surface-container-low px-4 py-3.5 text-sm">
+                  <option value="Port Vila">Port Vila</option>
+                  <option value="Efate">Efate</option>
+                  <option value="Espiritu Santo">Espiritu Santo</option>
+                  <option value="Tanna">Tanna</option>
+                </select>
+              </div>
+            </div>
+            <div id="oq-devices" class="space-y-3"></div>
+            <div class="flex flex-wrap gap-3">
+              <button id="oq-add-device" class="rounded-2xl border border-outline-variant/25 bg-white px-5 py-3 text-sm font-bold text-primary" data-i18n="onlineQuote.addDevice">添加设备</button>
+              <button id="oq-calculate" class="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white" data-i18n="onlineQuote.calculate">立即报价</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-[2rem] bg-white p-8 shadow-sm border border-outline-variant/20">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-[0.3em] text-secondary" data-i18n="onlineQuote.resultBadge">Quote Result</p>
+              <h2 class="mt-2 text-3xl font-extrabold text-primary" data-i18n="onlineQuote.resultTitle">推荐套装与报价</h2>
+            </div>
+          </div>
+          <div id="oq-output" class="mt-6 rounded-[1.75rem] bg-surface-container-low p-6 text-sm text-slate-500" data-i18n="onlineQuote.empty">填写左侧信息后即可生成报价。</div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/online-quote.js"></script>
+  </body>
+</html>

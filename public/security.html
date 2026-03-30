@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>光伏管理系统 / 权限与访问控制</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              secondary: "#7f5700",
+              "secondary-container": "#feb316",
+              background: "#f8f9fa",
+              primary: "#001d44",
+              "surface-container-low": "#f3f4f5",
+              "outline-variant": "#c3c6d1",
+              error: "#ba1a1a",
+              tertiary: "#032f31"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+    </style>
+  </head>
+  <body class="bg-background text-slate-900 min-h-screen flex" data-nav="security" data-header-title="光伏管理系统 / 权限与访问控制">
+    <aside id="app-sidebar" class="hidden md:flex flex-col h-screen w-64 bg-slate-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed left-0 top-0 z-40 py-6"></aside>
+    <header id="app-header" class="fixed top-0 w-full md:w-[calc(100%-16rem)] z-30 bg-white/80 backdrop-blur-md flex justify-between items-center px-6 h-16 shadow-sm border-b border-slate-100/10"></header>
+
+    <main class="flex-1 md:ml-64 pb-16">
+      <div class="mt-16 w-full max-w-[1520px] mx-auto px-6 lg:px-8 xl:px-10 py-6 lg:py-8 space-y-8">
+        <section class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.28em] text-secondary">系统设置</p>
+            <h1 class="mt-3 text-3xl md:text-4xl font-extrabold text-primary tracking-tight">权限与访问控制</h1>
+            <p class="mt-3 max-w-3xl text-sm text-slate-600">集中管理员工角色、模块权限矩阵、IP 白名单与审计日志，支持员工授权与紧急封锁。</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="security-export-btn" class="rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary border border-outline-variant/20 flex items-center gap-2">
+              <span class="material-symbols-outlined">download</span>
+              <span>导出审计日志</span>
+            </button>
+            <button id="security-add-btn" class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white flex items-center gap-2 shadow-lg shadow-blue-900/10">
+              <span class="material-symbols-outlined">person_add</span>
+              <span>新增员工授权</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div class="lg:col-span-8 space-y-6">
+            <section class="rounded-[2rem] bg-white p-6 border border-outline-variant/10 shadow-sm">
+              <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+                <h2 class="text-xl font-bold text-primary flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary">group</span>
+                  <span>员工授权矩阵</span>
+                </h2>
+                <div class="flex flex-wrap gap-3">
+                  <select id="security-role-filter" class="rounded-xl bg-surface-container-low border-none px-4 py-2 text-sm font-bold text-primary">
+                    <option value="all">全部</option>
+                    <option value="admin">管理员</option>
+                    <option value="sales_manager">销售经理</option>
+                    <option value="sales">销售</option>
+                    <option value="engineer">工程师</option>
+                  </select>
+                  <input id="security-employee-search" class="rounded-xl bg-surface-container-low border-none px-4 py-2 text-sm font-bold text-primary" placeholder="搜索员工姓名 / 邮箱" type="text" />
+                </div>
+              </div>
+              <div id="security-employee-list" class="space-y-3"></div>
+            </section>
+
+            <section class="rounded-[2rem] bg-white p-6 border border-outline-variant/10 shadow-sm">
+              <h2 class="text-xl font-bold text-primary flex items-center gap-2 mb-6">
+                <span class="material-symbols-outlined text-secondary">grid_view</span>
+                <span>模块级访问控制矩阵</span>
+              </h2>
+              <div id="security-module-list" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+            </section>
+          </div>
+
+          <div class="lg:col-span-4 space-y-6">
+            <section class="rounded-[2rem] bg-primary p-6 text-white shadow-xl shadow-primary/20">
+              <h2 class="text-xl font-bold flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined text-secondary-container">location_on</span>
+                <span>IP 访问限制与地理围栏</span>
+              </h2>
+              <p class="text-sm text-white/75 mb-5">确保核心业务操作仅能在授权网络或办事点内进行。</p>
+              <div id="security-ip-list" class="space-y-3"></div>
+              <button id="security-add-ip-btn" class="mt-5 w-full rounded-xl bg-secondary-container px-4 py-3 text-sm font-bold text-primary">新增安全白名单</button>
+            </section>
+
+            <section class="rounded-[2rem] bg-white p-6 border-2 border-red-200 shadow-sm">
+              <h2 class="text-xl font-bold text-error flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined">warning</span>
+                <span>敏感操作控制台</span>
+              </h2>
+              <div class="rounded-2xl bg-red-50 p-4">
+                <div class="text-sm font-bold text-red-700">紧急系统封锁</div>
+                <p class="mt-2 text-xs text-red-600">一键冻结所有非管理员账号的访问权限，应对异常操作和网络事件。</p>
+                <button id="security-emergency-btn" class="mt-4 w-full rounded-xl bg-error px-4 py-3 text-sm font-bold text-white">立即封锁</button>
+              </div>
+              <div id="security-emergency-state" class="mt-4 text-xs text-slate-500">当前状态：正常</div>
+            </section>
+
+            <section class="rounded-[2rem] bg-surface-container-low p-6">
+              <h2 class="text-sm font-bold text-primary mb-4">角色预设定义</h2>
+              <div class="space-y-3 text-sm text-slate-600">
+                <div><strong class="text-primary">管理员</strong>：拥有全局配置、RBAC 分配、紧急封锁和审计权限。</div>
+                <div><strong class="text-primary">销售经理</strong>：管理销售团队授权、分支权限与重点客户访问。</div>
+                <div><strong class="text-primary">销售</strong>：可访问报价、客户与个人销售数据，不含系统管理权。</div>
+                <div><strong class="text-primary">工程师</strong>：仅访问维修工单、地图定位、现场同步和派单相关模块。</div>
+              </div>
+            </section>
+
+            <section class="rounded-[2rem] bg-white p-6 border border-outline-variant/10 shadow-sm">
+              <div class="flex items-center justify-between gap-4 mb-4">
+                <h2 class="text-lg font-bold text-primary">最近审计日志</h2>
+              </div>
+              <div id="security-audit-list" class="space-y-3"></div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="security-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/40 px-4 py-6">
+      <div class="w-full max-w-3xl rounded-[2rem] bg-white p-6 md:p-8 shadow-2xl">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-secondary">权限控制</p>
+            <h2 id="security-modal-title" class="mt-2 text-2xl font-extrabold text-primary">新增员工授权</h2>
+          </div>
+          <button id="security-modal-close" class="rounded-full bg-slate-100 p-2 text-slate-500">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <form id="security-form" class="mt-6 space-y-5">
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">员工</span>
+            <select id="security-employee-select" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm"></select>
+          </label>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">授权角色</span>
+              <select id="security-role-select" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm">
+                <option value="admin">管理员</option>
+                <option value="sales_manager">销售经理</option>
+                <option value="sales">销售</option>
+                <option value="engineer">工程师</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">安全等级</span>
+              <select id="security-level-select" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm">
+                <option value="1">一级</option>
+                <option value="2">二级</option>
+                <option value="3">三级</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">分支范围</span>
+              <input id="security-branch-scope" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+          </div>
+
+          <label class="flex items-center gap-3 rounded-2xl bg-surface-container-low px-4 py-4">
+            <input id="security-access-enabled" class="h-5 w-5 rounded border-slate-300 text-primary" type="checkbox" checked />
+            <span class="text-sm font-semibold text-slate-700">启用该员工权限</span>
+          </label>
+
+          <div class="flex flex-wrap justify-end gap-3 pt-3">
+            <button id="security-cancel-btn" class="rounded-xl bg-slate-100 px-5 py-3 text-sm font-bold text-slate-600" type="button">取消</button>
+            <button class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">保存授权</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="ip-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/40 px-4 py-6">
+      <div class="w-full max-w-2xl rounded-[2rem] bg-white p-6 md:p-8 shadow-2xl">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-secondary">IP 白名单</p>
+            <h2 id="ip-modal-title" class="mt-2 text-2xl font-extrabold text-primary">新增安全白名单</h2>
+          </div>
+          <button id="ip-modal-close" class="rounded-full bg-slate-100 p-2 text-slate-500">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <form id="ip-form" class="mt-6 space-y-5">
+          <input id="ip-id" type="hidden" />
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">名称</span>
+            <input id="ip-label" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">CIDR / 地址范围</span>
+            <input id="ip-cidr" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">状态</span>
+            <select id="ip-status" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm">
+              <option value="active">启用</option>
+              <option value="draft">草稿</option>
+            </select>
+          </label>
+          <div class="flex flex-wrap justify-end gap-3 pt-3">
+            <button id="ip-cancel-btn" class="rounded-xl bg-slate-100 px-5 py-3 text-sm font-bold text-slate-600" type="button">取消</button>
+            <button class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">保存白名单</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="/shared-nav.js"></script>
+    <script src="/shared-header.js"></script>
+    <script src="/security.js"></script>
+  </body>
+</html>

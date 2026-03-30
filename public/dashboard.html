@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title data-i18n="dashboard.metaTitle">鍏変紡绠＄悊绯荤粺 閿€鍞伐浣滃彴</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              secondary: "#7f5700",
+              "secondary-container": "#feb316",
+              background: "#f8f9fa",
+              primary: "#001d44",
+              "surface-container-low": "#f3f4f5",
+              "outline-variant": "#c3c6d1",
+              error: "#ba1a1a",
+              success: "#047857",
+              deepgreen: "#032f31"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+      @page { size: A4; margin: 8mm; }
+      @media print {
+        html, body {
+          background: #ffffff !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 210mm;
+          min-height: auto !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+        body > *:not(#printable-dashboard-quote) { display: none !important; }
+        #printable-dashboard-quote {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #ffffff !important;
+          box-shadow: none !important;
+          page-break-after: avoid !important;
+          break-after: avoid-page !important;
+        }
+        #printable-dashboard-quote * {
+          visibility: visible !important;
+          box-shadow: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-background text-slate-900 min-h-screen" data-nav="dashboard" data-header-key="dashboard.headerConsole">
+    <aside id="app-sidebar" class="hidden md:flex fixed left-0 top-0 h-screen w-64 bg-slate-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] flex-col py-6 z-40"></aside>
+    <header id="app-header" class="fixed top-0 w-full md:w-[calc(100%-16rem)] md:left-64 z-30 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm h-16 flex justify-between items-center px-6"></header>
+
+
+    <main class="md:ml-64 pt-24 pb-12 px-6 min-h-screen">
+      <div class="w-full max-w-[1520px] mx-auto">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+          <div>
+            <p class="text-sm font-semibold text-secondary mb-1" data-i18n="dashboard.greeting">鏃╀笂濂斤紝閿€鍞洟闃?/p>
+            <h2 class="text-3xl font-extrabold text-primary tracking-tight" data-i18n="dashboard.title">閿€鍞瑙堝伐浣滃彴</h2>
+          </div>
+          <div class="flex gap-3">
+            <button id="dashboard-export-button" class="px-6 py-2.5 bg-surface-container-low text-primary border border-outline-variant/15 rounded-xl font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined">download</span>
+              <span data-i18n="dashboard.export">瀵煎嚭鎶ヨ〃</span>
+            </button>
+            <a class="px-6 py-2.5 bg-surface-container-low text-primary border border-outline-variant/15 rounded-xl font-bold flex items-center gap-2" href="/installment.html">
+              <span class="material-symbols-outlined">calendar_month</span>
+              <span>分期付款</span>
+            </a>
+            <a class="px-6 py-2.5 bg-primary text-white rounded-xl font-bold flex items-center gap-2" href="/index.html#calculator">
+              <span class="material-symbols-outlined">bolt</span>
+              <span data-i18n="dashboard.cta.newSizing">鏂板缓璐熻浇璁＄畻</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div class="bg-[#001d44] text-white p-6 rounded-3xl relative overflow-hidden shadow-xl">
+            <div class="absolute -right-4 -top-4 w-32 h-32 bg-secondary-container opacity-10 rounded-full blur-3xl"></div>
+            <div class="flex justify-between items-start mb-4">
+              <div class="p-2 bg-white/10 rounded-xl">
+                <span class="material-symbols-outlined text-secondary-container">payments</span>
+              </div>
+              <span id="sales-balance-trend" class="text-xs font-bold bg-secondary-container/20 text-secondary-container px-2 py-1 rounded-lg">0%</span>
+            </div>
+            <p class="text-white/60 text-sm font-medium mb-1" data-i18n="dashboard.kpi.commission">閿€鍞綑棰?(VUV)</p>
+            <h3 class="text-3xl font-black tracking-tight" id="sales-balance">0</h3>
+            <div class="mt-4 flex items-center text-xs text-white/40">
+              <span class="material-symbols-outlined text-sm mr-1">history</span>
+              <span id="sales-updated-line" data-i18n="dashboard.updated">鏈€鍚庢洿鏂? 鍒氬垰</span>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-3xl shadow-[0_12px_32px_rgba(25,28,29,0.04)] border border-slate-100">
+            <div class="flex justify-between items-start mb-4">
+              <div class="p-2 bg-primary/5 rounded-xl">
+                <span class="material-symbols-outlined text-primary">description</span>
+              </div>
+              <span class="text-xs font-bold bg-primary/5 text-primary px-2 py-1 rounded-lg" data-i18n="dashboard.activeBadge">娲昏穬</span>
+            </div>
+            <p class="text-slate-500 text-sm font-medium mb-1" data-i18n="dashboard.kpi.activeQuotes">娲昏穬鎶ヤ环鍗?/p>
+            <h3 class="text-3xl font-black tracking-tight text-primary"><span id="active-quotes-count">0</span> <span class="text-lg font-normal text-slate-400" data-i18n="dashboard.unit.orders">浠?/span></h3>
+            <p class="mt-4 text-xs text-slate-400" id="active-quotes-line">-</p>
+          </div>
+
+          <div class="bg-white p-6 rounded-3xl shadow-[0_12px_32px_rgba(25,28,29,0.04)] border border-slate-100">
+            <div class="flex justify-between items-start mb-4">
+              <div class="p-2 bg-emerald-100 rounded-xl">
+                <span class="material-symbols-outlined text-success">check_circle</span>
+              </div>
+            </div>
+            <p class="text-slate-500 text-sm font-medium mb-1" data-i18n="dashboard.kpi.paidThisWeek">鏈懆宸蹭粯娆捐鍗?/p>
+            <h3 class="text-3xl font-black tracking-tight text-primary"><span id="paid-this-week">0</span> <span class="text-sm font-normal text-slate-400">VUV</span></h3>
+            <div class="mt-4 bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div id="paid-progress-bar" class="bg-success h-full w-0 rounded-full transition-all"></div>
+            </div>
+            <p class="mt-2 text-[10px] text-slate-400" id="paid-progress-line">-</p>
+          </div>
+        </div>
+
+        <section class="bg-white rounded-[2rem] shadow-[0_12px_48px_rgba(0,0,0,0.03)] border border-slate-100 overflow-hidden">
+          <div class="p-8 border-b border-slate-50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <h3 class="text-xl font-bold text-primary flex items-center gap-2">
+              <span data-i18n="dashboard.recentTitle">鏈€杩戝鎴疯浠峰崟</span>
+              <span id="dashboard-total-badge" class="bg-primary/5 text-primary text-xs px-2 py-0.5 rounded-full">0 Total</span>
+            </h3>
+            <div class="flex items-center gap-3">
+              <input id="dashboard-search" class="rounded-xl bg-surface-container-low px-4 py-2 text-sm text-primary placeholder:text-slate-400 focus:ring-0 border-none" placeholder="搜索客户 / 套装 / 地址" type="search" />
+              <select id="dashboard-status-filter" class="text-xs font-bold border-none bg-surface-container-low rounded-lg focus:ring-0 cursor-pointer">
+                <option value="all" data-i18n="dashboard.filter.all">鎵€鏈夌姸鎬?/option>
+                <option value="draft" data-i18n="dashboard.filter.draft">鑽夌</option>
+                <option value="in_progress" data-i18n="dashboard.status.inProgress">杩涜涓?/option>
+                <option value="sent" data-i18n="dashboard.filter.sent">宸插彂閫?/option>
+                <option value="paid" data-i18n="dashboard.filter.paid">宸蹭粯娆?/option>
+              </select>
+              <button id="dashboard-refresh-button" class="rounded-xl bg-surface-container-low px-4 py-2 text-sm font-bold text-primary" data-i18n="action.refresh">鍒锋柊</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-separate border-spacing-y-4 px-8">
+              <thead>
+                <tr class="text-slate-400 text-[10px] uppercase tracking-widest font-bold">
+                  <th class="pb-2 pl-8" data-i18n="dashboard.table.customer">瀹㈡埛璇︽儏</th>
+                  <th class="pb-2" data-i18n="dashboard.table.project">椤圭洰绫诲瀷</th>
+                  <th class="pb-2" data-i18n="dashboard.table.date">璇环鏃ユ湡</th>
+                  <th class="pb-2" data-i18n="dashboard.table.amount">閲戦 (VUV)</th>
+                  <th class="pb-2" data-i18n="dashboard.table.status">鐘舵€?/th>
+                  <th class="pb-2 text-right pr-8" data-i18n="dashboard.table.action">鎿嶄綔</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-table-body"></tbody>
+            </table>
+          </div>
+          <div class="pb-8 text-center">
+            <button id="dashboard-view-all" class="text-sm font-bold text-primary" data-i18n="dashboard.viewAll">鏌ョ湅鎵€鏈夎浠峰崟</button>
+          </div>
+        </section>
+
+        <section class="mt-10 bg-white rounded-[2rem] shadow-[0_12px_48px_rgba(0,0,0,0.03)] border border-slate-100 overflow-hidden">
+          <div class="p-8 border-b border-slate-50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div>
+              <h3 class="text-xl font-bold text-primary">分期付款记录</h3>
+              <p class="mt-2 text-sm text-slate-500">查看当前销售报价的分期计划、定金和每期支付日期。</p>
+            </div>
+            <a class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white" href="/installment.html">
+              <span class="material-symbols-outlined text-base">open_in_new</span>
+              <span>进入分期管理</span>
+            </a>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-slate-500">
+                <tr>
+                  <th class="px-8 py-4">客户</th>
+                  <th class="px-4 py-4">套装</th>
+                  <th class="px-4 py-4">定金</th>
+                  <th class="px-4 py-4">定金日期</th>
+                  <th class="px-4 py-4">分期周期</th>
+                  <th class="px-4 py-4">记录</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-installment-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <div id="dashboard-message" class="hidden mt-8 rounded-2xl p-4 text-sm"></div>
+      </div>
+    </main>
+
+    <div id="dashboard-preview-modal" class="hidden fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm items-center justify-center p-4">
+      <div class="w-full max-w-4xl rounded-[2rem] bg-white p-8 shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-black text-primary" data-i18n="preview.title">鏂规棰勮</h3>
+          <button id="dashboard-close-preview" class="w-10 h-10 rounded-full bg-slate-100 text-primary" aria-label="关闭">×</button>
+        </div>
+        <div id="dashboard-preview-content" class="max-h-[70vh] overflow-auto"></div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button id="dashboard-print-preview" class="rounded-xl bg-surface-container-low px-4 py-3 text-sm font-bold text-primary" data-i18n="action.print">鎵撳嵃</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="printable-dashboard-quote" class="hidden"></div>
+
+    <script src="/shared-nav.js"></script>
+    <script src="/shared-header.js"></script>
+    <script src="/dashboard.js"></script>
+  </body>
+</html>

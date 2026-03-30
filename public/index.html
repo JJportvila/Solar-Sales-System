@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title data-i18n="meta.title">PV Management System Smart Sizing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              secondary: "#7f5700",
+              "secondary-container": "#feb316",
+              background: "#f8f9fa",
+              primary: "#001d44",
+              "primary-container": "#00326b",
+              "surface-container-low": "#f3f4f5",
+              "surface-container-high": "#e7e8e9",
+              outline: "#737780",
+              "outline-variant": "#c3c6d1",
+              error: "#ba1a1a"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+      @page { size: A4; margin: 8mm; }
+      @media print {
+        html, body {
+          background: #ffffff !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 210mm;
+          min-height: auto !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+        body > *:not(#printable-quote) { display: none !important; }
+        #printable-quote {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #ffffff !important;
+          box-shadow: none !important;
+          page-break-after: avoid !important;
+          break-after: avoid-page !important;
+        }
+        #printable-quote * {
+          visibility: visible !important;
+          box-shadow: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-background text-slate-900 min-h-screen flex" data-nav="calculator" data-header-key="header.title">
+    <aside id="app-sidebar" class="hidden md:flex flex-col h-screen w-64 bg-slate-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed left-0 top-0 z-40 py-6"></aside>
+    <header id="app-header" class="fixed top-0 w-full md:w-[calc(100%-16rem)] z-30 bg-white/80 backdrop-blur-md flex justify-between items-center px-6 h-16 shadow-sm border-b border-slate-100/10"></header>
+
+    <main class="flex-1 md:ml-64 pb-24 md:pb-0">
+      <div class="mt-16 w-full max-w-[1520px] mx-auto px-6 lg:px-8 xl:px-10 py-6 lg:py-8 space-y-10">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div class="max-w-xl">
+            <span class="text-secondary font-bold text-xs tracking-widest uppercase mb-2 block" data-i18n="hero.badge">Smart Sizing Engine</span>
+            <h3 class="text-3xl md:text-4xl font-extrabold text-primary leading-tight" data-i18n="hero.title">Plan Your Solar Future</h3>
+            <p class="text-slate-600 mt-3 text-sm leading-relaxed" data-i18n="hero.description">Customer capture, device entry, package matching, quote preview, printing and PDF export.</p>
+          </div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-outline-variant/15 min-w-[260px]">
+            <p class="text-[10px] text-outline font-bold uppercase" data-i18n="location.label">Delivery Area</p>
+            <select id="location-select" class="mt-2 w-full bg-transparent border-none p-0 text-sm font-bold text-primary focus:ring-0">
+              <option>Port Vila</option>
+              <option>Espiritu Santo</option>
+              <option>Tanna</option>
+              <option>Malekula</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="calculator" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div class="lg:col-span-7 space-y-8">
+            <div class="bg-surface-container-low p-8 rounded-[2rem] relative overflow-hidden">
+              <div class="absolute top-0 right-0 p-8 opacity-5"><span class="material-symbols-outlined text-[120px]">electric_bolt</span></div>
+              <h4 class="text-xl font-bold text-primary mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">add_circle</span>
+                <span data-i18n="section.customerDevices">Customer and Device Entry</span>
+              </h4>
+
+              <div class="grid grid-cols-1 gap-4 mb-6">
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                  <p class="text-xs font-bold text-outline" data-i18n="customer.profile">Customer Profile</p>
+                  <p id="customer-summary" class="mt-3 text-sm text-primary font-bold">-</p>
+                  <button id="open-customer-modal-inline" class="mt-4 rounded-xl bg-primary text-white px-4 py-2 text-sm font-bold" data-i18n="action.addCustomer">Add Customer</button>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                  <p class="text-xs font-bold text-outline">所属销售</p>
+                  <select id="sales-person-select" class="mt-3 w-full rounded-xl bg-surface-container-low border-none px-4 py-3 text-sm font-bold text-primary focus:ring-0">
+                    <option value="">请选择销售</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="space-y-5">
+                <div>
+                  <p class="block text-xs font-bold text-outline mb-3" data-i18n="preset.title">Common Appliances</p>
+                  <div id="preset-categories" class="space-y-4"></div>
+                </div>
+              </div>
+
+              <div id="device-list" class="space-y-4 mt-6"></div>
+
+              <button id="add-device-button" class="mt-8 flex items-center justify-center gap-2 w-full py-4 border-2 border-dashed border-outline-variant/50 rounded-2xl text-outline hover:text-primary hover:border-primary/30 transition-all font-bold text-sm">
+                <span class="material-symbols-outlined">add</span>
+                <span data-i18n="action.addBlankDevice">Add Blank Device Row</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div class="bg-primary-container text-white p-6 rounded-[1.5rem] shadow-xl">
+                <div class="flex justify-between items-start mb-4">
+                  <span class="material-symbols-outlined text-secondary-container text-3xl">bolt</span>
+                  <span class="text-[10px] bg-white/10 px-2 py-1 rounded font-bold" data-i18n="metric.dailyEnergy">Daily Energy</span>
+                </div>
+                <h5 class="text-4xl font-extrabold"><span id="daily-wh">0</span> <span class="text-lg font-medium opacity-70">Wh/d</span></h5>
+                <p class="mt-4 text-xs font-medium" id="daily-kwh-line">0.00 kWh/day</p>
+              </div>
+              <div class="bg-white border border-outline-variant/15 p-6 rounded-[1.5rem]">
+                <div class="flex justify-between items-start mb-4">
+                  <span class="material-symbols-outlined text-primary text-3xl">cloudy_snowing</span>
+                  <span class="text-[10px] bg-surface-container-high px-2 py-1 rounded font-bold text-outline" data-i18n="metric.autonomy">Autonomy</span>
+                </div>
+                <h5 class="text-4xl font-extrabold text-primary"><span id="autonomy-days">0</span> <span class="text-lg font-medium text-outline">days</span></h5>
+                <p class="mt-4 text-xs text-slate-600 font-medium" id="peak-power-line">Peak Power 0W</p>
+              </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-[2rem] border border-outline-variant/15 shadow-sm">
+              <div class="flex items-center justify-between gap-4 mb-6">
+                <h4 class="text-lg font-bold text-primary" data-i18n="section.savedPlans">Saved Plans</h4>
+                <button id="refresh-saved-button" class="text-sm font-bold text-primary" data-i18n="action.refresh">Refresh</button>
+              </div>
+              <div id="saved-list" class="space-y-3 text-sm text-slate-600"></div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 space-y-8">
+            <div class="bg-gradient-to-br from-[#001d44] to-[#00326b] p-8 rounded-[2rem] text-white shadow-2xl relative overflow-hidden">
+              <div class="absolute -right-10 -top-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl"></div>
+              <div class="relative z-10">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="px-2 py-0.5 bg-secondary-container text-primary text-[10px] font-black rounded uppercase" data-i18n="section.currentPackage">Current Package</span>
+                  <span class="text-xs text-white/60" id="fit-line">Fit 0%</span>
+                </div>
+                <h4 id="package-name" class="text-3xl font-black mb-6 italic" data-i18n="package.waiting">Waiting</h4>
+                <ul class="space-y-4 mb-6">
+                  <li class="flex items-center gap-3 text-sm"><span class="material-symbols-outlined text-secondary-container text-lg" style="font-variation-settings:'FILL' 1;">check_circle</span><span id="solar-panels">-</span></li>
+                  <li class="flex items-center gap-3 text-sm"><span class="material-symbols-outlined text-secondary-container text-lg" style="font-variation-settings:'FILL' 1;">check_circle</span><span id="battery">-</span></li>
+                  <li class="flex items-center gap-3 text-sm"><span class="material-symbols-outlined text-secondary-container text-lg" style="font-variation-settings:'FILL' 1;">check_circle</span><span id="inverter">-</span></li>
+                </ul>
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                  <div class="rounded-2xl bg-white/10 p-4">
+                    <p class="text-[10px] uppercase text-white/60" data-i18n="package.loadCapacity">Package Load</p>
+                    <p id="package-load" class="mt-2 text-lg font-bold">0 W</p>
+                  </div>
+                  <div class="rounded-2xl bg-white/10 p-4">
+                    <p class="text-[10px] uppercase text-white/60" data-i18n="package.requiredPower">Required Load</p>
+                    <p id="required-load" class="mt-2 text-lg font-bold">0 W</p>
+                  </div>
+                  <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                    <p class="text-xs font-bold text-outline">分期付款</p>
+                    <select id="installment-plan-select" class="mt-3 w-full rounded-xl bg-surface-container-low border-none px-4 py-3 text-sm font-bold text-primary focus:ring-0">
+                      <option value="none">不分期</option>
+                      <option value="weekly">1星期一期</option>
+                      <option value="biweekly">2星期一期</option>
+                      <option value="monthly">1个月一期</option>
+                    </select>
+                    <div class="mt-3">
+                      <div class="text-xs text-slate-500">期数</div>
+                      <select id="installment-term-select" class="mt-2 w-full rounded-xl bg-surface-container-low border-none px-4 py-3 text-sm font-bold text-primary focus:ring-0">
+                        <option value="3">3期</option>
+                        <option value="6" selected>6期</option>
+                      </select>
+                    </div>
+                    <div class="mt-3">
+                      <div class="text-xs text-slate-500">定金</div>
+                      <input id="installment-deposit-input" class="mt-2 w-full rounded-xl bg-surface-container-low border-none px-4 py-3 text-sm font-bold text-primary focus:ring-0" type="number" min="0" step="1000" value="0" placeholder="输入定金" />
+                    </div>
+                    <div class="mt-3 flex items-center gap-3">
+                      <div class="min-w-[84px] text-xs text-slate-500">定金支付日期</div>
+                      <input id="installment-deposit-date-input" class="h-11 flex-1 rounded-xl bg-surface-container-low border-none px-4 text-sm font-bold text-primary focus:ring-0" type="date" />
+                    </div>
+                    <div id="installment-summary" class="mt-3 rounded-xl bg-surface-container-low px-4 py-3 text-xs text-slate-500">未启用分期付款</div>
+                  </div>
+                </div>
+                <div class="pt-6 border-t border-white/10">
+                  <div class="flex justify-between items-end">
+                    <div>
+                      <p class="text-[10px] text-white/50 font-bold uppercase mb-1" data-i18n="label.equipmentPrice">Equipment Price</p>
+                      <p class="text-2xl font-bold" id="equipment-price">VT 0</p>
+                    </div>
+                    <span class="material-symbols-outlined text-4xl opacity-20">inventory_2</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-[2rem] border border-outline-variant/15 shadow-sm">
+              <h4 class="text-lg font-bold text-primary mb-6" data-i18n="section.packageOptions">Recommended Packages</h4>
+              <div id="package-list" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-white p-8 rounded-[2rem] border border-outline-variant/15 shadow-sm">
+              <h4 class="text-lg font-bold text-primary mb-6" data-i18n="section.quote">Quote Details</h4>
+              <div class="space-y-3">
+                <div class="flex justify-between text-sm"><span class="text-slate-500" data-i18n="quote.customer">Customer</span><span class="font-semibold" id="quote-customer">-</span></div>
+                <div class="flex justify-between text-sm"><span class="text-slate-500" data-i18n="quote.phone">Phone</span><span class="font-semibold" id="quote-phone">-</span></div>
+                <div class="flex justify-between text-sm"><span class="text-slate-500" data-i18n="quote.email">Email</span><span class="font-semibold" id="quote-email">-</span></div>
+                <div class="flex justify-between text-sm"><span class="text-slate-500" data-i18n="quote.address">Address</span><span class="font-semibold" id="quote-address">-</span></div>
+                <div class="flex justify-between text-sm"><span class="text-slate-500" data-i18n="quote.equipment">Equipment</span><span class="font-semibold" id="quote-equipment">VT 0</span></div>
+                <div class="grid grid-cols-1 gap-2 rounded-2xl bg-surface-container-low px-4 py-3 text-sm">
+                  <label class="flex items-center justify-between gap-3">
+                    <span class="text-slate-600">计入安装费</span>
+                    <input id="include-install-fee" class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" checked />
+                  </label>
+                  <input id="install-fee-input" class="w-full rounded-xl bg-white border border-slate-200 px-4 py-3 text-sm font-bold text-primary focus:ring-primary" type="number" min="0" step="1000" value="0" />
+                  <label class="flex items-center justify-between gap-3">
+                    <span class="text-slate-600">计入物流费</span>
+                    <input id="include-logistics-fee" class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" checked />
+                  </label>
+                  <input id="logistics-fee-input" class="w-full rounded-xl bg-white border border-slate-200 px-4 py-3 text-sm font-bold text-primary focus:ring-primary" type="number" min="0" step="1000" value="0" />
+                </div>
+                <div class="flex justify-between text-sm"><span class="text-slate-500" data-i18n="quote.install">Install</span><span class="font-semibold" id="install-fee">VT 0</span></div>
+                <div class="flex justify-between text-sm"><span class="text-slate-500" data-i18n="quote.logistics">Logistics</span><span class="font-semibold" id="logistics-fee">VT 0</span></div>
+                <div class="h-px bg-slate-100 my-2"></div>
+                <div class="flex justify-between text-sm"><span class="text-slate-500" data-i18n="quote.subtotal">Subtotal</span><span class="font-bold text-primary" id="quote-subtotal">VT 0</span></div>
+                <div class="flex justify-between text-sm text-secondary"><span class="font-medium" data-i18n="quote.vat">VAT</span><span class="font-bold" id="quote-vat">+ VT 0</span></div>
+                <div class="flex justify-between text-sm"><span class="text-slate-500" data-i18n="quote.displayMode">Display Mode</span><span class="font-bold text-primary" id="quote-display-mode-text">Tax Inclusive</span></div>
+                <div class="h-px bg-slate-100 my-4"></div>
+                <div class="flex justify-between items-center"><span class="text-primary font-black text-lg" data-i18n="quote.final">Final Total</span><span class="text-2xl font-black text-primary tracking-tight" id="quote-total">VT 0</span></div>
+                <div class="mt-4 hidden rounded-2xl bg-surface-container-low p-5 border border-slate-100/80">
+                  <div class="flex items-start gap-4">
+                    <img id="company-logo" alt="company logo" class="hidden h-16 w-16 rounded-2xl border border-slate-200 bg-white object-contain p-2" />
+                    <div class="min-w-0 flex-1">
+                      <div class="text-sm font-black text-primary" id="company-name">VSLM Solar & Logistics</div>
+                      <div class="mt-2 text-xs text-slate-500">TIN 税号</div>
+                      <div class="font-semibold text-slate-700" id="company-tin">-</div>
+                      <div class="mt-2 text-xs text-slate-500">银行信息</div>
+                      <div class="font-semibold text-slate-700 break-words" id="company-bank">-</div>
+                      <div class="mt-2 text-xs text-slate-500">地址</div>
+                      <div class="font-semibold text-slate-700" id="company-address">-</div>
+                      <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <div>
+                          <div class="text-xs text-slate-500">电话</div>
+                          <div class="font-semibold text-slate-700" id="company-phone">-</div>
+                        </div>
+                        <div>
+                          <div class="text-xs text-slate-500">邮箱</div>
+                          <div class="font-semibold text-slate-700 break-all" id="company-email">-</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </div>
+                <div class="mt-4 rounded-2xl bg-surface-container-low p-5 border border-slate-100/80">
+                  <div class="flex items-center justify-between gap-3">
+                    <span class="text-primary font-black" id="installment-title">分期付款方案</span>
+                    <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-primary" id="installment-badge">未启用</span>
+                  </div>
+                  <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                    <div class="rounded-xl bg-white px-4 py-3">
+                      <div class="text-xs text-slate-500">首付款</div>
+                      <div class="mt-2 font-black text-primary" id="installment-down-payment">VT 0</div>
+                    </div>
+                    <div class="rounded-xl bg-white px-4 py-3">
+                      <div class="text-xs text-slate-500">标准每期</div>
+                      <div class="mt-2 font-black text-primary" id="installment-weekly">VT 0</div>
+                    </div>
+                    <div class="rounded-xl bg-white px-4 py-3">
+                      <div class="text-xs text-slate-500">剩余总额</div>
+                      <div class="mt-2 font-black text-primary" id="installment-balance">VT 0</div>
+                    </div>
+                  </div>
+                  <div id="installment-schedule" class="mt-4 space-y-2"></div>
+                </div>
+                <div class="mt-10 grid grid-cols-4 gap-4">
+                <button id="preview-plan-button" class="flex items-center justify-center gap-2 bg-surface-container-high text-primary py-4 rounded-2xl font-bold"><span class="material-symbols-outlined text-lg">visibility</span><span data-i18n="action.preview">Preview</span></button>
+                <button id="print-plan-button" class="flex items-center justify-center gap-2 bg-surface-container-high text-primary py-4 rounded-2xl font-bold"><span class="material-symbols-outlined text-lg">print</span><span data-i18n="action.print">Print</span></button>
+                <button id="export-pdf-button" class="flex items-center justify-center gap-2 bg-primary text-white py-4 rounded-2xl font-bold"><span class="material-symbols-outlined text-lg">picture_as_pdf</span><span data-i18n="action.exportPdf">PDF</span></button>
+                <button id="save-quote-button" class="flex items-center justify-center gap-2 bg-secondary-container text-primary py-4 rounded-2xl font-bold"><span class="material-symbols-outlined text-lg">save</span><span data-i18n="action.save">Save</span></button>
+              </div>
+              <div id="quote-output" class="hidden mt-6 rounded-2xl bg-surface-container-low p-4 text-sm text-slate-700"></div>
+              <div id="qr-output" class="hidden mt-4 rounded-2xl bg-surface-container-low p-4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="customer-modal" class="hidden fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm items-center justify-center p-4">
+      <div class="w-full max-w-2xl rounded-[2rem] bg-white p-8 shadow-2xl">
+        <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <h3 class="text-2xl font-black text-primary" data-i18n="modal.customer.title">Add Customer</h3>
+          <button id="close-customer-modal" class="w-10 h-10 rounded-full bg-slate-100 text-primary">×</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input id="modal-customer-name" data-i18n-attr="placeholder:placeholder.customer.name" class="bg-surface-container-low border-none rounded-xl text-sm h-12 px-4" placeholder="Customer Name" type="text" />
+          <input id="modal-customer-phone" data-i18n-attr="placeholder:placeholder.customer.phone" class="bg-surface-container-low border-none rounded-xl text-sm h-12 px-4" placeholder="Phone" type="text" />
+          <input id="modal-customer-email" data-i18n-attr="placeholder:placeholder.customer.email" class="bg-surface-container-low border-none rounded-xl text-sm h-12 px-4" placeholder="Email" type="email" />
+          <input id="modal-customer-address" data-i18n-attr="placeholder:placeholder.customer.address" class="bg-surface-container-low border-none rounded-xl text-sm h-12 px-4" placeholder="Address" type="text" />
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button id="cancel-customer-modal" class="rounded-xl bg-slate-100 px-4 py-3 text-sm font-bold text-slate-700" data-i18n="action.cancel">Cancel</button>
+          <button id="save-customer-modal" class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white" data-i18n="action.saveCustomer">Save Customer</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="preview-modal" class="hidden fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm items-center justify-center p-4">
+      <div class="w-full max-w-4xl rounded-[2rem] bg-white p-8 shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex flex-col gap-3">
+            <h3 class="text-2xl font-black text-primary" data-i18n="preview.title">Plan Preview</h3>
+          </div>
+          <button id="close-preview-modal" class="w-10 h-10 rounded-full bg-slate-100 text-primary">×</button>
+        </div>
+        <div id="preview-content" class="max-h-[70vh] overflow-auto"></div>
+      </div>
+    </div>
+
+    <div id="mini-calculator" class="hidden fixed right-6 bottom-24 z-50 w-80 rounded-[2rem] bg-white shadow-2xl border border-slate-200 p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h4 class="text-lg font-black text-primary" data-i18n="calculator.title">Mini Calculator</h4>
+        <button id="close-mini-calculator" class="w-8 h-8 rounded-full bg-slate-100 text-primary">×</button>
+      </div>
+      <input id="calculator-display" class="w-full h-14 rounded-2xl bg-slate-950 text-white px-4 text-right text-xl font-bold" readonly value="0" />
+      <div class="grid grid-cols-4 gap-3 mt-4">
+        <button class="calc-key rounded-2xl bg-slate-100 py-3 font-bold" data-value="7">7</button>
+        <button class="calc-key rounded-2xl bg-slate-100 py-3 font-bold" data-value="8">8</button>
+        <button class="calc-key rounded-2xl bg-slate-100 py-3 font-bold" data-value="9">9</button>
+        <button class="calc-key rounded-2xl bg-secondary-container py-3 font-bold" data-value="/">/</button>
+        <button class="calc-key rounded-2xl bg-slate-100 py-3 font-bold" data-value="4">4</button>
+        <button class="calc-key rounded-2xl bg-slate-100 py-3 font-bold" data-value="5">5</button>
+        <button class="calc-key rounded-2xl bg-slate-100 py-3 font-bold" data-value="6">6</button>
+        <button class="calc-key rounded-2xl bg-secondary-container py-3 font-bold" data-value="*">*</button>
+        <button class="calc-key rounded-2xl bg-slate-100 py-3 font-bold" data-value="1">1</button>
+        <button class="calc-key rounded-2xl bg-slate-100 py-3 font-bold" data-value="2">2</button>
+        <button class="calc-key rounded-2xl bg-slate-100 py-3 font-bold" data-value="3">3</button>
+        <button class="calc-key rounded-2xl bg-secondary-container py-3 font-bold" data-value="-">-</button>
+        <button id="calc-clear" class="rounded-2xl bg-slate-200 py-3 font-bold" data-i18n="calculator.clear">Clear</button>
+        <button class="calc-key rounded-2xl bg-slate-100 py-3 font-bold" data-value="0">0</button>
+        <button id="calc-equals" class="rounded-2xl bg-primary text-white py-3 font-bold">=</button>
+        <button class="calc-key rounded-2xl bg-secondary-container py-3 font-bold" data-value="+">+</button>
+      </div>
+    </div>
+
+    <div id="printable-quote" class="hidden p-10 bg-white text-slate-900"></div>
+
+    <template id="device-row-template">
+      <div class="device-row grid grid-cols-12 gap-4 items-center">
+        <div class="col-span-4">
+          <input class="device-name w-full bg-white border-none rounded-xl text-sm h-12 px-4 shadow-sm" data-i18n-attr="placeholder:device.placeholder.name" placeholder="Device Name" type="text" />
+        </div>
+        <div class="col-span-2">
+          <input class="device-power w-full bg-white border-none rounded-xl text-sm h-12 px-3 shadow-sm" min="0" type="number" placeholder="W" />
+        </div>
+        <div class="col-span-2">
+          <input class="device-hours w-full bg-white border-none rounded-xl text-sm h-12 px-3 shadow-sm" min="0" step="0.5" type="number" placeholder="h" />
+        </div>
+        <div class="col-span-3">
+          <div class="flex items-center bg-white rounded-xl shadow-sm overflow-hidden">
+            <button class="quantity-minus h-12 w-10 text-primary font-bold" type="button">-</button>
+            <input class="device-quantity w-full border-none text-center text-sm h-12" min="0" step="1" type="number" value="0" />
+            <button class="quantity-plus h-12 w-10 text-primary font-bold" type="button">+</button>
+          </div>
+        </div>
+        <div class="col-span-1 flex justify-end">
+          <button class="remove-device w-10 h-10 rounded-full bg-error/10 text-error hover:bg-error hover:text-white transition-all flex items-center justify-center" type="button">
+            <span class="material-symbols-outlined text-lg">delete</span>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <button id="calculate-fab-mobile" class="fixed right-6 bottom-24 md:bottom-8 bg-secondary text-white p-4 rounded-full shadow-2xl z-50 flex items-center justify-center">
+      <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;">calculate</span>
+    </button>
+
+    <script src="/shared-nav.js"></script>
+    <script src="/shared-header.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>

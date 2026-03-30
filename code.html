@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VSLM 智能负载计算与报价</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-container": "#1facb6",
+              "secondary-fixed": "#ffdead",
+              "inverse-on-surface": "#f0f1f2",
+              "on-tertiary-fixed": "#002022",
+              "on-error": "#ffffff",
+              "surface-tint": "#255dad",
+              "error-container": "#ffdad6",
+              "surface-bright": "#f8f9fa",
+              "on-error-container": "#93000a",
+              "surface-container-highest": "#e1e3e4",
+              "inverse-primary": "#abc7ff",
+              "surface-variant": "#e1e3e4",
+              "on-primary-fixed": "#001b3f",
+              "inverse-surface": "#2e3132",
+              "tertiary-container": "#003a3e",
+              "secondary": "#7f5700",
+              "tertiary-fixed": "#7df4ff",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-fixed-dim": "#5dd8e2",
+              "surface": "#f8f9fa",
+              "primary-fixed": "#d7e2ff",
+              "surface-container": "#edeeef",
+              "primary": "#001d44",
+              "on-surface": "#191c1d",
+              "surface-container-high": "#e7e8e9",
+              "tertiary": "#002326",
+              "surface-dim": "#d9dadb",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "on-secondary-container": "#6a4800",
+              "primary-fixed-dim": "#abc7ff",
+              "secondary-container": "#feb316",
+              "background": "#f8f9fa",
+              "primary-container": "#00326b",
+              "on-secondary-fixed": "#281900",
+              "surface-container-low": "#f3f4f5",
+              "on-tertiary-fixed-variant": "#004f54",
+              "on-primary-fixed-variant": "#00458f",
+              "secondary-fixed-dim": "#ffba3b",
+              "outline-variant": "#c3c6d1",
+              "on-surface-variant": "#43474f",
+              "on-secondary": "#ffffff",
+              "outline": "#737780",
+              "error": "#ba1a1a",
+              "on-primary-container": "#6b9bef",
+              "on-secondary-fixed-variant": "#604100",
+              "on-background": "#191c1d"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex">
+<!-- SideNavBar Component -->
+<aside class="hidden md:flex flex-col h-screen w-64 border-r-0 bg-slate-50 dark:bg-[#001d44] shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed left-0 top-0 z-50 font-['Manrope','Inter'] antialiased py-6">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl">
+<span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">wb_sunny</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-[#001d44] dark:text-white">VSLM 管理系统</h1>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">瓦努阿图太阳能与物流</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#001d44] dark:hover:text-white px-4 py-3 transition-colors flex items-center gap-3 mx-2" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium text-sm">销售工作台</span>
+</a>
+<a class="bg-white dark:bg-[#00326b] text-[#001d44] dark:text-[#feb316] font-bold shadow-sm rounded-lg mx-2 flex items-center gap-3 px-4 py-3" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calculate</span>
+<span class="font-medium text-sm">负载计算器</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#001d44] dark:hover:text-white px-4 py-3 transition-colors flex items-center gap-3 mx-2" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-medium text-sm">物流追踪</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#001d44] dark:hover:text-white px-4 py-3 transition-colors flex items-center gap-3 mx-2" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-medium text-sm">财务概览</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#001d44] dark:hover:text-white px-4 py-3 transition-colors flex items-center gap-3 mx-2" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-medium text-sm">客户门户</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#001d44] dark:hover:text-white px-4 py-3 transition-colors flex items-center gap-3 mx-2" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-medium text-sm">售后地图</span>
+</a>
+</nav>
+<div class="mt-auto px-4 space-y-4">
+<button class="w-full bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                新建工单
+            </button>
+<div class="pt-4 border-t border-slate-200 dark:border-white/10 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary text-sm" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>设置</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-error text-sm" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>退出</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 pb-24 md:pb-0">
+<!-- TopNavBar Component -->
+<header class="fixed top-0 w-full md:w-[calc(100%-16rem)] z-40 bg-white/80 dark:bg-[#001d44]/80 backdrop-blur-md flex justify-between items-center px-6 h-16 shadow-sm border-b border-slate-100/10 dark:border-white/5">
+<div class="flex items-center gap-4">
+<span class="md:hidden material-symbols-outlined text-primary">menu</span>
+<h2 class="text-lg font-black text-[#001d44] dark:text-white font-['Manrope']">VSLM 控制台 / 智能负载计算</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden sm:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/15">
+<span class="material-symbols-outlined text-outline text-sm mr-2">search</span>
+<input class="bg-transparent border-none p-0 text-sm focus:ring-0 w-48" placeholder="搜索订单或客户..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-slate-500">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">help_outline</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-primary/10">
+<img alt="管理员" class="w-full h-full object-cover" data-alt="professional corporate headshot of a business manager with a friendly smile wearing a suit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBInYlqChJuzYH7S6ilVONhKlwHhS3WqQx9ONRvAQTEqmuDqfB70HZDvHJXw0OA2fBUTYI1uVucItUZ08SLY3-uc_ljsVzUs8QuXKO1KELQToTFl0SAdZqScArn7qaXvf-dD96DgwJAFoR9u5fBlSTAoMJM6vRxmLE8d4f4ivxJvbXHv1M8-Y1uAbqUSwEZ4rmgBsRA2eHmTAffJcxYbI_z2xN7evsPVQS3YLWe9ZDBW_3CKeKwzjE3mkUte9jBT48jR8nEYjeJbNc"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="mt-16 p-6 lg:p-10 space-y-10 max-w-7xl mx-auto">
+<!-- Welcome Section (Asymmetric) -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="max-w-xl">
+<span class="text-secondary font-bold text-xs tracking-widest uppercase mb-2 block">Smart Sizing Engine</span>
+<h3 class="text-3xl md:text-4xl font-extrabold text-primary leading-tight">计算您的太阳能未来</h3>
+<p class="text-on-surface-variant mt-3 text-sm leading-relaxed">基于瓦努阿图日照时间 (平均 5.5 小时) 自动优化的负载计算系统。请录入您的日常电器，系统将自动推荐最优能源套装。</p>
+</div>
+<div class="flex gap-4">
+<div class="bg-white p-4 rounded-2xl shadow-sm border border-outline-variant/15 flex items-center gap-4">
+<div class="w-12 h-12 bg-secondary-container/20 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">currency_exchange</span>
+</div>
+<div>
+<p class="text-[10px] text-outline font-bold uppercase">当前汇率</p>
+<p class="font-bold text-primary">1 USD = 118 VUV</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Interactive Section (Bento Grid) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Input Form -->
+<div class="lg:col-span-7 space-y-8">
+<div class="bg-surface-container-low p-8 rounded-[2rem] relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-8 opacity-5">
+<span class="material-symbols-outlined text-[120px]">electric_bolt</span>
+</div>
+<h4 class="text-xl font-bold text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">add_circle</span>
+                            电器设备录入
+                        </h4>
+<div class="space-y-4">
+<!-- Input Row 1 -->
+<div class="grid grid-cols-12 gap-4 items-center">
+<div class="col-span-5 sm:col-span-6">
+<label class="block text-xs font-bold text-outline mb-1.5 ml-1">电器名称</label>
+<select class="w-full bg-white border-none rounded-xl text-sm focus:ring-2 focus:ring-secondary/20 h-12 px-4 shadow-sm">
+<option>LED 灯 (10W)</option>
+<option>节能冰箱 (150W)</option>
+<option>变频空调 (800W)</option>
+<option>笔记本电脑 (60W)</option>
+<option>吊扇 (45W)</option>
+<option>自定义...</option>
+</select>
+</div>
+<div class="col-span-3 sm:col-span-2">
+<label class="block text-xs font-bold text-outline mb-1.5 ml-1">功率 (W)</label>
+<input class="w-full bg-white border-none rounded-xl text-sm focus:ring-2 focus:ring-secondary/20 h-12 px-4 shadow-sm" type="number" value="10"/>
+</div>
+<div class="col-span-3 sm:col-span-2">
+<label class="block text-xs font-bold text-outline mb-1.5 ml-1">时长 (h)</label>
+<input class="w-full bg-white border-none rounded-xl text-sm focus:ring-2 focus:ring-secondary/20 h-12 px-4 shadow-sm" type="number" value="6"/>
+</div>
+<div class="col-span-1 sm:col-span-2 flex justify-end pt-5">
+<button class="w-10 h-10 rounded-full bg-error/10 text-error hover:bg-error hover:text-white transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</div>
+<!-- Input Row 2 -->
+<div class="grid grid-cols-12 gap-4 items-center">
+<div class="col-span-5 sm:col-span-6">
+<select class="w-full bg-white border-none rounded-xl text-sm focus:ring-2 focus:ring-secondary/20 h-12 px-4 shadow-sm">
+<option>节能冰箱 (150W)</option>
+<option>LED 灯 (10W)</option>
+<option>变频空调 (800W)</option>
+</select>
+</div>
+<div class="col-span-3 sm:col-span-2">
+<input class="w-full bg-white border-none rounded-xl text-sm focus:ring-2 focus:ring-secondary/20 h-12 px-4 shadow-sm" type="number" value="150"/>
+</div>
+<div class="col-span-3 sm:col-span-2">
+<input class="w-full bg-white border-none rounded-xl text-sm focus:ring-2 focus:ring-secondary/20 h-12 px-4 shadow-sm" type="number" value="24"/>
+</div>
+<div class="col-span-1 sm:col-span-2 flex justify-end">
+<button class="w-10 h-10 rounded-full bg-error/10 text-error hover:bg-error hover:text-white transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</div>
+</div>
+<button class="mt-8 flex items-center justify-center gap-2 w-full py-4 border-2 border-dashed border-outline-variant/50 rounded-2xl text-outline hover:text-primary hover:border-primary/30 transition-all font-bold text-sm">
+<span class="material-symbols-outlined">add</span>
+                            添加新设备
+                        </button>
+</div>
+<!-- Summary Analysis (Cards) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div class="bg-primary-container text-white p-6 rounded-[1.5rem] shadow-xl">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-secondary-container text-3xl">bolt</span>
+<span class="text-[10px] bg-white/10 px-2 py-1 rounded font-bold">每日总功耗</span>
+</div>
+<h5 class="text-4xl font-extrabold font-headline">3,660 <span class="text-lg font-medium opacity-70">Wh/d</span></h5>
+<p class="mt-4 text-xs text-on-primary-container font-medium">约等于 3.66 度电/天</p>
+</div>
+<div class="bg-white border border-outline-variant/15 p-6 rounded-[1.5rem]">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary text-3xl">cloudy_snowing</span>
+<span class="text-[10px] bg-surface-container-high px-2 py-1 rounded font-bold text-outline">续航保障</span>
+</div>
+<h5 class="text-4xl font-extrabold font-headline text-primary">2.5 <span class="text-lg font-medium text-outline">天</span></h5>
+<p class="mt-4 text-xs text-on-surface-variant font-medium">连续阴雨天推荐备电时长</p>
+</div>
+</div>
+</div>
+<!-- Right Column: Recommendation & Quote -->
+<div class="lg:col-span-5 space-y-8">
+<!-- Recommended Package Card -->
+<div class="bg-gradient-to-br from-[#001d44] to-[#00326b] p-8 rounded-[2rem] text-white shadow-2xl relative overflow-hidden">
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 bg-secondary text-[#001d44] text-[10px] font-black rounded uppercase">推荐套装</span>
+<span class="text-xs text-white/60">匹配度 98%</span>
+</div>
+<h4 class="text-3xl font-black mb-6 italic">VSLM MBOX ULTRA</h4>
+<ul class="space-y-4 mb-8">
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-secondary text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>4x 450W 单晶硅太阳能板</span>
+</li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-secondary text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>10kWh 磷酸铁锂电池柜</span>
+</li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-secondary text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>5kW 智能纯正弦波逆变器</span>
+</li>
+</ul>
+<div class="pt-6 border-t border-white/10">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-[10px] text-white/50 font-bold uppercase mb-1">预估报价 (不含税)</p>
+<p class="text-2xl font-bold">VT 850,000</p>
+</div>
+<span class="material-symbols-outlined text-4xl opacity-20">inventory_2</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quotation Detail -->
+<div class="bg-white p-8 rounded-[2rem] border border-outline-variant/15 shadow-sm">
+<h4 class="text-lg font-bold text-primary mb-6">报价明细表</h4>
+<div class="space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">设备总额</span>
+<span class="font-semibold font-headline">VT 850,000</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">安装服务 (Vila 地区)</span>
+<span class="font-semibold font-headline">VT 45,000</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">物流费用</span>
+<span class="font-semibold font-headline">VT 12,000</span>
+</div>
+<div class="h-px bg-slate-100 my-2"></div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">小计</span>
+<span class="font-bold text-primary font-headline">VT 907,000</span>
+</div>
+<div class="flex justify-between text-sm text-secondary">
+<span class="font-medium">增值税 (VAT 15%)</span>
+<span class="font-bold font-headline">+ VT 136,050</span>
+</div>
+<div class="h-px bg-slate-100 my-4"></div>
+<div class="flex justify-between items-center">
+<span class="text-primary font-black text-lg">最终总计</span>
+<span class="text-2xl font-black text-primary font-headline tracking-tight">VT 1,043,050</span>
+</div>
+</div>
+<div class="mt-10 grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 bg-primary text-white py-4 rounded-2xl font-bold shadow-lg shadow-primary/30 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+                                生成报价单
+                            </button>
+<button class="flex items-center justify-center gap-2 bg-surface-container-high text-primary py-4 rounded-2xl font-bold active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg">qr_code_2</span>
+                                预览二维码
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Map/Logistics context section (Editorial layout) -->
+<section class="mt-12">
+<div class="bg-white rounded-[2.5rem] overflow-hidden border border-outline-variant/15 shadow-sm grid grid-cols-1 md:grid-cols-2">
+<div class="p-10 flex flex-col justify-center">
+<span class="text-secondary font-bold text-xs mb-2 block">Logistics Intelligence</span>
+<h4 class="text-2xl font-extrabold text-primary mb-4 italic">瓦努阿图全境配送覆盖</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-8">我们的物流系统集成了海运与内陆运输实时追踪。为您推荐的套装已包含从 Port Vila 仓库至您目的地的基本保价费。</p>
+<div class="flex gap-4">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden"><img alt="User" class="w-full h-full object-cover" data-alt="profile photo of a customer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrMnr2NeARQU22DHqLlPX-eWIDRuvnnjZMRWT4Ka-say1x9VoYEKWRlXgPhs5jRNEQuFMsB3mt8FOLof_4i6en0ZS-oxxIx3xcy_NVxNQZqPF1a7MhyoQZNyqx6B5tO7JZPJGF9q5ZSdvd0Vor_a5E_aoQo85NHKGz6IWdgBxxxAF2eBauBPbq2RnSbwLuxcxlgedNpZ_XojZKroG0If_DTL989zyI-ehrjAA6CIhuKKehHTpovClHsetdBPdODdJQHXfnapeg8XM"/></div>
+<div class="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden"><img alt="User" class="w-full h-full object-cover" data-alt="profile photo of a customer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiUqv3123N4vzQ9d4mkIEhh87RHeaP-adGW2DbxbB-4xG9IWO8Rh7wnZ4eghWMHM_551Jd2Ie8cqv-AnB8BnqSzAUIL3pd5x7xMNQZe5nBSq_xqr5wzXtulsozI-Tvj8MyXHySLL9mk2TNMhRodao2oiXl3i3EiBD8Shl2V6clwd3GMzwh6-LglaiBzuvJ59LrpG8xSTUCjYFsjaMWFPl239yL8KxW2B2chiijVQQZceLMS9RszGXIcqWGU_5J56F9JpLTJg-avrk"/></div>
+<div class="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden"><img alt="User" class="w-full h-full object-cover" data-alt="profile photo of a customer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyD1o6RpYlJHo0eWbfrxoEeEUnxpkmi5IZCIERNX96yDTo_feyFvYtVdcFe5mOnDg4XNeCvcu3rG9cr6Z_MN37HSxsZmS0ffH10tN9g1AR0tDETj6poQ6rXu-JsBTRxT0-xr4erSZ7OjOiPqMMDEbmZ3wsMEeYmFGH3Mz8M4cDd7tipjtbG594JM9UdVWbU9OFVREPOA-3NgOCZ7z5uXlJ0DU4fpox3hHafeCtQpZyB7eqcMiFrEZDMC_RybMq0tzKFK1io-Be6DQ"/></div>
+<div class="w-10 h-10 rounded-full border-2 border-white bg-primary flex items-center justify-center text-[10px] text-white font-bold">+2k</div>
+</div>
+<div class="text-xs text-on-surface-variant">
+<span class="font-bold text-primary block">2,400+ 家庭已选择</span>
+                                在 65 个有人居住的岛屿提供服务
+                            </div>
+</div>
+</div>
+<div class="relative h-[400px] md:h-auto bg-slate-100">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="minimal abstract architectural map of an island landscape with geometric lines and soft blue tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMFQphj8GtknovsxmD5TvyDqTtzwqf99wwEMZV3A6NWFrbuY6a6P20LvqL7YEs_Y9YNw9c-AmqDbH21FFBqyVsRHa3Yd9-nBKdol5OIyMatBXAdRIbgtI768Qlp8NnuFiU5-oJS9fNG7vdoe8sXY0tfwcctfe5_vAMhSQbleAP2B6075vf8zmE1kI7rB5MfiDJwpljOqCigZYBaZmBhdVGzw1ZZYkRnTEf2Br3uF5OkiG_cjEB7mvIlZcZZHwnX-wkfrK50XKWK0g"/>
+<div class="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent"></div>
+<!-- UI Overlay on Map -->
+<div class="absolute bottom-6 right-6 bg-white/90 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/20">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+<span class="text-xs font-bold text-primary">当前订单位置: Espiritu Santo</span>
+</div>
+<p class="text-[10px] text-outline mt-1 font-medium">预计船期: 3 天后</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar Component (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white dark:bg-[#001d44] flex justify-around items-center px-4 py-3 pb-safe z-50 rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border-t border-slate-100 dark:border-white/5">
+<a class="flex flex-col items-center justify-center text-[#7f5700] dark:text-[#feb316] bg-[#7f5700]/5 rounded-xl px-3 py-1 touch-none transition-transform duration-150 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="text-[10px] font-medium font-['Inter']">工作台</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 touch-none transition-transform duration-150 active:scale-90" href="#">
+<span class="material-symbols-outlined">bolt</span>
+<span class="text-[10px] font-medium font-['Inter']">计算器</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 touch-none transition-transform duration-150 active:scale-90" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-[10px] font-medium font-['Inter']">物流</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 touch-none transition-transform duration-150 active:scale-90" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-[10px] font-medium font-['Inter']">我的</span>
+</a>
+</nav>
+<!-- FAB (Suppressed contextually as per instructions if needed, but useful for 'Calculate' action here) -->
+<button class="fixed right-6 bottom-24 md:bottom-8 bg-secondary text-on-secondary-fixed p-4 rounded-full shadow-2xl z-50 flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">share</span>
+</button>
+</body></html>

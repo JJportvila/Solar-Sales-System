@@ -1,0 +1,2323 @@
+{
+  "meta": {
+    "app": "smart_sizing",
+    "version": 1,
+    "trigger": "manual",
+    "notes": "backup verify",
+    "createdAt": "2026-03-30T03:12:52.329Z"
+  },
+  "files": {
+    "settings": {
+      "audToVuv": 80,
+      "nzdToVuv": 72,
+      "quoteDisplayMode": "tax_inclusive",
+      "homepage": "dashboard"
+    },
+    "savedQuotes": [
+      {
+        "id": "1774782164302",
+        "customerName": "???",
+        "location": "Port Vila",
+        "packageName": "VSLM START FLEX",
+        "total": 669300,
+        "dailyWh": 3960,
+        "createdAt": "2026-03-29T11:02:44.302Z",
+        "payload": {
+          "recommendation": {
+            "packageName": "VSLM START FLEX"
+          },
+          "metrics": {
+            "dailyWh": 3960
+          },
+          "location": "Port Vila",
+          "customerName": "???",
+          "quote": {
+            "total": 669300
+          }
+        }
+      },
+      {
+        "id": "1774782605426",
+        "customer": {
+          "name": "Jason",
+          "phone": "123456",
+          "email": "a@b.com",
+          "address": "Port Vila"
+        },
+        "location": "Port Vila",
+        "packageName": "VSLM HOME PRO",
+        "total": 945300,
+        "dailyWh": 3600,
+        "createdAt": "2026-03-29T11:10:05.426Z",
+        "payload": {
+          "metrics": {
+            "dailyWh": 3600
+          },
+          "recommendation": {
+            "packageName": "VSLM HOME PRO"
+          },
+          "customer": {
+            "email": "a@b.com",
+            "name": "Jason",
+            "phone": "123456",
+            "address": "Port Vila"
+          },
+          "location": "Port Vila",
+          "quote": {
+            "total": 945300
+          }
+        }
+      },
+      {
+        "id": "1774783893307",
+        "customer": {
+          "name": "Jason",
+          "phone": "123",
+          "email": "a@b.com",
+          "address": "Port Vila"
+        },
+        "location": "Port Vila",
+        "packageName": "VSLM HOME PRO",
+        "total": 936750,
+        "dailyWh": 6400,
+        "createdAt": "2026-03-29T11:31:33.307Z",
+        "payload": {
+          "metrics": {
+            "dailyWh": 6400
+          },
+          "recommendation": {
+            "packageName": "VSLM HOME PRO"
+          },
+          "customer": {
+            "email": "a@b.com",
+            "name": "Jason",
+            "phone": "123",
+            "address": "Port Vila"
+          },
+          "location": "Port Vila",
+          "quote": {
+            "displayTotal": 936750
+          }
+        },
+        "status": "draft"
+      },
+      {
+        "id": "1774788336214",
+        "customer": {
+          "name": "林金坡",
+          "phone": "",
+          "email": "uoyo520@gmail.com",
+          "address": "宝安区西乡航空路30号同安物流园A121（Jason）"
+        },
+        "location": "Port Vila",
+        "packageName": "VSLM HOME PRO",
+        "total": 945300,
+        "dailyWh": 5160,
+        "status": "draft",
+        "createdAt": "2026-03-29T12:45:36.214Z",
+        "payload": {
+          "customer": {
+            "name": "林金坡",
+            "phone": "",
+            "email": "uoyo520@gmail.com",
+            "address": "宝安区西乡航空路30号同安物流园A121（Jason）"
+          },
+          "location": "Port Vila",
+          "devices": [
+            {
+              "id": 1,
+              "name": "LED灯泡",
+              "power": 10,
+              "hours": 6,
+              "quantity": 4,
+              "dailyWh": 240
+            },
+            {
+              "id": 2,
+              "name": "冰箱",
+              "power": 150,
+              "hours": 24,
+              "quantity": 1,
+              "dailyWh": 3600
+            },
+            {
+              "id": 3,
+              "name": "风扇",
+              "power": 45,
+              "hours": 8,
+              "quantity": 2,
+              "dailyWh": 720
+            },
+            {
+              "id": 4,
+              "name": "电视",
+              "power": 120,
+              "hours": 5,
+              "quantity": 1,
+              "dailyWh": 600
+            }
+          ],
+          "metrics": {
+            "dailyWh": 5160,
+            "dailyKwh": 5.16,
+            "peakPower": 400,
+            "autonomyDays": 2
+          },
+          "recommendation": {
+            "packageName": "VSLM HOME PRO",
+            "fitScore": 98,
+            "solarPanels": "4 x 450W Mono Solar Panels",
+            "battery": "10kWh LiFePO4 Battery Bank",
+            "inverter": "3kW Pure Sine Inverter",
+            "inverterKw": 3,
+            "loadCapacityW": 3000,
+            "energyTargetWh": 2500,
+            "estimatedPrice": 765000,
+            "compatible": true
+          },
+          "packages": [
+            {
+              "packageName": "VSLM START FLEX",
+              "fitScore": 98,
+              "solarPanels": "2 x 450W Mono Solar Panels",
+              "battery": "5kWh LiFePO4 Battery Bank",
+              "inverter": "3kW Pure Sine Inverter",
+              "inverterKw": 3,
+              "loadCapacityW": 3000,
+              "energyTargetWh": 0,
+              "estimatedPrice": 525000,
+              "compatible": true
+            },
+            {
+              "packageName": "VSLM HOME PRO",
+              "fitScore": 98,
+              "solarPanels": "4 x 450W Mono Solar Panels",
+              "battery": "10kWh LiFePO4 Battery Bank",
+              "inverter": "3kW Pure Sine Inverter",
+              "inverterKw": 3,
+              "loadCapacityW": 3000,
+              "energyTargetWh": 2500,
+              "estimatedPrice": 765000,
+              "compatible": true
+            },
+            {
+              "packageName": "VSLM MBOX ULTRA",
+              "fitScore": 98,
+              "solarPanels": "6 x 450W Mono Solar Panels",
+              "battery": "15kWh LiFePO4 Battery Bank",
+              "inverter": "5kW Pure Sine Inverter",
+              "inverterKw": 5,
+              "loadCapacityW": 5000,
+              "energyTargetWh": 5000,
+              "estimatedPrice": 1080000,
+              "compatible": true
+            },
+            {
+              "packageName": "VSLM GRID MAX",
+              "fitScore": 72,
+              "solarPanels": "10 x 450W Mono Solar Panels",
+              "battery": "20kWh LiFePO4 Battery Bank",
+              "inverter": "8kW Pure Sine Inverter",
+              "inverterKw": 8,
+              "loadCapacityW": 8000,
+              "energyTargetWh": 9000,
+              "estimatedPrice": 1580000,
+              "compatible": false
+            }
+          ],
+          "quote": {
+            "equipmentPrice": 765000,
+            "installFee": 45000,
+            "logisticsFee": 12000,
+            "subtotalExclTax": 822000,
+            "vat": 123300,
+            "totalInclTax": 945300,
+            "displayMode": "tax_inclusive",
+            "displayTotal": 945300,
+            "currency": "VUV"
+          },
+          "settings": {
+            "audToVuv": 80,
+            "nzdToVuv": 72,
+            "quoteDisplayMode": "tax_inclusive",
+            "homepage": "dashboard"
+          },
+          "qrPayload": "https://smart-sizing.local/quote?customer=%E6%9E%97%E9%87%91%E5%9D%A1&package=VSLM%20HOME%20PRO&total=945300"
+        }
+      },
+      {
+        "id": "1774832891813",
+        "customer": {
+          "name": "Installment Demo",
+          "phone": "77001122",
+          "email": "demo@example.com",
+          "address": "Port Vila"
+        },
+        "location": "Port Vila",
+        "salesPersonId": "emp-sales-001",
+        "salesPersonName": "Lina Vatoko",
+        "salesPersonRole": "Sales-1",
+        "packageName": "M-BOX1200",
+        "total": 110000,
+        "dailyWh": 3600,
+        "installmentPlan": {
+          "enabled": true,
+          "termWeeks": 12,
+          "totalAmount": 110000,
+          "downPayment": 33000,
+          "financedAmount": 77000,
+          "weeklyAmount": 6417,
+          "cycleLabel": "Weekly / 12 weeks",
+          "nextDueLabel": "Next week",
+          "startDate": "2026-03-30"
+        },
+        "status": "draft",
+        "createdAt": "2026-03-30T01:08:11.813Z",
+        "payload": {
+          "quote": {
+            "displayTotal": 110000
+          },
+          "recommendation": {
+            "packageName": "M-BOX1200"
+          },
+          "installmentPlan": {
+            "startDate": "2026-03-30",
+            "weeklyAmount": 6417,
+            "cycleLabel": "Weekly / 12 weeks",
+            "termWeeks": 12,
+            "financedAmount": 77000,
+            "downPayment": 33000,
+            "enabled": true,
+            "nextDueLabel": "Next week"
+          },
+          "salesPersonId": "emp-sales-001",
+          "customer": {
+            "email": "demo@example.com",
+            "name": "Installment Demo",
+            "phone": "77001122",
+            "address": "Port Vila"
+          },
+          "salesPersonName": "Lina Vatoko",
+          "location": "Port Vila",
+          "metrics": {
+            "dailyWh": 3600
+          },
+          "salesPerson": {
+            "roleLabel": "Sales-1",
+            "name": "Lina Vatoko",
+            "id": "emp-sales-001"
+          },
+          "salesPersonRole": "Sales-1"
+        }
+      }
+    ],
+    "productConfig": {
+      "vatRate": 15,
+      "packages": [
+        {
+          "id": "m-box-300",
+          "sku": "M-BOX300",
+          "name": "M-BOX300",
+          "status": "active",
+          "storageKwh": 0.6,
+          "panelCount": 1,
+          "panelWatts": 200,
+          "loadCapacityW": 300,
+          "inverterModel": "300W Inverter",
+          "stock": 18,
+          "costVt": 42000,
+          "retailVt": 55000,
+          "wholesaleVt": 49500,
+          "featured": true,
+          "sortOrder": 1
+        },
+        {
+          "id": "m-box-1200",
+          "sku": "M-BOX1200",
+          "name": "M-BOX1200",
+          "status": "active",
+          "storageKwh": 1.2,
+          "panelCount": 1,
+          "panelWatts": 550,
+          "loadCapacityW": 1200,
+          "inverterModel": "1200W Inverter",
+          "stock": 16,
+          "costVt": 86000,
+          "retailVt": 110000,
+          "wholesaleVt": 99000,
+          "featured": true,
+          "sortOrder": 2
+        },
+        {
+          "id": "m-box-1500",
+          "sku": "M-BOX1500",
+          "name": "M-BOX1500",
+          "status": "active",
+          "storageKwh": 2.56,
+          "panelCount": 2,
+          "panelWatts": 550,
+          "loadCapacityW": 1500,
+          "inverterModel": "1.5kW Inverter",
+          "stock": 10,
+          "costVt": 152000,
+          "retailVt": 187000,
+          "wholesaleVt": 168300,
+          "featured": true,
+          "sortOrder": 3
+        }
+      ],
+      "discounts": [
+        {
+          "id": "discount-new-island",
+          "name": "New Island Launch",
+          "description": "All kits 5% off",
+          "active": false
+        },
+        {
+          "id": "discount-rainy-season",
+          "name": "Rainy Season Promo",
+          "description": "Fixed VT 15,000 discount",
+          "active": false
+        }
+      ]
+    },
+    "inventory": {
+      "shipment": {
+        "routeLabel": "Guangzhou (CN) to Port Vila (VU)",
+        "status": "in_transit",
+        "statusLabel": "In Transit",
+        "trackingNo": "CN-VU-99283-SOL",
+        "cargoSummary": "M-BOX kits, panels, cables and accessories",
+        "originPort": "Guangzhou Port",
+        "originDate": "2026-03-10",
+        "transitPort": "Singapore",
+        "transitDate": "2026-03-18",
+        "currentZone": "Coral Sea",
+        "etaDate": "2026-04-08",
+        "destinationPort": "Port Vila",
+        "destinationDate": ""
+      },
+      "stockItems": [
+        {
+          "id": "pkg-mbox300",
+          "name": "M-BOX300",
+          "sku": "M-BOX300",
+          "category": "package",
+          "model": "0.6kWh / 300W inverter / 1 x 200W panel",
+          "unit": "sets",
+          "quantity": 24,
+          "monthlyUsage": 6,
+          "trendPct": 8,
+          "threshold": 6,
+          "status": "healthy",
+          "unitCostVt": 42000
+        },
+        {
+          "id": "pkg-mbox1200",
+          "name": "M-BOX1200",
+          "sku": "M-BOX1200",
+          "category": "package",
+          "model": "1.2kWh / 1200W inverter / 1 x 550W panel",
+          "unit": "sets",
+          "quantity": 16,
+          "monthlyUsage": 5,
+          "trendPct": 12,
+          "threshold": 4,
+          "status": "healthy",
+          "unitCostVt": 86000
+        },
+        {
+          "id": "pkg-mbox1500",
+          "name": "M-BOX1500",
+          "sku": "M-BOX1500",
+          "category": "package",
+          "model": "2.56kWh / 1.5kW inverter / 2 x 550W panel",
+          "unit": "sets",
+          "quantity": 10,
+          "monthlyUsage": 4,
+          "trendPct": 10,
+          "threshold": 3,
+          "status": "healthy",
+          "unitCostVt": 152000
+        },
+        {
+          "id": "inv-ls6-2k",
+          "name": "LS6.2K",
+          "sku": "INV-LS6.2K",
+          "category": "inverter",
+          "model": "Standalone inverter",
+          "unit": "units",
+          "quantity": 6,
+          "monthlyUsage": 2,
+          "trendPct": 4,
+          "threshold": 2,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "inv-ls3-6k",
+          "name": "LS3.6K",
+          "sku": "INV-LS3.6K",
+          "category": "inverter",
+          "model": "Standalone inverter",
+          "unit": "units",
+          "quantity": 8,
+          "monthlyUsage": 2,
+          "trendPct": 3,
+          "threshold": 2,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "inv-dml8k",
+          "name": "DML8K",
+          "sku": "INV-DML8K",
+          "category": "inverter",
+          "model": "Hybrid inverter",
+          "unit": "units",
+          "quantity": 5,
+          "monthlyUsage": 2,
+          "trendPct": 6,
+          "threshold": 2,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "pkg-tl6k-10kwh",
+          "name": "TL6K/10KWH",
+          "sku": "TL6K-10KWH",
+          "category": "package",
+          "model": "6kW inverter / 10kWh storage",
+          "unit": "sets",
+          "quantity": 3,
+          "monthlyUsage": 1,
+          "trendPct": 5,
+          "threshold": 1,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "cable-pv-black",
+          "name": "PV黑线",
+          "sku": "PV-BLACK",
+          "category": "cable",
+          "model": "Solar PV cable black",
+          "unit": "m",
+          "quantity": 3200,
+          "monthlyUsage": 500,
+          "trendPct": 8,
+          "threshold": 800,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "cable-pv-red",
+          "name": "PV红线",
+          "sku": "PV-RED",
+          "category": "cable",
+          "model": "Solar PV cable red",
+          "unit": "m",
+          "quantity": 3000,
+          "monthlyUsage": 480,
+          "trendPct": 7,
+          "threshold": 800,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "acc-mc4-pair",
+          "name": "MC4接头/双",
+          "sku": "MC4-PAIR",
+          "category": "accessory",
+          "model": "MC4 connector pair",
+          "unit": "pairs",
+          "quantity": 215,
+          "monthlyUsage": 50,
+          "trendPct": 9,
+          "threshold": 60,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "acc-pv-2in1",
+          "name": "PV二合一转接线",
+          "sku": "PV-2IN1",
+          "category": "accessory",
+          "model": "PV 2-in-1 branch connector",
+          "unit": "pcs",
+          "quantity": 60,
+          "monthlyUsage": 12,
+          "trendPct": 5,
+          "threshold": 20,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "acc-pv-3in1",
+          "name": "PV三合一转接线",
+          "sku": "PV-3IN1",
+          "category": "accessory",
+          "model": "PV 3-in-1 branch connector",
+          "unit": "pcs",
+          "quantity": 44,
+          "monthlyUsage": 10,
+          "trendPct": 4,
+          "threshold": 15,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "acc-breaker",
+          "name": "空开",
+          "sku": "BRK-GEN",
+          "category": "accessory",
+          "model": "Mini circuit breaker",
+          "unit": "pcs",
+          "quantity": 140,
+          "monthlyUsage": 24,
+          "trendPct": 3,
+          "threshold": 40,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "acc-breaker-box",
+          "name": "空开盒",
+          "sku": "BRK-BOX",
+          "category": "accessory",
+          "model": "Breaker enclosure box",
+          "unit": "pcs",
+          "quantity": 48,
+          "monthlyUsage": 10,
+          "trendPct": 2,
+          "threshold": 15,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "acc-combiner-4in1",
+          "name": "汇流箱四进一",
+          "sku": "COMB-4IN1",
+          "category": "accessory",
+          "model": "4 in 1 combiner box",
+          "unit": "pcs",
+          "quantity": 20,
+          "monthlyUsage": 5,
+          "trendPct": 4,
+          "threshold": 8,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "panel-550w",
+          "name": "光伏板550W",
+          "sku": "PANEL-550W",
+          "category": "solar",
+          "model": "550W solar panel",
+          "unit": "pcs",
+          "quantity": 240,
+          "monthlyUsage": 60,
+          "trendPct": 11,
+          "threshold": 80,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "panel-590w",
+          "name": "光伏板590W",
+          "sku": "PANEL-590W",
+          "category": "solar",
+          "model": "590W solar panel",
+          "unit": "pcs",
+          "quantity": 90,
+          "monthlyUsage": 24,
+          "trendPct": 7,
+          "threshold": 30,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "panel-350w",
+          "name": "光伏板350W",
+          "sku": "PANEL-350W",
+          "category": "solar",
+          "model": "350W solar panel",
+          "unit": "pcs",
+          "quantity": 70,
+          "monthlyUsage": 18,
+          "trendPct": 4,
+          "threshold": 20,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "panel-200w",
+          "name": "光伏板200W",
+          "sku": "PANEL-200W",
+          "category": "solar",
+          "model": "200W solar panel",
+          "unit": "pcs",
+          "quantity": 120,
+          "monthlyUsage": 20,
+          "trendPct": 5,
+          "threshold": 30,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "battery-gel-12v200ah",
+          "name": "铅酸胶体电池12V/200Ah",
+          "sku": "BAT-GEL-12V200AH",
+          "category": "battery",
+          "model": "12V 200Ah gel battery",
+          "unit": "pcs",
+          "quantity": 36,
+          "monthlyUsage": 8,
+          "trendPct": 2,
+          "threshold": 12,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "light-hi10",
+          "name": "Hi10",
+          "sku": "HI10",
+          "category": "lighting",
+          "model": "Portable lighting unit",
+          "unit": "pcs",
+          "quantity": 40,
+          "monthlyUsage": 8,
+          "trendPct": 3,
+          "threshold": 12,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "light-hi15",
+          "name": "Hi15",
+          "sku": "HI15",
+          "category": "lighting",
+          "model": "Portable lighting unit",
+          "unit": "pcs",
+          "quantity": 32,
+          "monthlyUsage": 7,
+          "trendPct": 3,
+          "threshold": 10,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "light-hi16",
+          "name": "Hi16",
+          "sku": "HI16",
+          "category": "lighting",
+          "model": "Portable lighting unit",
+          "unit": "pcs",
+          "quantity": 24,
+          "monthlyUsage": 6,
+          "trendPct": 2,
+          "threshold": 8,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "light-hi05",
+          "name": "Hi05",
+          "sku": "HI05",
+          "category": "lighting",
+          "model": "Portable lighting unit",
+          "unit": "pcs",
+          "quantity": 44,
+          "monthlyUsage": 9,
+          "trendPct": 4,
+          "threshold": 12,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "mount-roof",
+          "name": "屋顶支架",
+          "sku": "MT-ROOF",
+          "category": "mounting",
+          "model": "Roof mounting structure",
+          "unit": "sets",
+          "quantity": 28,
+          "monthlyUsage": 6,
+          "trendPct": 4,
+          "threshold": 8,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "mount-ground",
+          "name": "地面支架",
+          "sku": "MT-GROUND",
+          "category": "mounting",
+          "model": "Ground mounting structure",
+          "unit": "sets",
+          "quantity": 18,
+          "monthlyUsage": 4,
+          "trendPct": 3,
+          "threshold": 6,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "light-ip65-50w",
+          "name": "IP65户外灯50W",
+          "sku": "LAMP-IP65-50W",
+          "category": "lighting",
+          "model": "Outdoor flood light 50W",
+          "unit": "pcs",
+          "quantity": 52,
+          "monthlyUsage": 10,
+          "trendPct": 5,
+          "threshold": 15,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "light-thread-led",
+          "name": "螺纹LED灯",
+          "sku": "LED-THREAD",
+          "category": "lighting",
+          "model": "Threaded LED bulb",
+          "unit": "pcs",
+          "quantity": 160,
+          "monthlyUsage": 30,
+          "trendPct": 6,
+          "threshold": 50,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "light-holder-8m",
+          "name": "8米线灯座",
+          "sku": "LAMP-HOLDER-8M",
+          "category": "lighting",
+          "model": "8m cable lamp holder",
+          "unit": "pcs",
+          "quantity": 72,
+          "monthlyUsage": 15,
+          "trendPct": 4,
+          "threshold": 20,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "light-camping",
+          "name": "露营灯",
+          "sku": "LAMP-CAMP",
+          "category": "lighting",
+          "model": "Camping lantern",
+          "unit": "pcs",
+          "quantity": 60,
+          "monthlyUsage": 12,
+          "trendPct": 5,
+          "threshold": 18,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "acc-charge-3in1",
+          "name": "3合1充电线",
+          "sku": "CHARGE-3IN1",
+          "category": "accessory",
+          "model": "3 in 1 charging cable",
+          "unit": "pcs",
+          "quantity": 110,
+          "monthlyUsage": 20,
+          "trendPct": 4,
+          "threshold": 30,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "light-flash",
+          "name": "LED手电筒",
+          "sku": "FLASH-LED",
+          "category": "lighting",
+          "model": "LED flashlight",
+          "unit": "pcs",
+          "quantity": 88,
+          "monthlyUsage": 16,
+          "trendPct": 4,
+          "threshold": 24,
+          "status": "healthy",
+          "unitCostVt": 0
+        },
+        {
+          "id": "acc-yellow-socket",
+          "name": "黄色户外接线插座",
+          "sku": "SOCKET-YELLOW-OUT",
+          "category": "accessory",
+          "model": "Outdoor wiring socket",
+          "unit": "pcs",
+          "quantity": 54,
+          "monthlyUsage": 12,
+          "trendPct": 3,
+          "threshold": 18,
+          "status": "healthy",
+          "unitCostVt": 0
+        }
+      ],
+      "transactions": [
+        {
+          "id": "ST-1774827270697",
+          "itemId": "acc-mc4-pair",
+          "itemName": "MC4接头/双",
+          "sku": "MC4-PAIR",
+          "type": "stocktake",
+          "typeLabel": "Stocktake Adjustment",
+          "quantityChange": 1,
+          "quantityText": "+1 (214 -> 215)",
+          "operator": "System Restore",
+          "timestamp": "2026-03-29T23:34:30.697Z"
+        },
+        {
+          "id": "TR-1774827251990-acc-mc4-pair",
+          "itemId": "acc-mc4-pair",
+          "itemName": "MC4接头/双",
+          "sku": "MC4-PAIR",
+          "type": "outbound",
+          "typeLabel": "Outbound - Repair Order RE-20260329-978",
+          "quantityChange": -1,
+          "quantityText": "-1",
+          "operator": "Zhang Wei",
+          "timestamp": "2026-03-29T23:34:11.990Z"
+        },
+        {
+          "id": "ST-1774792358009",
+          "itemId": "acc-mc4-pair",
+          "itemName": "MC4接头/双",
+          "sku": "MC4-PAIR",
+          "type": "stocktake",
+          "typeLabel": "Stocktake Adjustment",
+          "quantityChange": -5,
+          "quantityText": "-5 (220 -> 215)",
+          "operator": "Stock Check",
+          "timestamp": "2026-03-29T13:52:38.009Z"
+        },
+        {
+          "id": "TR-20260329-03",
+          "itemId": "pkg-mbox1200",
+          "itemName": "M-BOX1200",
+          "sku": "M-BOX1200",
+          "type": "outbound",
+          "typeLabel": "Outbound - Retail Delivery",
+          "quantityChange": -2,
+          "quantityText": "-2",
+          "operator": "Sales Desk",
+          "timestamp": "2026-03-29T14:30:00+11:00"
+        },
+        {
+          "id": "TR-20260329-02",
+          "itemId": "panel-550w",
+          "itemName": "光伏板550W",
+          "sku": "PANEL-550W",
+          "type": "inbound",
+          "typeLabel": "Inbound - Container Receipt",
+          "quantityChange": 60,
+          "quantityText": "+60",
+          "operator": "Warehouse",
+          "timestamp": "2026-03-29T09:12:00+11:00"
+        },
+        {
+          "id": "TR-20260328-12",
+          "itemId": "acc-mc4-pair",
+          "itemName": "MC4接头/双",
+          "sku": "MC4-PAIR",
+          "type": "outbound",
+          "typeLabel": "Outbound - Rooftop Kit",
+          "quantityChange": -20,
+          "quantityText": "-20",
+          "operator": "A. Molisa",
+          "timestamp": "2026-03-28T16:30:00+11:00"
+        },
+        {
+          "id": "TR-20260328-11",
+          "itemId": "cable-pv-black",
+          "itemName": "PV黑线",
+          "sku": "PV-BLACK",
+          "type": "outbound",
+          "typeLabel": "Outbound - Site Wiring",
+          "quantityChange": -300,
+          "quantityText": "-300m",
+          "operator": "R. Tari",
+          "timestamp": "2026-03-28T14:15:00+11:00"
+        },
+        {
+          "id": "TR-20260328-10",
+          "itemId": "mount-roof",
+          "itemName": "屋顶支架",
+          "sku": "MT-ROOF",
+          "type": "outbound",
+          "typeLabel": "Outbound - Installation Team",
+          "quantityChange": -4,
+          "quantityText": "-4",
+          "operator": "Install Crew",
+          "timestamp": "2026-03-28T11:20:00+11:00"
+        },
+        {
+          "id": "TR-20260327-09",
+          "itemId": "battery-gel-12v200ah",
+          "itemName": "铅酸胶体电池12V/200Ah",
+          "sku": "BAT-GEL-12V200AH",
+          "type": "inbound",
+          "typeLabel": "Inbound - Battery Refill",
+          "quantityChange": 12,
+          "quantityText": "+12",
+          "operator": "L. Boe",
+          "timestamp": "2026-03-27T15:10:00+11:00"
+        },
+        {
+          "id": "TR-20260327-08",
+          "itemId": "light-ip65-50w",
+          "itemName": "IP65户外灯50W",
+          "sku": "LAMP-IP65-50W",
+          "type": "outbound",
+          "typeLabel": "Outbound - Lighting Order",
+          "quantityChange": -8,
+          "quantityText": "-8",
+          "operator": "Retail Shop",
+          "timestamp": "2026-03-27T09:40:00+11:00"
+        }
+      ]
+    },
+    "repairOrder": {
+      "id": "RE-20240912-042",
+      "title": "Inverter Array Fault",
+      "status": "in_progress",
+      "statusLabel": "Under Maintenance",
+      "priority": "P1",
+      "priorityLabel": "Urgent (P1)",
+      "etaLabel": "Today 17:30",
+      "description": "Customer reported that inverter group #03 disconnected automatically during peak sunlight hours. Initial inspection shows abnormal bus voltage, likely caused by a blown 100A DC fuse or carbonized contactor.",
+      "customer": {
+        "name": "Efate Plantation Ltd",
+        "phone": "+678 555 0198",
+        "email": "ops@efateplantation.vu",
+        "address": "Teouma Road, Efate"
+      },
+      "assignedEngineer": {
+        "id": "manual-1774827270400",
+        "name": "Zhang Wei",
+        "role": "Field Engineer"
+      },
+      "assetLocation": {
+        "name": "Solar Park A-03",
+        "address": "Solar Park A-03, Port Vila",
+        "coordinates": "17.7333° S, 168.3271° E",
+        "latitude": -17.7333,
+        "longitude": 168.3271
+      },
+      "technicianFeedback": "Cooling fan bearing on unit #03 also has abnormal noise. Recommend lubrication and follow-up check during this repair cycle to avoid overheating trips later.",
+      "notes": [],
+      "spareParts": [
+        {
+          "id": "repair-fuse-100a",
+          "name": "Inverter DC Fuse (100A)",
+          "sku": "SOL-FUSE-100A-DC",
+          "quantity": 2,
+          "unit": "pcs",
+          "status": "issued",
+          "statusLabel": "Issued"
+        },
+        {
+          "id": "repair-seal-v2",
+          "name": "Multi-purpose Connector Seal",
+          "sku": "SOL-SEAL-V2",
+          "quantity": 4,
+          "unit": "pcs",
+          "status": "pending",
+          "statusLabel": "Pending"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "timeline-1774827270400",
+          "timeLabel": "3/30/2026, 10:34:30 AM",
+          "title": "Engineer reassigned",
+          "detail": "Assigned engineer: Zhang Wei",
+          "type": "current"
+        },
+        {
+          "id": "timeline-1774827252309",
+          "timeLabel": "3/30/2026, 10:34:12 AM",
+          "title": "Engineer reassigned",
+          "detail": "Assigned engineer: Jason Test",
+          "type": "done"
+        },
+        {
+          "id": "tl-1",
+          "timeLabel": "Today 14:15",
+          "title": "In Progress: Internal cleaning and component replacement",
+          "detail": "Technician: Zhang Wei (L3)",
+          "type": "done"
+        },
+        {
+          "id": "tl-2",
+          "timeLabel": "Today 13:45",
+          "title": "On-site diagnosis completed: confirmed blown fuse",
+          "detail": "Initial conclusion: transient voltage fluctuation",
+          "type": "done"
+        },
+        {
+          "id": "tl-3",
+          "timeLabel": "Today 11:20",
+          "title": "Work order assigned",
+          "detail": "Dispatcher: system auto assignment",
+          "type": "done"
+        },
+        {
+          "id": "tl-4",
+          "timeLabel": "Yesterday 23:05",
+          "title": "Customer submitted repair request",
+          "detail": "Submitted via app",
+          "type": "start"
+        }
+      ]
+    },
+    "repairOrders": {
+      "items": [
+        {
+          "id": "RE-20240912-042",
+          "title": "Inverter Array Fault",
+          "status": "in_progress",
+          "statusLabel": "Under Maintenance",
+          "priority": "P1",
+          "priorityLabel": "Urgent (P1)",
+          "etaLabel": "Today 17:30",
+          "description": "Customer reported that inverter group #03 disconnected automatically during peak sunlight hours. Initial inspection shows abnormal bus voltage, likely caused by a blown 100A DC fuse or carbonized contactor.",
+          "customer": {
+            "name": "Efate Plantation Ltd",
+            "phone": "+678 555 0198",
+            "email": "ops@efateplantation.vu",
+            "address": "Teouma Road, Efate"
+          },
+          "assignedEngineer": {
+            "id": "manual-1774827270400",
+            "name": "Zhang Wei",
+            "role": "Field Engineer"
+          },
+          "assetLocation": {
+            "name": "Solar Park A-03",
+            "address": "Solar Park A-03, Port Vila",
+            "coordinates": "17.7333° S, 168.3271° E",
+            "latitude": -17.7333,
+            "longitude": 168.3271
+          },
+          "technicianFeedback": "Cooling fan bearing on unit #03 also has abnormal noise. Recommend lubrication and follow-up check during this repair cycle to avoid overheating trips later.",
+          "notes": [],
+          "spareParts": [
+            {
+              "id": "repair-fuse-100a",
+              "name": "Inverter DC Fuse (100A)",
+              "sku": "SOL-FUSE-100A-DC",
+              "quantity": 2,
+              "unit": "pcs",
+              "status": "issued",
+              "statusLabel": "Issued"
+            },
+            {
+              "id": "repair-seal-v2",
+              "name": "Multi-purpose Connector Seal",
+              "sku": "SOL-SEAL-V2",
+              "quantity": 4,
+              "unit": "pcs",
+              "status": "pending",
+              "statusLabel": "Pending"
+            }
+          ],
+          "timeline": [
+            {
+              "id": "timeline-1774827270400",
+              "timeLabel": "3/30/2026, 10:34:30 AM",
+              "title": "Engineer reassigned",
+              "detail": "Assigned engineer: Zhang Wei",
+              "type": "current"
+            },
+            {
+              "id": "timeline-1774827252309",
+              "timeLabel": "3/30/2026, 10:34:12 AM",
+              "title": "Engineer reassigned",
+              "detail": "Assigned engineer: Jason Test",
+              "type": "done"
+            },
+            {
+              "id": "tl-1",
+              "timeLabel": "Today 14:15",
+              "title": "In Progress: Internal cleaning and component replacement",
+              "detail": "Technician: Zhang Wei (L3)",
+              "type": "done"
+            },
+            {
+              "id": "tl-2",
+              "timeLabel": "Today 13:45",
+              "title": "On-site diagnosis completed: confirmed blown fuse",
+              "detail": "Initial conclusion: transient voltage fluctuation",
+              "type": "done"
+            },
+            {
+              "id": "tl-3",
+              "timeLabel": "Today 11:20",
+              "title": "Work order assigned",
+              "detail": "Dispatcher: system auto assignment",
+              "type": "done"
+            },
+            {
+              "id": "tl-4",
+              "timeLabel": "Yesterday 23:05",
+              "title": "Customer submitted repair request",
+              "detail": "Submitted via app",
+              "type": "start"
+            }
+          ]
+        }
+      ]
+    },
+    "siteSurvey": {
+      "bookings": [
+        {
+          "id": "SV-1774830770796",
+          "island": "Efate",
+          "preferredDate": "2026-03-31",
+          "preferredTime": "09:00-12:00",
+          "latitude": -17.726274,
+          "longitude": 168.322239,
+          "status": "scheduled",
+          "sitePhotos": [],
+          "customer": {
+            "name": "ESS",
+            "phone": "7788855",
+            "address": "no2 downtown"
+          },
+          "reviewChecklist": {
+            "photosOk": true,
+            "gpsOk": true,
+            "contactOk": true
+          },
+          "reviewNotes": "Auto queue test",
+          "reviewedBy": "Survey Desk",
+          "reviewedAt": "2026-03-30T00:40:58.141Z",
+          "scheduleTask": {
+            "id": "SCH-SV-1774830770796",
+            "status": "scheduled",
+            "notes": "Confirmed access with customer",
+            "engineerId": "emp-eng-001",
+            "engineerName": "陈家成",
+            "visitDate": "2026-04-01",
+            "visitTime": "13:00-16:00",
+            "createdAt": "2026-03-30T00:40:58.140Z",
+            "updatedAt": "2026-03-30T00:48:02.522Z"
+          },
+          "createdAt": "2026-03-30T00:32:50.796Z"
+        },
+        {
+          "id": "SV-20260330-001",
+          "island": "Efate",
+          "preferredDate": "2026-04-02",
+          "preferredTime": "09:00-12:00",
+          "latitude": -17.7333,
+          "longitude": 168.3167,
+          "status": "scheduled",
+          "sitePhotos": [],
+          "customer": {
+            "name": "Malo Solar Project",
+            "phone": "+678 555 0182",
+            "address": "Port Vila, Efate"
+          },
+          "reviewChecklist": {
+            "photosOk": true,
+            "gpsOk": true,
+            "contactOk": true
+          },
+          "reviewNotes": "GPS and contact checked",
+          "reviewedBy": "Survey Desk",
+          "reviewedAt": "2026-03-30T00:37:54.970Z",
+          "scheduleTask": null,
+          "createdAt": "2026-03-30T08:20:00+11:00"
+        }
+      ]
+    },
+    "employees": {
+      "monthlyTrend": [
+        {
+          "label": "10月",
+          "completed": 28,
+          "target": 32
+        },
+        {
+          "label": "11月",
+          "completed": 24,
+          "target": 30
+        },
+        {
+          "label": "12月",
+          "completed": 35,
+          "target": 36
+        },
+        {
+          "label": "1月",
+          "completed": 18,
+          "target": 26
+        },
+        {
+          "label": "2月",
+          "completed": 31,
+          "target": 34
+        },
+        {
+          "label": "3月",
+          "completed": 38,
+          "target": 40
+        }
+      ],
+      "items": [
+        {
+          "id": "emp-eng-001",
+          "employeeNo": "VSLM-ENG-20240901",
+          "name": "陈家成",
+          "role": "engineer",
+          "roleLabel": "工程师",
+          "branch": "Efate 服务中心",
+          "status": "active",
+          "statusLabel": "在岗",
+          "phone": "+678 555 0101",
+          "email": "chen.jiacheng@vslm.vu",
+          "hireDate": "2024-09-01",
+          "resignedAt": "",
+          "skills": [
+            "PV-Expert",
+            "并网安装",
+            "高空作业"
+          ],
+          "metrics": {
+            "primaryLabel": "完工率",
+            "primaryValue": "98%",
+            "secondaryLabel": "本月工单",
+            "secondaryValue": "42",
+            "ratingLabel": "客户评分",
+            "ratingValue": "4.9"
+          },
+          "payroll": {
+            "hourlyRate": 780,
+            "workHours": 184,
+            "baseSalary": 0,
+            "performanceSalary": 12000
+          }
+        },
+        {
+          "id": "emp-sales-001",
+          "employeeNo": "VSLM-SAL-20241105",
+          "name": "Lina Vatoko",
+          "role": "sales",
+          "roleLabel": "销售",
+          "branch": "Santo 销售点",
+          "status": "active",
+          "statusLabel": "在岗",
+          "phone": "+678 555 0148",
+          "email": "lina.vatoko@vslm.vu",
+          "hireDate": "2024-11-05",
+          "resignedAt": "",
+          "skills": [
+            "Sales-L3",
+            "CRM-Pro",
+            "报价顾问"
+          ],
+          "metrics": {
+            "primaryLabel": "成交率",
+            "primaryValue": "100%",
+            "secondaryLabel": "签约金额",
+            "secondaryValue": "VT 24.0M",
+            "ratingLabel": "客户评分",
+            "ratingValue": "5.0"
+          },
+          "payroll": {
+            "hourlyRate": 850,
+            "workHours": 176,
+            "baseSalary": 0,
+            "performanceSalary": 0
+          }
+        },
+        {
+          "id": "emp-sales-mgr-001",
+          "employeeNo": "VSLM-MGR-20240218",
+          "name": "Mele Tari",
+          "role": "sales_manager",
+          "roleLabel": "销售经理",
+          "branch": "Port Vila 总部",
+          "status": "active",
+          "statusLabel": "在岗",
+          "phone": "+678 555 0208",
+          "email": "mele.tari@vslm.vu",
+          "hireDate": "2024-02-18",
+          "resignedAt": "",
+          "skills": [
+            "区域管理",
+            "渠道策略",
+            "重点客户"
+          ],
+          "metrics": {
+            "primaryLabel": "团队达成",
+            "primaryValue": "94%",
+            "secondaryLabel": "团队签约",
+            "secondaryValue": "VT 58.4M",
+            "ratingLabel": "团队评分",
+            "ratingValue": "4.8"
+          },
+          "payroll": {
+            "hourlyRate": 0,
+            "workHours": 0,
+            "baseSalary": 185000,
+            "performanceSalary": 42000
+          }
+        },
+        {
+          "id": "emp-admin-001",
+          "employeeNo": "VSLM-ADM-20230112",
+          "name": "Ruth Moli",
+          "role": "admin",
+          "roleLabel": "管理员",
+          "branch": "Port Vila 总部",
+          "status": "active",
+          "statusLabel": "在岗",
+          "phone": "+678 555 0180",
+          "email": "ruth.moli@vslm.vu",
+          "hireDate": "2023-01-12",
+          "resignedAt": "",
+          "skills": [
+            "系统权限",
+            "流程审批",
+            "报表管理"
+          ],
+          "metrics": {
+            "primaryLabel": "流程及时率",
+            "primaryValue": "97%",
+            "secondaryLabel": "本月审批",
+            "secondaryValue": "186",
+            "ratingLabel": "协作评分",
+            "ratingValue": "4.7"
+          },
+          "payroll": {
+            "hourlyRate": 0,
+            "workHours": 0,
+            "baseSalary": 165000,
+            "performanceSalary": 18000
+          }
+        },
+        {
+          "id": "emp-sales-002",
+          "employeeNo": "VSLM-SAL-20240815",
+          "name": "Tom Bani",
+          "role": "sales",
+          "roleLabel": "销售",
+          "branch": "Tanna 销售点",
+          "status": "resigned",
+          "statusLabel": "离职",
+          "phone": "+678 555 0161",
+          "email": "tom.bani@vslm.vu",
+          "hireDate": "2024-08-15",
+          "resignedAt": "2026-03-30",
+          "skills": [
+            "门店销售",
+            "客户回访"
+          ],
+          "metrics": {
+            "primaryLabel": "成交率",
+            "primaryValue": "88%",
+            "secondaryLabel": "签约金额",
+            "secondaryValue": "VT 12.6M",
+            "ratingLabel": "客户评分",
+            "ratingValue": "4.5"
+          },
+          "payroll": {
+            "hourlyRate": 850,
+            "workHours": 176,
+            "baseSalary": 0,
+            "performanceSalary": 0
+          }
+        }
+      ]
+    },
+    "rbac": {
+      "employeeAccess": [
+        {
+          "id": "rbac-access-1",
+          "employeeId": "emp-admin-001",
+          "roleOverride": "admin",
+          "branchScope": "Port Vila 总部",
+          "accessEnabled": true,
+          "securityLevel": 3
+        },
+        {
+          "id": "rbac-access-2",
+          "employeeId": "emp-sales-mgr-001",
+          "roleOverride": "sales_manager",
+          "branchScope": "Port Vila 总部",
+          "accessEnabled": true,
+          "securityLevel": 2
+        },
+        {
+          "id": "rbac-access-3",
+          "employeeId": "emp-eng-001",
+          "roleOverride": "engineer",
+          "branchScope": "Efate 服务中心",
+          "accessEnabled": true,
+          "securityLevel": 1
+        },
+        {
+          "id": "rbac-access-4",
+          "employeeId": "emp-sales-001",
+          "roleOverride": "sales",
+          "branchScope": "Santo 销售点",
+          "accessEnabled": true,
+          "securityLevel": 1
+        }
+      ],
+      "moduleMatrix": [
+        {
+          "key": "inventory_sync",
+          "label": "库存全岛同步授权",
+          "enabled": true,
+          "group": "inventory"
+        },
+        {
+          "key": "remote_dispatch",
+          "label": "外岛维修派单权限",
+          "enabled": true,
+          "group": "inventory"
+        },
+        {
+          "key": "emergency_logistics_lock",
+          "label": "紧急物流优先锁定",
+          "enabled": false,
+          "group": "inventory"
+        },
+        {
+          "key": "finance_pool_edit",
+          "label": "财务资金池修改权",
+          "enabled": false,
+          "group": "finance"
+        },
+        {
+          "key": "offline_sync",
+          "label": "离线数据同步授权",
+          "enabled": true,
+          "group": "finance"
+        },
+        {
+          "key": "sensitive_customer_access",
+          "label": "高敏感客户隐私访问",
+          "enabled": false,
+          "group": "finance"
+        }
+      ],
+      "ipWhitelist": [
+        {
+          "id": "ip-port-vila",
+          "label": "Port Vila Headquarters",
+          "cidr": "202.43.20.0/24",
+          "status": "active"
+        },
+        {
+          "id": "ip-santo",
+          "label": "Santo Logistics Center",
+          "cidr": "103.11.12.0/24",
+          "status": "active"
+        },
+        {
+          "id": "ip-tanna",
+          "label": "Tanna Satellite Office",
+          "cidr": "Unset (Dynamic)",
+          "status": "draft"
+        }
+      ],
+      "emergencyLocked": false,
+      "auditLogs": [
+        {
+          "id": "audit-1774829800553",
+          "action": "解除紧急系统封锁",
+          "actor": "管理员",
+          "createdAt": "2026-03-30T00:16:40.553Z"
+        },
+        {
+          "id": "audit-1774829800171",
+          "action": "启用紧急系统封锁",
+          "actor": "管理员",
+          "createdAt": "2026-03-30T00:16:40.171Z"
+        },
+        {
+          "id": "audit-1774829799527",
+          "action": "解除紧急系统封锁",
+          "actor": "管理员",
+          "createdAt": "2026-03-30T00:16:39.527Z"
+        },
+        {
+          "id": "audit-1774829798904",
+          "action": "启用紧急系统封锁",
+          "actor": "管理员",
+          "createdAt": "2026-03-30T00:16:38.904Z"
+        },
+        {
+          "id": "audit-rbac-002",
+          "action": "更新 Port Vila 总部白名单",
+          "actor": "管理员",
+          "createdAt": "2026-03-30T08:15:00+11:00"
+        },
+        {
+          "id": "audit-rbac-001",
+          "action": "初始化角色矩阵",
+          "actor": "系统",
+          "createdAt": "2026-03-30T07:20:00+11:00"
+        }
+      ]
+    },
+    "customers": {
+      "items": [
+        {
+          "id": "merchant-1774839750237",
+          "archiveNo": "VSLM-WHOLESALE-2026-003",
+          "name": "TIAN YI",
+          "contactName": "JUNXIN",
+          "phone": "7775552",
+          "email": "66531@QQ.COM",
+          "province": "Shefa Province",
+          "location": "Port Vila",
+          "address": "Cathdral Area",
+          "customerType": "local_wholesale",
+          "customerTypeLabel": "本地商家",
+          "usageType": "本地批发商",
+          "installDate": "2026-03-30",
+          "salesPersonId": "emp-sales-mgr-001",
+          "salesPersonName": "Mele Tari",
+          "payment": {
+            "cycleLabel": "批发月结",
+            "completedWeeks": 0,
+            "totalWeeks": 4,
+            "paidAmount": 0,
+            "balanceAmount": 247500,
+            "nextDueLabel": "月末结算"
+          },
+          "orders": [
+            {
+              "id": "WHO-20260330-0304",
+              "name": "M-BOX300 x 5",
+              "status": "待付款",
+              "date": "2026-03-30"
+            }
+          ],
+          "devices": [],
+          "photos": [],
+          "warrantyHistory": [],
+          "warrantyEndsAt": ""
+        },
+        {
+          "id": "merchant-port-vila-solar-mart",
+          "archiveNo": "VSLM-WHOLESALE-2026-002",
+          "name": "Port Vila Solar Mart",
+          "contactName": "Moses Tari",
+          "phone": "+678 771 2201",
+          "email": "orders@solarmart.vu",
+          "province": "Shefa Province",
+          "location": "Port Vila",
+          "address": "Kumul Highway, Port Vila, Vanuatu",
+          "customerType": "local_wholesale",
+          "customerTypeLabel": "本地商家",
+          "usageType": "本地批发商",
+          "installDate": "2026-03-30",
+          "salesPersonId": "emp-sales-001",
+          "salesPersonName": "Lina Vatoko",
+          "payment": {
+            "cycleLabel": "批发月结",
+            "completedWeeks": 0,
+            "totalWeeks": 4,
+            "paidAmount": 0,
+            "balanceAmount": 49500,
+            "nextDueLabel": "月末结算"
+          },
+          "orders": [
+            {
+              "id": "WHO-20260330-5988",
+              "name": "M-BOX300 x 1",
+              "status": "待付款",
+              "date": "2026-03-30"
+            }
+          ],
+          "devices": [],
+          "photos": [],
+          "warrantyHistory": [],
+          "warrantyEndsAt": ""
+        },
+        {
+          "id": "merchant-santo-energy-shop",
+          "archiveNo": "VSLM-WHOLESALE-2026-001",
+          "name": "Santo Energy Shop",
+          "contactName": "Lio Sam",
+          "phone": "+678 772 1188",
+          "email": "sales@santoenergy.vu",
+          "province": "Shefa Province",
+          "location": "Luganville",
+          "address": "Main Street, Luganville, Santo, Vanuatu",
+          "customerType": "local_wholesale",
+          "customerTypeLabel": "本地商家",
+          "usageType": "本地批发商",
+          "installDate": "2026-03-30",
+          "salesPersonId": "emp-sales-mgr-001",
+          "salesPersonName": "Mele Tari",
+          "payment": {
+            "cycleLabel": "批发月结",
+            "completedWeeks": 0,
+            "totalWeeks": 4,
+            "paidAmount": 0,
+            "balanceAmount": 0,
+            "nextDueLabel": "月末结算"
+          },
+          "orders": [],
+          "devices": [],
+          "photos": [],
+          "warrantyHistory": [],
+          "warrantyEndsAt": ""
+        },
+        {
+          "id": "crm-1774832891816",
+          "archiveNo": "VSLM-CRM-2026-005",
+          "name": "Installment Demo",
+          "contactName": "Installment Demo",
+          "phone": "77001122",
+          "email": "demo@example.com",
+          "province": "Shefa Province",
+          "location": "Port Vila",
+          "address": "Port Vila",
+          "customerType": "end_customer",
+          "customerTypeLabel": "终端客户",
+          "usageType": "分期客户",
+          "installDate": "2026-03-30",
+          "salesPersonId": "emp-sales-001",
+          "salesPersonName": "Lina Vatoko",
+          "payment": {
+            "cycleLabel": "Weekly / 12 weeks",
+            "completedWeeks": 0,
+            "totalWeeks": 12,
+            "paidAmount": 33000,
+            "balanceAmount": 77000,
+            "nextDueLabel": "Next week"
+          },
+          "orders": [
+            {
+              "id": "1774832891813",
+              "name": "M-BOX1200",
+              "status": "分期中",
+              "date": "2026-03-30"
+            }
+          ],
+          "devices": [],
+          "photos": [],
+          "warrantyHistory": [],
+          "warrantyEndsAt": ""
+        },
+        {
+          "id": "vslm-crm-test-001",
+          "archiveNo": "VSLM-CRM-TEST-001",
+          "name": "Test Customer",
+          "contactName": "Test User",
+          "phone": "+678 000 0000",
+          "email": "",
+          "province": "",
+          "location": "",
+          "address": "",
+          "customerType": "end_customer",
+          "customerTypeLabel": "终端客户",
+          "usageType": "??",
+          "installDate": "",
+          "salesPersonId": "",
+          "salesPersonName": "",
+          "payment": {
+            "cycleLabel": "Monthly",
+            "completedWeeks": 1,
+            "totalWeeks": 2,
+            "paidAmount": 1000,
+            "balanceAmount": 2000,
+            "nextDueLabel": "Tomorrow"
+          },
+          "orders": [],
+          "devices": [],
+          "photos": [],
+          "warrantyHistory": [],
+          "warrantyEndsAt": ""
+        },
+        {
+          "id": "crm-emae-village-center",
+          "archiveNo": "VSLM-CRM-2024-089",
+          "name": "Emae Village Center",
+          "contactName": "Samuel Kalo",
+          "phone": "+678 555 0123",
+          "email": "samuel.kalo@emae.vu",
+          "province": "Shefa Province",
+          "location": "Emae Island, Vanuatu",
+          "address": "Emae Village Center, Shefa Province, Vanuatu",
+          "customerType": "end_customer",
+          "customerTypeLabel": "终端客户",
+          "usageType": "社区公共用电",
+          "installDate": "2024-01-15",
+          "salesPersonId": "emp-sales-001",
+          "salesPersonName": "Lina Vatoko",
+          "payment": {
+            "cycleLabel": "Weekly",
+            "completedWeeks": 26,
+            "totalWeeks": 52,
+            "paidAmount": 145000,
+            "balanceAmount": 145000,
+            "nextDueLabel": "周四 09:00"
+          },
+          "orders": [
+            {
+              "id": "ORD-99201",
+              "name": "Helios 5kW 套装",
+              "status": "已完成",
+              "date": "2024-01-15"
+            },
+            {
+              "id": "ORD-88122",
+              "name": "备用储能电池单元",
+              "status": "退款记录",
+              "date": "2024-03-02"
+            }
+          ],
+          "devices": [
+            {
+              "id": "dev-main-controller",
+              "type": "主控制器",
+              "name": "主控制器",
+              "sn": "HEL-882-C1"
+            },
+            {
+              "id": "dev-panel-a",
+              "type": "太阳能板",
+              "name": "太阳能板 A",
+              "sn": "PNL-VX-001"
+            },
+            {
+              "id": "dev-panel-b",
+              "type": "太阳能板",
+              "name": "太阳能板 B",
+              "sn": "PNL-VX-002"
+            },
+            {
+              "id": "dev-battery",
+              "type": "储能电池",
+              "name": "锂电池",
+              "sn": "BAT-LITH-440"
+            }
+          ],
+          "photos": [
+            {
+              "id": "photo-site-1",
+              "title": "实景外观",
+              "takenAt": "2024-01-15 14:30",
+              "imageUrl": "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1200&q=80"
+            },
+            {
+              "id": "photo-site-2",
+              "title": "配电箱细节",
+              "takenAt": "2024-01-15 15:45",
+              "imageUrl": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80"
+            }
+          ],
+          "warrantyHistory": [
+            {
+              "id": "war-1",
+              "title": "逆变器固件更新",
+              "detail": "2024-03-22 / 远程执行",
+              "date": "2024-03-22"
+            },
+            {
+              "id": "war-2",
+              "title": "清洁与物理检查",
+              "detail": "2024-06-10 / 工程师 Tom V.",
+              "date": "2024-06-10"
+            },
+            {
+              "id": "war-3",
+              "title": "预约年度性能评估",
+              "detail": "计划中 / 2025-01-15",
+              "date": "2025-01-15"
+            }
+          ],
+          "warrantyEndsAt": "2026-01-15"
+        },
+        {
+          "id": "crm-malo-solar-coop",
+          "archiveNo": "VSLM-CRM-2024-146",
+          "name": "Malo Solar Coop",
+          "contactName": "Risa Molou",
+          "phone": "+678 555 0168",
+          "email": "risa@malo.coop",
+          "province": "Sanma Province",
+          "location": "Malo Island, Vanuatu",
+          "address": "Malo Solar Coop, Sanma Province, Vanuatu",
+          "customerType": "end_customer",
+          "customerTypeLabel": "终端客户",
+          "usageType": "社区微网",
+          "installDate": "2024-05-09",
+          "salesPersonId": "emp-sales-mgr-001",
+          "salesPersonName": "Mele Tari",
+          "payment": {
+            "cycleLabel": "Monthly",
+            "completedWeeks": 8,
+            "totalWeeks": 12,
+            "paidAmount": 820000,
+            "balanceAmount": 210000,
+            "nextDueLabel": "4月 05日"
+          },
+          "orders": [
+            {
+              "id": "ORD-10551",
+              "name": "M-BOX1500 x 12",
+              "status": "履约中",
+              "date": "2024-05-09"
+            },
+            {
+              "id": "ORD-10628",
+              "name": "屋顶支架补充件",
+              "status": "已完成",
+              "date": "2024-06-11"
+            }
+          ],
+          "devices": [
+            {
+              "id": "malo-ctrl",
+              "type": "主控制器",
+              "name": "主控制器",
+              "sn": "HEL-MALO-201"
+            },
+            {
+              "id": "malo-panel",
+              "type": "太阳能板阵列",
+              "name": "550W 阵列",
+              "sn": "PNL-MALO-55X"
+            },
+            {
+              "id": "malo-battery",
+              "type": "储能电池",
+              "name": "储能电池组",
+              "sn": "BAT-MALO-18"
+            }
+          ],
+          "photos": [
+            {
+              "id": "photo-malo-1",
+              "title": "机房外部",
+              "takenAt": "2024-05-09 11:20",
+              "imageUrl": "https://images.unsplash.com/photo-1497436072909-f5e4be0b1c5e?auto=format&fit=crop&w=1200&q=80"
+            }
+          ],
+          "warrantyHistory": [
+            {
+              "id": "war-m1",
+              "title": "阵列巡检",
+              "detail": "2024-07-14 / 正常",
+              "date": "2024-07-14"
+            }
+          ],
+          "warrantyEndsAt": "2027-05-09"
+        },
+        {
+          "id": "crm-tanna-heights-lodge",
+          "archiveNo": "VSLM-CRM-2025-018",
+          "name": "Tanna Heights Lodge",
+          "contactName": "Jean Vira",
+          "phone": "+678 555 0221",
+          "email": "ops@tannaheights.vu",
+          "province": "Tafea Province",
+          "location": "Tanna Island, Vanuatu",
+          "address": "Tanna Heights Lodge, Tafea Province, Vanuatu",
+          "customerType": "end_customer",
+          "customerTypeLabel": "终端客户",
+          "usageType": "酒店商用",
+          "installDate": "2025-01-08",
+          "salesPersonId": "emp-sales-002",
+          "salesPersonName": "Tom Bani",
+          "payment": {
+            "cycleLabel": "Monthly",
+            "completedWeeks": 3,
+            "totalWeeks": 6,
+            "paidAmount": 360000,
+            "balanceAmount": 360000,
+            "nextDueLabel": "周一 15:00"
+          },
+          "orders": [
+            {
+              "id": "ORD-12018",
+              "name": "LS6.2K + 10kWh 套装",
+              "status": "已完成",
+              "date": "2025-01-08"
+            }
+          ],
+          "devices": [
+            {
+              "id": "tanna-main",
+              "type": "主控制器",
+              "name": "主控制器",
+              "sn": "HEL-TAN-801"
+            },
+            {
+              "id": "tanna-panels",
+              "type": "太阳能板阵列",
+              "name": "590W 阵列",
+              "sn": "PNL-TAN-590"
+            }
+          ],
+          "photos": [
+            {
+              "id": "photo-tan-1",
+              "title": "屋顶阵列",
+              "takenAt": "2025-01-08 16:12",
+              "imageUrl": "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=1200&q=80"
+            }
+          ],
+          "warrantyHistory": [
+            {
+              "id": "war-t1",
+              "title": "年度保养待排期",
+              "detail": "计划中 / 2026-01-10",
+              "date": "2026-01-10"
+            }
+          ],
+          "warrantyEndsAt": "2028-01-08"
+        }
+      ]
+    },
+    "vendors": {
+      "items": [
+        {
+          "id": "vendor-shenzhen-solar",
+          "name": "赛力斯光伏技术（深圳）",
+          "region": "中国港口供应商",
+          "locationTag": "深圳 / 盐田港",
+          "reliabilityScore": 98.5,
+          "category": "太阳能板",
+          "secondaryCategory": "成套系统",
+          "contactName": "陈建国",
+          "contactRole": "采购总监",
+          "pendingOrders": 4,
+          "inTransitOrders": 4,
+          "transitMode": "中国港口直达",
+          "isActive": true,
+          "leadTimeDays": 18,
+          "minOrderVt": 120000,
+          "supportedItems": [
+            "光伏板550W",
+            "光伏板590W",
+            "光伏板350W",
+            "光伏板200W",
+            "M-BOX300",
+            "M-BOX1200",
+            "M-BOX1500"
+          ]
+        },
+        {
+          "id": "vendor-ningbo-battery",
+          "name": "东极能源系统有限公司",
+          "region": "中国港口供应商",
+          "locationTag": "宁波 / 北仑港",
+          "reliabilityScore": 92,
+          "category": "逆变器与电池",
+          "secondaryCategory": "储能设备",
+          "contactName": "Li Na",
+          "contactRole": "海外商务",
+          "pendingOrders": 2,
+          "inTransitOrders": 2,
+          "transitMode": "中国港口直达",
+          "isActive": true,
+          "leadTimeDays": 22,
+          "minOrderVt": 180000,
+          "supportedItems": [
+            "LS6.2K",
+            "LS3.6K",
+            "DML8K",
+            "TL6K/10KWH",
+            "铅酸胶体电池12V/200Ah",
+            "M-BOX300",
+            "M-BOX1200",
+            "M-BOX1500"
+          ]
+        },
+        {
+          "id": "vendor-guangzhou-cable",
+          "name": "广州安联线缆配件",
+          "region": "中国港口供应商",
+          "locationTag": "广州 / 南沙港",
+          "reliabilityScore": 93.6,
+          "category": "PV线材",
+          "secondaryCategory": "连接器配件",
+          "contactName": "Zhou Ming",
+          "contactRole": "外贸主管",
+          "pendingOrders": 3,
+          "inTransitOrders": 2,
+          "transitMode": "中国港口直达",
+          "isActive": true,
+          "leadTimeDays": 16,
+          "minOrderVt": 90000,
+          "supportedItems": [
+            "PV黑线",
+            "PV红线",
+            "MC4接头/双",
+            "PV二合一转接线",
+            "PV三合一转接线",
+            "空开",
+            "空开盒",
+            "汇流箱四进一"
+          ]
+        },
+        {
+          "id": "vendor-pacific-green",
+          "name": "Pacific Green Logistics",
+          "region": "维拉港本地供应商",
+          "locationTag": "维拉港 / 本地",
+          "reliabilityScore": 96.8,
+          "category": "末端配送",
+          "secondaryCategory": "物流服务",
+          "contactName": "Samuel Kalo",
+          "contactRole": "本地协调",
+          "pendingOrders": 7,
+          "inTransitOrders": 0,
+          "transitMode": "本地网络",
+          "isActive": true,
+          "leadTimeDays": 3,
+          "minOrderVt": 30000,
+          "supportedItems": [
+            "末端配送服务",
+            "仓储转运",
+            "上门送货"
+          ]
+        },
+        {
+          "id": "vendor-vse-local",
+          "name": "维拉港太阳能工程（VSE）",
+          "region": "维拉港本地供应商",
+          "locationTag": "维拉港 / 本地",
+          "reliabilityScore": 94.8,
+          "category": "安装工程",
+          "secondaryCategory": "本地服务",
+          "contactName": "Tom V.",
+          "contactRole": "服务经理",
+          "pendingOrders": 8,
+          "inTransitOrders": 0,
+          "transitMode": "本地网络",
+          "isActive": true,
+          "leadTimeDays": 2,
+          "minOrderVt": 25000,
+          "supportedItems": [
+            "上门安装",
+            "现场支架施工",
+            "系统调试",
+            "屋顶支架",
+            "地面支架"
+          ]
+        },
+        {
+          "id": "vendor-shanghai-logistics",
+          "name": "上海联达海运",
+          "region": "中国港口供应商",
+          "locationTag": "上海 / 洋山港",
+          "reliabilityScore": 88.2,
+          "category": "海上运输",
+          "secondaryCategory": "清关物流",
+          "contactName": "Wang Jun",
+          "contactRole": "航运协调",
+          "pendingOrders": 3,
+          "inTransitOrders": 6,
+          "transitMode": "中国港口直达",
+          "isActive": true,
+          "leadTimeDays": 26,
+          "minOrderVt": 80000,
+          "supportedItems": [
+            "集装箱海运",
+            "拼柜运输",
+            "到港清关协调"
+          ]
+        }
+      ],
+      "orders": [
+        {
+          "id": "PO-20260330-2413",
+          "vendorId": "vendor-shenzhen-solar",
+          "vendorName": "赛力斯光伏技术（深圳）",
+          "currency": "CNY",
+          "totalAmount": 4860,
+          "status": "pending",
+          "statusLabel": "待审批",
+          "requestedBy": "????",
+          "createdAt": "2026-03-30T02:28:42.413Z",
+          "notes": "multi-line-check",
+          "lines": [
+            {
+              "id": "PO-20260330-2413-1",
+              "itemName": "M-BOX1200",
+              "quantity": 3,
+              "unit": "sets",
+              "unitPrice": 780,
+              "currency": "CNY",
+              "lineTotal": 2340
+            },
+            {
+              "id": "PO-20260330-2413-2",
+              "itemName": "M-BOX1500",
+              "quantity": 2,
+              "unit": "sets",
+              "unitPrice": 1260,
+              "currency": "CNY",
+              "lineTotal": 2520
+            }
+          ],
+          "itemSummary": "M-BOX1200 x3、M-BOX1500 x2"
+        },
+        {
+          "id": "PO-20260330-001",
+          "vendorId": "vendor-shenzhen-solar",
+          "vendorName": "赛力斯光伏技术（深圳）",
+          "currency": "CNY",
+          "totalAmount": 51600,
+          "status": "pending",
+          "statusLabel": "待审批",
+          "requestedBy": "采购中心",
+          "createdAt": "2026-03-30T14:20:00+11:00",
+          "notes": "补充四月安装批次",
+          "lines": [
+            {
+              "id": "PO-20260330-001-1",
+              "itemName": "光伏板550W",
+              "quantity": 120,
+              "unit": "pcs",
+              "unitPrice": 430,
+              "currency": "CNY",
+              "lineTotal": 51600
+            }
+          ],
+          "itemSummary": "光伏板550W x120"
+        },
+        {
+          "id": "PO-20260329-003",
+          "vendorId": "vendor-ningbo-battery",
+          "vendorName": "东极能源系统有限公司",
+          "currency": "USD",
+          "totalAmount": 3840,
+          "status": "in_transit",
+          "statusLabel": "海运在途",
+          "requestedBy": "仓储经理",
+          "createdAt": "2026-03-29T11:05:00+11:00",
+          "notes": "跟并柜批次一同到港",
+          "lines": [
+            {
+              "id": "PO-20260329-003-1",
+              "itemName": "铅酸胶体电池12V/200Ah",
+              "quantity": 24,
+              "unit": "pcs",
+              "unitPrice": 160,
+              "currency": "USD",
+              "lineTotal": 3840
+            }
+          ],
+          "itemSummary": "铅酸胶体电池12V/200Ah x24"
+        },
+        {
+          "id": "PO-20260328-006",
+          "vendorId": "vendor-pacific-green",
+          "vendorName": "Pacific Green Logistics",
+          "currency": "USD",
+          "totalAmount": 900,
+          "status": "approved",
+          "statusLabel": "已下单执行",
+          "requestedBy": "销售工作台",
+          "createdAt": "2026-03-28T09:40:00+11:00",
+          "notes": "覆盖本周 6 个客户点位",
+          "lines": [
+            {
+              "id": "PO-20260328-006-1",
+              "itemName": "末端配送服务",
+              "quantity": 6,
+              "unit": "jobs",
+              "unitPrice": 150,
+              "currency": "USD",
+              "lineTotal": 900
+            }
+          ],
+          "itemSummary": "末端配送服务 x6"
+        }
+      ]
+    },
+    "wholesale": {
+      "orders": [
+        {
+          "id": "WHO-20260330-0304",
+          "merchantId": "merchant-1774839750237",
+          "merchantName": "TIAN YI",
+          "salesPersonId": "emp-sales-mgr-001",
+          "salesPersonName": "Mele Tari",
+          "packageId": "m-box-300",
+          "packageName": "M-BOX300",
+          "quantity": 5,
+          "unitPriceVt": 49500,
+          "totalVt": 247500,
+          "status": "pending_payment",
+          "statusLabel": "待付款",
+          "currency": "VUV",
+          "createdAt": "2026-03-30T03:03:10.304Z",
+          "notes": ""
+        },
+        {
+          "id": "WHO-20260330-5988",
+          "merchantId": "merchant-port-vila-solar-mart",
+          "merchantName": "Port Vila Solar Mart",
+          "salesPersonId": "emp-sales-001",
+          "salesPersonName": "Lina Vatoko",
+          "packageId": "m-box-300",
+          "packageName": "M-BOX300",
+          "quantity": 1,
+          "unitPriceVt": 49500,
+          "totalVt": 49500,
+          "status": "pending_payment",
+          "statusLabel": "待付款",
+          "currency": "VUV",
+          "createdAt": "2026-03-30T03:02:35.988Z",
+          "notes": "store shelf test"
+        },
+        {
+          "id": "WHO-20260312-001",
+          "merchantId": "merchant-port-vila-solar-mart",
+          "merchantName": "Port Vila Solar Mart",
+          "salesPersonId": "emp-sales-001",
+          "salesPersonName": "Lina Vatoko",
+          "packageId": "m-box-1200",
+          "packageName": "M-BOX1200",
+          "quantity": 2,
+          "unitPriceVt": 98000,
+          "totalVt": 196000,
+          "status": "pending_payment",
+          "statusLabel": "待付款",
+          "currency": "VUV",
+          "createdAt": "2026-03-12T10:20:00+11:00",
+          "notes": "首批门店铺货"
+        },
+        {
+          "id": "WHO-20260315-001",
+          "merchantId": "merchant-santo-energy-shop",
+          "merchantName": "Santo Energy Shop",
+          "salesPersonId": "emp-sales-mgr-001",
+          "salesPersonName": "Mele Tari",
+          "packageId": "m-box-1500",
+          "packageName": "M-BOX1500",
+          "quantity": 2,
+          "unitPriceVt": 168000,
+          "totalVt": 336000,
+          "status": "partial_paid",
+          "statusLabel": "部分收款",
+          "currency": "VUV",
+          "createdAt": "2026-03-15T14:10:00+11:00",
+          "notes": "Santo 展示店补货"
+        }
+      ]
+    }
+  }
+}

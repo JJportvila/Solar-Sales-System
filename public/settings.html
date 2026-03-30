@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>后台设置</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#001d44",
+              secondary: "#7f5700",
+              accent: "#feb316",
+              background: "#f6f7f8",
+              surface: "#ffffff",
+              line: "#d7dbe2",
+              muted: "#64748b"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-background text-slate-900" data-nav="settings">
+    <div class="flex min-h-screen">
+      <aside id="app-sidebar" class="hidden md:flex fixed left-0 top-0 z-40 h-screen w-64 flex-col bg-slate-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] py-6"></aside>
+
+      <main class="flex-1 md:ml-64 px-6 py-8 lg:px-10">
+        <div class="mx-auto max-w-[1420px] space-y-8">
+          <section class="rounded-[2rem] border border-line bg-surface px-8 py-7 shadow-sm">
+            <div class="flex flex-col gap-3">
+              <p class="text-xs font-bold uppercase tracking-[0.28em] text-secondary">System Settings</p>
+              <h1 class="text-3xl font-extrabold text-primary">后台设置</h1>
+              <p class="max-w-4xl text-sm leading-7 text-slate-600">
+                统一管理首页、语言、汇率、全局含税规则、公司资料、本地备份与 Google Drive 云备份。
+              </p>
+            </div>
+          </section>
+
+          <section class="grid grid-cols-1 gap-8 xl:grid-cols-2">
+            <article class="rounded-[2rem] border border-line bg-surface p-8 shadow-sm">
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-3xl text-primary">home</span>
+                <div>
+                  <h2 class="text-xl font-bold text-primary">首页与语言</h2>
+                  <p class="text-sm text-slate-500">设置默认首页和系统语言。</p>
+                </div>
+              </div>
+
+              <div class="mt-6 space-y-5">
+                <label class="block">
+                  <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">默认首页</span>
+                  <select id="homepage-select" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm">
+                    <option value="dashboard">销售工作台</option>
+                    <option value="calculator">销售报价</option>
+                  </select>
+                </label>
+
+                <label class="block">
+                  <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">系统语言</span>
+                  <select id="settings-language-select" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm">
+                    <option value="zh-CN">中文</option>
+                    <option value="en">English</option>
+                    <option value="bi">Bislama</option>
+                  </select>
+                </label>
+
+                <div class="rounded-2xl bg-slate-100 p-5 text-sm text-slate-600 space-y-2">
+                  <div id="summary-homepage">默认首页：-</div>
+                  <div id="summary-language">系统语言：-</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="rounded-[2rem] border border-line bg-surface p-8 shadow-sm">
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-3xl text-primary">currency_exchange</span>
+                <div>
+                  <h2 class="text-xl font-bold text-primary">汇率与税态</h2>
+                  <p class="text-sm text-slate-500">维护汇率，全站报价统一按含税价处理。</p>
+                </div>
+              </div>
+
+              <div class="mt-6 space-y-5">
+                <label class="block">
+                  <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">AUD 汇率</span>
+                  <input id="aud-rate-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="number" min="0.01" step="0.01" />
+                  <div id="aud-rate-line" class="mt-2 text-sm font-semibold text-primary">1 AUD = 0 VUV</div>
+                </label>
+
+                <label class="block">
+                  <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">NZD 汇率</span>
+                  <input id="nzd-rate-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="number" min="0.01" step="0.01" />
+                  <div id="nzd-rate-line" class="mt-2 text-sm font-semibold text-primary">1 NZD = 0 VUV</div>
+                </label>
+
+                <label class="block">
+                  <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">报价税态</span>
+                  <select id="quote-display-mode" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" disabled>
+                    <option value="tax_inclusive">含税价（全局统一）</option>
+                  </select>
+                </label>
+
+                <div class="rounded-2xl bg-slate-100 p-5 text-sm text-slate-600 space-y-2">
+                  <div id="summary-aud">AUD：-</div>
+                  <div id="summary-nzd">NZD：-</div>
+                  <div id="summary-tax-mode">税态：含税价（全局统一）</div>
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <section class="rounded-[2rem] border border-line bg-surface p-8 shadow-sm">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-3xl text-primary">business</span>
+              <div>
+                <h2 class="text-xl font-bold text-primary">公司资料与发票信息</h2>
+                <p class="text-sm text-slate-500">报价页、发票页、收款收据都会直接读取这里的公司资料。</p>
+              </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-2">
+              <label class="block">
+                <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">公司名称</span>
+                <input id="company-name-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="text" placeholder="输入公司名称" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">TIN 税号</span>
+                <input id="company-tin-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="text" placeholder="输入 TIN 税号" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">银行名称</span>
+                <input id="company-bank-name-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="text" placeholder="输入银行名称" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">账户名称</span>
+                <input id="company-bank-account-name-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="text" placeholder="输入账户名称" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">账号</span>
+                <input id="company-bank-account-number-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="text" placeholder="输入银行账号" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">LOGO 链接</span>
+                <input id="company-logo-url-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="text" placeholder="输入 LOGO 地址" />
+              </label>
+
+              <label class="block xl:col-span-2">
+                <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">地址</span>
+                <input id="company-address-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="text" placeholder="输入公司地址" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">电话</span>
+                <input id="company-phone-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="text" placeholder="输入公司电话" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">邮箱</span>
+                <input id="company-email-input" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="email" placeholder="输入公司邮箱" />
+              </label>
+
+              <div class="rounded-2xl border border-dashed border-line bg-slate-50 p-5 xl:col-span-2">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <div class="text-sm font-bold text-primary">公司 LOGO</div>
+                    <div class="mt-1 text-sm text-slate-500">可直接上传图片，保存后报价、发票、收据会同步使用。</div>
+                  </div>
+                  <div class="flex flex-wrap gap-3">
+                    <input id="company-logo-file-input" class="hidden" type="file" accept="image/png,image/jpeg,image/webp,image/jpg" />
+                    <button id="company-logo-upload-button" class="rounded-2xl border border-line bg-white px-4 py-3 text-sm font-bold text-primary" type="button">上传 LOGO</button>
+                  </div>
+                </div>
+                <div class="mt-4 flex min-h-[132px] items-center justify-center rounded-2xl border border-dashed border-line bg-white p-4">
+                  <img id="company-logo-preview" class="hidden max-h-24 w-auto object-contain" alt="company logo preview" />
+                  <div id="company-logo-placeholder" class="text-sm text-slate-400">暂未上传 LOGO</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+            <article class="rounded-[2rem] border border-line bg-surface p-8 shadow-sm">
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-3xl text-primary">backup</span>
+                <div>
+                  <h2 class="text-xl font-bold text-primary">备份中心</h2>
+                  <p class="text-sm text-slate-500">支持本地备份、每日自动备份、每周自动备份和 Google Drive 云备份。</p>
+                </div>
+              </div>
+
+              <div class="mt-6 space-y-5">
+                <label class="flex items-center justify-between rounded-2xl bg-slate-100 px-5 py-4">
+                  <div>
+                    <div class="text-sm font-bold text-primary">每日自动备份</div>
+                    <div class="mt-1 text-xs text-slate-500">服务运行期间每天生成一份本地备份。</div>
+                  </div>
+                  <input id="backup-auto-daily" class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" />
+                </label>
+
+                <label class="flex items-center justify-between rounded-2xl bg-slate-100 px-5 py-4">
+                  <div>
+                    <div class="text-sm font-bold text-primary">每周自动备份</div>
+                    <div class="mt-1 text-xs text-slate-500">每 7 天生成一份周期备份。</div>
+                  </div>
+                  <input id="backup-auto-weekly" class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" />
+                </label>
+
+                <label class="flex items-center justify-between rounded-2xl border border-line bg-white px-5 py-4">
+                  <div>
+                    <div class="text-sm font-bold text-primary">同步到谷歌网盘</div>
+                    <div id="google-drive-summary" class="mt-1 text-xs text-slate-500">未开启</div>
+                  </div>
+                  <input id="backup-google-enabled" class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" />
+                </label>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div class="rounded-2xl bg-slate-100 p-5">
+                    <div class="text-xs text-slate-500">上次每日备份</div>
+                    <div id="backup-last-daily" class="mt-2 text-sm font-bold text-primary">-</div>
+                  </div>
+                  <div class="rounded-2xl bg-slate-100 p-5">
+                    <div class="text-xs text-slate-500">上次每周备份</div>
+                    <div id="backup-last-weekly" class="mt-2 text-sm font-bold text-primary">-</div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+                  <button id="backup-create-button" class="rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white" type="button">立即备份</button>
+                  <button id="backup-refresh-button" class="rounded-2xl border border-line bg-white px-4 py-3 text-sm font-bold text-primary" type="button">刷新列表</button>
+                  <button id="backup-save-config-button" class="rounded-2xl bg-accent px-4 py-3 text-sm font-bold text-primary" type="button">保存设置</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="rounded-[2rem] border border-line bg-surface p-8 shadow-sm">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <h2 class="text-xl font-bold text-primary">备份历史</h2>
+                  <p class="mt-2 text-sm text-slate-500">可下载备份文件，也可恢复某一版完整业务数据。</p>
+                </div>
+                <div class="rounded-2xl bg-slate-100 px-4 py-3 text-right">
+                  <div class="text-xs text-slate-500">当前备份数</div>
+                  <div id="backup-count" class="mt-1 text-2xl font-black text-primary">0</div>
+                </div>
+              </div>
+
+              <div class="mt-6 overflow-hidden rounded-2xl border border-line">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-slate-100 text-left text-slate-500">
+                    <tr>
+                      <th class="py-3 pr-4 pl-4">时间</th>
+                      <th class="py-3 pr-4">触发方式</th>
+                      <th class="py-3 pr-4">大小</th>
+                      <th class="py-3 pr-4">网盘状态</th>
+                      <th class="py-3 pr-4">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="backup-history-table" class="divide-y divide-slate-100 bg-white"></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <section class="rounded-[2rem] border border-line bg-surface p-8 shadow-sm">
+            <div class="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <h2 class="text-xl font-bold text-primary">保存全部设置</h2>
+                <p class="mt-2 text-sm text-slate-500">保存后会立即写入后台配置。</p>
+              </div>
+              <button id="save-settings-button" class="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white" type="button">保存设置</button>
+            </div>
+            <div id="settings-output" class="hidden mt-6 rounded-2xl p-4 text-sm"></div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <div id="google-drive-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/45 px-4 py-8">
+      <div class="w-full max-w-3xl rounded-[2rem] bg-white p-8 shadow-[0_40px_120px_rgba(15,23,42,0.3)]">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-extrabold text-primary">Google Drive 备份配置</h2>
+            <p class="mt-2 text-sm leading-6 text-slate-600">开启谷歌备份后，请填写 Folder ID 和 Access Token，并先测试连通。</p>
+          </div>
+          <button id="close-drive-modal-button" class="rounded-xl border border-line px-3 py-2 text-sm font-bold text-slate-600" type="button">关闭</button>
+        </div>
+
+        <div class="mt-6 space-y-5">
+          <div class="rounded-2xl bg-slate-100 p-5 text-sm text-slate-600">
+            <div class="font-bold text-primary">Google Drive Folder ID</div>
+            <div class="mt-2 break-all">在目标文件夹地址中，`folders/` 后面的内容就是 Folder ID。</div>
+            <a class="mt-3 inline-flex text-sm font-semibold text-primary hover:underline" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noreferrer">打开 Google Drive</a>
+          </div>
+
+          <label class="block">
+            <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">Google Drive Folder ID</span>
+            <input id="backup-google-folder-id" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="text" placeholder="输入 Google Drive Folder ID" />
+          </label>
+
+          <div class="rounded-2xl bg-slate-100 p-5 text-sm text-slate-600">
+            <div class="font-bold text-primary">Google Drive Access Token</div>
+            <div class="mt-2 leading-6">
+              常用 scope：
+              <div class="mt-2 font-mono text-xs text-primary">https://www.googleapis.com/auth/drive.file</div>
+              <div class="mt-1 font-mono text-xs text-primary">https://www.googleapis.com/auth/drive</div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-3">
+              <a class="text-sm font-semibold text-primary hover:underline" href="https://developers.google.com/oauthplayground/" target="_blank" rel="noreferrer">打开 Google OAuth Playground</a>
+              <a class="text-sm font-semibold text-primary hover:underline" href="https://developers.google.com/workspace/drive/api/guides/api-specific-auth" target="_blank" rel="noreferrer">查看 Drive 授权说明</a>
+            </div>
+          </div>
+
+          <label class="block">
+            <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">Google Drive Access Token</span>
+            <textarea id="backup-google-access-token" class="min-h-[120px] w-full rounded-2xl border-none bg-slate-100 px-4 py-4 text-sm" placeholder="粘贴 Google Drive Access Token"></textarea>
+          </label>
+
+          <div class="rounded-2xl border border-dashed border-line bg-slate-50 p-5 text-sm text-slate-600">
+            <div class="text-sm font-bold text-primary">一键复制获取 Folder ID 和 Access Token 的步骤</div>
+            <div class="mt-3 leading-7">
+              1. 打开 Google Drive 目标文件夹，复制 `folders/` 后面的 Folder ID。<br />
+              2. 打开 Google OAuth 2.0 Playground。<br />
+              3. 选择 `https://www.googleapis.com/auth/drive.file` 并授权。<br />
+              4. 交换 token 后复制 Access Token，粘贴回这里。<br />
+              5. 先保存，再测试连通。
+            </div>
+            <button id="copy-drive-steps-button" class="mt-4 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white" type="button">复制操作步骤</button>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <button id="backup-test-drive-button" class="rounded-2xl border border-line bg-white px-4 py-3 text-sm font-bold text-primary" type="button">测试连通</button>
+            <button id="backup-save-drive-button" class="rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white" type="button">保存谷歌配置</button>
+            <button id="backup-disable-drive-button" class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700" type="button">关闭谷歌备份</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/shared-nav.js?v=20260330-clean"></script>
+    <script src="/settings.js?v=20260330-clean"></script>
+  </body>
+</html>

@@ -1,0 +1,133 @@
+{
+  "employeeAccess": [
+    {
+      "id": "rbac-access-1",
+      "employeeId": "emp-admin-001",
+      "roleOverride": "admin",
+      "branchScope": "Port Vila 总部",
+      "accessEnabled": true,
+      "securityLevel": 3
+    },
+    {
+      "id": "rbac-access-2",
+      "employeeId": "emp-sales-mgr-001",
+      "roleOverride": "sales_manager",
+      "branchScope": "Port Vila 总部",
+      "accessEnabled": true,
+      "securityLevel": 2
+    },
+    {
+      "id": "rbac-access-3",
+      "employeeId": "emp-eng-001",
+      "roleOverride": "engineer",
+      "branchScope": "Efate 服务中心",
+      "accessEnabled": true,
+      "securityLevel": 1
+    },
+    {
+      "id": "rbac-access-4",
+      "employeeId": "emp-sales-001",
+      "roleOverride": "sales",
+      "branchScope": "Santo 销售点",
+      "accessEnabled": true,
+      "securityLevel": 1
+    }
+  ],
+  "moduleMatrix": [
+    {
+      "key": "inventory_sync",
+      "label": "库存全岛同步授权",
+      "enabled": true,
+      "group": "inventory"
+    },
+    {
+      "key": "remote_dispatch",
+      "label": "外岛维修派单权限",
+      "enabled": true,
+      "group": "inventory"
+    },
+    {
+      "key": "emergency_logistics_lock",
+      "label": "紧急物流优先锁定",
+      "enabled": false,
+      "group": "inventory"
+    },
+    {
+      "key": "finance_pool_edit",
+      "label": "财务资金池修改权",
+      "enabled": false,
+      "group": "finance"
+    },
+    {
+      "key": "offline_sync",
+      "label": "离线数据同步授权",
+      "enabled": true,
+      "group": "finance"
+    },
+    {
+      "key": "sensitive_customer_access",
+      "label": "高敏感客户隐私访问",
+      "enabled": false,
+      "group": "finance"
+    }
+  ],
+  "ipWhitelist": [
+    {
+      "id": "ip-port-vila",
+      "label": "Port Vila Headquarters",
+      "cidr": "202.43.20.0/24",
+      "status": "active"
+    },
+    {
+      "id": "ip-santo",
+      "label": "Santo Logistics Center",
+      "cidr": "103.11.12.0/24",
+      "status": "active"
+    },
+    {
+      "id": "ip-tanna",
+      "label": "Tanna Satellite Office",
+      "cidr": "Unset (Dynamic)",
+      "status": "draft"
+    }
+  ],
+  "emergencyLocked": false,
+  "auditLogs": [
+    {
+      "id": "audit-1774829800553",
+      "action": "解除紧急系统封锁",
+      "actor": "管理员",
+      "createdAt": "2026-03-30T00:16:40.553Z"
+    },
+    {
+      "id": "audit-1774829800171",
+      "action": "启用紧急系统封锁",
+      "actor": "管理员",
+      "createdAt": "2026-03-30T00:16:40.171Z"
+    },
+    {
+      "id": "audit-1774829799527",
+      "action": "解除紧急系统封锁",
+      "actor": "管理员",
+      "createdAt": "2026-03-30T00:16:39.527Z"
+    },
+    {
+      "id": "audit-1774829798904",
+      "action": "启用紧急系统封锁",
+      "actor": "管理员",
+      "createdAt": "2026-03-30T00:16:38.904Z"
+    },
+    {
+      "id": "audit-rbac-002",
+      "action": "更新 Port Vila 总部白名单",
+      "actor": "管理员",
+      "createdAt": "2026-03-30T08:15:00+11:00"
+    },
+    {
+      "id": "audit-rbac-001",
+      "action": "初始化角色矩阵",
+      "actor": "系统",
+      "createdAt": "2026-03-30T07:20:00+11:00"
+    }
+  ]
+}

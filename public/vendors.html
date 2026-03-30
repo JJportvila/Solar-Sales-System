@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>光伏管理系统 / 供应商管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              secondary: "#7f5700",
+              "secondary-container": "#feb316",
+              background: "#f8f9fa",
+              primary: "#001d44",
+              "surface-container-low": "#f3f4f5",
+              "outline-variant": "#c3c6d1"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-background text-slate-900 flex" data-nav="vendors">
+    <aside id="app-sidebar" class="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col bg-slate-50 py-6 shadow-[4px_0_24px_rgba(0,0,0,0.02)] md:flex"></aside>
+    <header id="app-header" class="fixed top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-100/10 bg-white/80 px-6 shadow-sm backdrop-blur-md md:w-[calc(100%-16rem)]"></header>
+
+    <main class="flex-1 pb-16 md:ml-64">
+      <div class="mx-auto mt-16 w-full max-w-[1520px] space-y-8 px-6 py-6 lg:px-8 lg:py-8 xl:px-10">
+        <section class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div class="max-w-3xl">
+            <p class="text-xs font-bold uppercase tracking-[0.28em] text-secondary">供应商管理</p>
+            <h1 class="mt-3 text-3xl font-extrabold tracking-tight text-primary md:text-4xl">供应商关系管理（SRM）</h1>
+            <p class="mt-3 text-sm text-slate-600">采购单支持人民币 / 美金、多行物料，并且按供应商自己的可供商品过滤，不会出现跨品类错配下单。</p>
+          </div>
+          <div class="flex gap-3">
+            <button id="vendors-filter-toggle" class="flex items-center gap-2 rounded-xl bg-surface-container-low px-4 py-3 text-sm font-bold text-primary" type="button">
+              <span class="material-symbols-outlined">filter_list</span>
+              <span>高级筛选</span>
+            </button>
+            <button id="vendors-quick-create" class="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-900/10" type="button">
+              <span class="material-symbols-outlined">shopping_cart_checkout</span>
+              <span>新建采购单</span>
+            </button>
+          </div>
+        </section>
+
+        <section id="vendors-filter-panel" class="hidden rounded-[2rem] border border-outline-variant/10 bg-white p-6 shadow-sm">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <div class="text-xs font-bold uppercase tracking-[0.28em] text-secondary">筛选器</div>
+              <h2 class="mt-3 text-2xl font-extrabold text-primary">供应商与采购单筛选</h2>
+              <p class="mt-2 text-sm text-slate-500">筛选会同时作用到供应商卡片、右侧详情和最近采购单。</p>
+            </div>
+            <div class="flex gap-3">
+              <button id="vendors-filter-reset" class="rounded-xl bg-surface-container-low px-4 py-3 text-sm font-bold text-primary" type="button">重置筛选</button>
+              <div id="vendors-filter-result" class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white">0 家供应商 / 0 张采购单</div>
+            </div>
+          </div>
+          <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">关键词</span>
+              <input id="vendors-filter-keyword" class="w-full rounded-xl border border-outline-variant/20 px-4 py-3 text-sm" placeholder="供应商 / 联系人 / 商品" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">区域</span>
+              <select id="vendors-filter-region" class="w-full rounded-xl border border-outline-variant/20 px-4 py-3 text-sm">
+                <option value="all">全部区域</option>
+                <option value="china">中国港口</option>
+                <option value="local">维拉港本地</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">类别</span>
+              <select id="vendors-filter-category" class="w-full rounded-xl border border-outline-variant/20 px-4 py-3 text-sm">
+                <option value="all">全部类别</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">订单状态</span>
+              <select id="vendors-filter-order-status" class="w-full rounded-xl border border-outline-variant/20 px-4 py-3 text-sm">
+                <option value="all">全部状态</option>
+                <option value="pending">待审批</option>
+                <option value="approved">已下单执行</option>
+                <option value="in_transit">海运在途</option>
+                <option value="received">已到货</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold text-primary">采购币种</span>
+              <select id="vendors-filter-currency" class="w-full rounded-xl border border-outline-variant/20 px-4 py-3 text-sm">
+                <option value="all">全部币种</option>
+                <option value="CNY">人民币 CNY</option>
+                <option value="USD">美金 USD</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 gap-6 md:grid-cols-4">
+          <button id="vendors-summary-active" class="rounded-[2rem] bg-primary p-6 text-left text-white shadow-lg shadow-blue-900/10 transition hover:-translate-y-0.5" type="button">
+            <div class="flex items-center justify-between">
+              <span class="material-symbols-outlined text-secondary-container">verified</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-blue-200">Active Vendors</span>
+            </div>
+            <div id="vendors-active-count" class="mt-10 text-5xl font-black">0</div>
+            <div class="mt-2 text-xs text-blue-100">活跃供应商总数</div>
+          </button>
+          <button id="vendors-summary-pending" class="rounded-[2rem] border border-outline-variant/10 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5" type="button">
+            <div class="flex items-center justify-between">
+              <span class="material-symbols-outlined text-primary">shopping_cart_checkout</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Orders Pending</span>
+            </div>
+            <div id="vendors-orders-pending" class="mt-10 text-5xl font-black text-primary">0</div>
+            <div class="mt-2 text-xs text-slate-500">待执行采购单</div>
+          </button>
+          <button id="vendors-summary-reliability" class="rounded-[2rem] border-l-4 border-secondary bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5" type="button">
+            <div class="flex items-center justify-between">
+              <span class="material-symbols-outlined text-secondary">star</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Avg. Reliability</span>
+            </div>
+            <div id="vendors-reliability" class="mt-10 text-5xl font-black text-primary">0%</div>
+            <div class="mt-2 text-xs text-slate-500">平均供应商评分</div>
+          </button>
+          <button id="vendors-summary-transit" class="rounded-[2rem] bg-teal-950 p-6 text-left text-white shadow-lg transition hover:-translate-y-0.5" type="button">
+            <div class="flex items-center justify-between">
+              <span class="material-symbols-outlined text-cyan-200">sailing</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-cyan-100">Transit Orders</span>
+            </div>
+            <div id="vendors-transit-count" class="mt-10 text-5xl font-black">0</div>
+            <div class="mt-2 text-xs text-cyan-100">海运在途批次</div>
+          </button>
+        </section>
+
+        <section id="vendors-summary-detail" class="hidden rounded-[2rem] border border-outline-variant/10 bg-white p-6 shadow-sm">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div id="vendors-summary-detail-kicker" class="text-xs font-bold uppercase tracking-[0.28em] text-secondary">统计详情</div>
+              <h2 id="vendors-summary-detail-title" class="mt-3 text-2xl font-extrabold text-primary">明细</h2>
+              <p id="vendors-summary-detail-summary" class="mt-2 text-sm text-slate-500"></p>
+            </div>
+            <button id="vendors-summary-detail-close" class="rounded-xl bg-surface-container-low px-4 py-2 text-sm font-bold text-primary" type="button">关闭</button>
+          </div>
+          <div id="vendors-summary-detail-table" class="mt-6 overflow-x-auto"></div>
+        </section>
+
+        <section class="grid grid-cols-1 gap-6 xl:grid-cols-12">
+          <div class="space-y-8 xl:col-span-8">
+            <section>
+              <div class="mb-6 flex items-center gap-4">
+                <h2 class="text-2xl font-extrabold text-primary">中国港口供应商</h2>
+                <div class="h-px flex-1 bg-gradient-to-r from-outline-variant/30 to-transparent"></div>
+                <span class="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">海外集采区</span>
+              </div>
+              <div id="vendors-china-grid" class="grid grid-cols-1 gap-6"></div>
+            </section>
+
+            <section>
+              <div class="mb-6 flex items-center gap-4">
+                <h2 class="text-2xl font-extrabold text-primary">维拉港本地供应商</h2>
+                <div class="h-px flex-1 bg-gradient-to-r from-outline-variant/30 to-transparent"></div>
+                <span class="rounded-full bg-teal-900 px-3 py-1 text-xs font-bold text-cyan-100">本地快速响应</span>
+              </div>
+              <div id="vendors-local-grid" class="grid grid-cols-1 gap-6"></div>
+            </section>
+          </div>
+
+          <div class="space-y-6 xl:col-span-4">
+            <div class="xl:sticky xl:top-6">
+              <div id="vendors-detail-panel"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-[2rem] border border-outline-variant/10 bg-white shadow-sm overflow-hidden">
+          <div class="border-b border-outline-variant/10 p-6">
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-xl font-extrabold text-primary">最近采购单</h2>
+              <span class="text-sm text-slate-500">多品类采购会自动汇总成一张采购单</span>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[980px] text-left">
+              <thead class="bg-surface-container-low text-xs uppercase tracking-wider text-slate-400">
+                <tr>
+                  <th class="px-6 py-4">订单号</th>
+                  <th class="px-6 py-4">供应商</th>
+                  <th class="px-6 py-4">采购明细</th>
+                  <th class="px-6 py-4">币种</th>
+                  <th class="px-6 py-4">总金额</th>
+                  <th class="px-6 py-4">状态</th>
+                  <th class="px-6 py-4">创建时间</th>
+                </tr>
+              </thead>
+              <tbody id="vendors-orders-body" class="divide-y divide-outline-variant/10"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="rounded-[2rem] border border-outline-variant/10 bg-white shadow-sm overflow-hidden">
+          <div class="border-b border-outline-variant/10 p-6 flex items-center justify-between">
+            <h2 class="text-xl font-extrabold text-primary">供应商全览</h2>
+            <div class="flex gap-4 text-xs text-slate-500">
+              <span class="flex items-center gap-1"><span class="inline-block h-2 w-2 rounded-full bg-green-500"></span> 交付稳定</span>
+              <span class="flex items-center gap-1"><span class="inline-block h-2 w-2 rounded-full bg-cyan-500"></span> 海运在途</span>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[860px] text-left">
+              <thead class="bg-surface-container-low text-xs uppercase tracking-wider text-slate-400">
+                <tr>
+                  <th class="px-6 py-4">企业名称</th>
+                  <th class="px-6 py-4">主要类别</th>
+                  <th class="px-6 py-4">信誉评分</th>
+                  <th class="px-6 py-4">在途订单</th>
+                  <th class="px-6 py-4 text-right">管理操作</th>
+                </tr>
+              </thead>
+              <tbody id="vendors-table-body" class="divide-y divide-outline-variant/10"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="vendors-order-modal" class="hidden fixed inset-0 z-50 bg-slate-950/45 p-4 backdrop-blur-sm">
+      <div class="mx-auto mt-10 w-full max-w-5xl rounded-[2rem] bg-white p-6 shadow-2xl">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-xs font-bold uppercase tracking-[0.28em] text-secondary">采购下单</div>
+            <h2 class="mt-3 text-2xl font-extrabold text-primary">新建供应商采购单</h2>
+            <p class="mt-2 text-sm text-slate-500">支持人民币 / 美金采购、同一张订单多行商品，并且商品会按供应商可供清单自动过滤。</p>
+          </div>
+          <button id="vendor-order-close" class="rounded-xl bg-surface-container-low px-3 py-2 text-sm font-bold text-primary" type="button">关闭</button>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-4">
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold text-primary">供应商</span>
+            <select id="vendor-order-vendor" class="w-full rounded-xl border border-outline-variant/20 px-4 py-3 text-sm"></select>
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold text-primary">采购币种</span>
+            <select id="vendor-order-currency" class="w-full rounded-xl border border-outline-variant/20 px-4 py-3 text-sm">
+              <option value="CNY">人民币 CNY</option>
+              <option value="USD">美金 USD</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold text-primary">申请人</span>
+            <select id="vendor-order-requested-by" class="w-full rounded-xl border border-outline-variant/20 px-4 py-3 text-sm"></select>
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold text-primary">备注</span>
+            <input id="vendor-order-notes" class="w-full rounded-xl border border-outline-variant/20 px-4 py-3 text-sm" type="text" />
+          </label>
+        </div>
+
+        <div class="mt-6 flex items-center justify-between">
+          <div>
+            <div class="text-lg font-extrabold text-primary">采购明细行</div>
+            <p class="mt-1 text-sm text-slate-500">每一行商品都会校验是否属于当前供应商可供目录。</p>
+          </div>
+          <button id="vendor-order-add-line" class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white" type="button">新增一行商品</button>
+        </div>
+
+        <div id="vendor-order-lines" class="mt-4 space-y-4"></div>
+
+        <div class="mt-6 rounded-2xl bg-surface-container-low p-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">订单总金额</div>
+          <div id="vendor-order-amount" class="mt-2 text-3xl font-black text-primary">CNY 0</div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button id="vendor-order-cancel" class="rounded-xl bg-surface-container-low px-5 py-3 text-sm font-bold text-primary" type="button">取消</button>
+          <button id="vendor-order-submit" class="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white" type="button">确认下单</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/shared-nav.js"></script>
+    <script src="/shared-header.js"></script>
+    <script src="/vendors.js"></script>
+  </body>
+</html>

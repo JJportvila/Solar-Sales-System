@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>光伏管理系统 / 客户管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              secondary: "#7f5700",
+              "secondary-container": "#feb316",
+              background: "#f8f9fa",
+              primary: "#001d44",
+              "surface-container-low": "#f3f4f5",
+              "outline-variant": "#c3c6d1"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", sans-serif; }
+      h1, h2, h3, h4, h5 { font-family: "Manrope", sans-serif; }
+    </style>
+  </head>
+  <body class="bg-background text-slate-900 min-h-screen flex" data-nav="customer" data-header-title="光伏管理系统 / 客户管理">
+    <aside id="app-sidebar" class="hidden md:flex flex-col h-screen w-64 bg-slate-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed left-0 top-0 z-40 py-6"></aside>
+    <header id="app-header" class="fixed top-0 w-full md:w-[calc(100%-16rem)] z-30 bg-white/80 backdrop-blur-md flex justify-between items-center px-6 h-16 shadow-sm border-b border-slate-100/10"></header>
+
+    <main class="flex-1 md:ml-64 pb-16">
+      <div class="mt-16 w-full max-w-[1520px] mx-auto px-6 lg:px-8 xl:px-10 py-6 lg:py-8 space-y-8">
+        <section class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.28em] text-secondary">客户管理</p>
+            <h1 id="customer-page-title" class="mt-3 text-3xl md:text-4xl font-extrabold text-primary tracking-tight">客户档案</h1>
+            <p id="customer-page-subtitle" class="mt-3 max-w-3xl text-sm text-slate-600">统一查看客户基础资料、付款进度、订单、设备 SN 绑定和保修记录。</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="customer-delete-btn" class="rounded-xl bg-red-50 px-5 py-3 text-sm font-bold text-red-700 flex items-center gap-2">
+              <span class="material-symbols-outlined">delete</span>
+              <span>删除客户</span>
+            </button>
+            <button id="customer-edit-btn" class="rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary border border-outline-variant/20 flex items-center gap-2">
+              <span class="material-symbols-outlined">edit</span>
+              <span>编辑档案</span>
+            </button>
+            <button id="customer-add-btn" class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white flex items-center gap-2 shadow-lg shadow-blue-900/10">
+              <span class="material-symbols-outlined">person_add</span>
+              <span>新增客户</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 gap-4 xl:grid-cols-[260px_260px_minmax(0,1fr)]">
+          <select id="customer-select" class="w-full rounded-2xl border border-outline-variant/25 bg-white px-4 py-3 text-sm"></select>
+          <input id="customer-search" class="w-full rounded-2xl border border-outline-variant/25 bg-white px-4 py-3 text-sm" placeholder="搜索客户名称、联系人、电话、编号" type="text" />
+          <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div class="rounded-2xl bg-white px-5 py-4 border border-outline-variant/10">
+              <div class="text-xs uppercase tracking-[0.22em] text-slate-400">客户总数</div>
+              <div id="customer-total" class="mt-2 text-3xl font-black text-primary">0</div>
+            </div>
+            <div class="rounded-2xl bg-white px-5 py-4 border border-outline-variant/10">
+              <div class="text-xs uppercase tracking-[0.22em] text-slate-400">累计已收</div>
+              <div id="customer-paid-total" class="mt-2 text-2xl font-black text-primary">VT 0</div>
+            </div>
+            <div class="rounded-2xl bg-white px-5 py-4 border border-outline-variant/10">
+              <div class="text-xs uppercase tracking-[0.22em] text-slate-400">未收余额</div>
+              <div id="customer-balance-total" class="mt-2 text-2xl font-black text-secondary">VT 0</div>
+            </div>
+            <div class="rounded-2xl bg-primary px-5 py-4 text-white">
+              <div class="text-xs uppercase tracking-[0.22em] text-blue-200">保修有效</div>
+              <div id="customer-warranty-total" class="mt-2 text-3xl font-black">0</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div class="lg:col-span-4 space-y-6">
+            <div class="rounded-[2rem] bg-white p-6 border border-outline-variant/10 shadow-sm">
+              <h2 class="text-lg font-extrabold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined">contact_page</span>
+                <span>基础信息</span>
+              </h2>
+              <div id="customer-basic-info" class="mt-5 space-y-4"></div>
+            </div>
+
+            <div class="rounded-[2rem] bg-white p-6 border border-outline-variant/10 shadow-sm">
+              <h2 class="text-lg font-extrabold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined">receipt_long</span>
+                <span>订单历史</span>
+              </h2>
+              <div id="customer-orders" class="mt-5 space-y-3"></div>
+              <div class="mt-6 border-t border-outline-variant/15 pt-5">
+                <h3 class="text-sm font-extrabold text-primary">关联报价单</h3>
+                <div id="customer-related-quotes" class="mt-3 space-y-3"></div>
+              </div>
+              <div class="mt-6 border-t border-outline-variant/15 pt-5">
+                <h3 class="text-sm font-extrabold text-primary">关联维修单</h3>
+                <div id="customer-related-repairs" class="mt-3 space-y-3"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-8 space-y-6">
+            <div class="rounded-[2rem] bg-white p-6 border border-outline-variant/10 shadow-sm">
+              <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <h2 class="text-lg font-extrabold text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined">payments</span>
+                    <span>分期付款进度</span>
+                  </h2>
+                  <p id="customer-payment-cycle" class="mt-2 text-sm text-slate-500">Weekly</p>
+                </div>
+                <button id="customer-payment-add-btn" class="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white">登记收款</button>
+                <div class="text-right">
+                  <div id="customer-payment-percent" class="text-3xl font-black text-primary">0%</div>
+                  <div id="customer-payment-weeks" class="text-sm text-slate-500">0 / 0 周</div>
+                </div>
+              </div>
+              <div class="mt-5 h-4 overflow-hidden rounded-full bg-slate-100">
+                <div id="customer-payment-bar" class="h-full rounded-full bg-gradient-to-r from-primary to-secondary" style="width:0%"></div>
+              </div>
+              <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">已付款</div>
+                  <div id="customer-paid-amount" class="mt-2 text-2xl font-black text-primary">VT 0</div>
+                </div>
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4 border-l-4 border-secondary">
+                  <div class="text-xs text-slate-500">待付款</div>
+                  <div id="customer-balance-amount" class="mt-2 text-2xl font-black text-primary">VT 0</div>
+                </div>
+                <div class="rounded-2xl bg-surface-container-low px-5 py-4">
+                  <div class="text-xs text-slate-500">下次扣款</div>
+                  <div id="customer-next-due" class="mt-2 text-2xl font-black text-red-600">-</div>
+                </div>
+              </div>
+              <div class="mt-6 rounded-[1.5rem] border border-outline-variant/15 bg-surface-container-low p-5">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <input id="customer-payment-amount-input" class="rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="number" min="0" placeholder="收款金额" />
+                  <input id="customer-payment-date-input" class="rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="date" />
+                  <select id="customer-payment-collector-select" class="rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm"></select>
+                  <input id="customer-payment-note-input" class="rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="text" placeholder="收款备注" />
+                </div>
+                <div id="customer-payment-history" class="mt-5 space-y-3"></div>
+              </div>
+            </div>
+
+            <div class="rounded-[2rem] bg-primary p-6 text-white shadow-lg shadow-blue-900/10">
+              <h2 class="text-lg font-extrabold flex items-center gap-2">
+                <span class="material-symbols-outlined">account_tree</span>
+                <span>设备 SN 绑定关系</span>
+              </h2>
+              <div id="customer-devices" class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,0.8fr)]">
+          <div class="rounded-[2rem] bg-white p-6 border border-outline-variant/10 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-lg font-extrabold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined">photo_library</span>
+                <span>安装现场照片档案</span>
+              </h2>
+              <div class="flex gap-3">
+                <input id="customer-photo-file-input" class="hidden" type="file" accept="image/png,image/jpeg,image/webp,image/jpg" />
+                <button id="customer-photo-add-btn" class="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white">上传照片</button>
+              </div>
+            </div>
+            <div id="customer-photos" class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2"></div>
+          </div>
+
+          <div class="rounded-[2rem] bg-white p-6 border border-outline-variant/10 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-lg font-extrabold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined">shield</span>
+                <span>保修历史记录</span>
+              </h2>
+              <button id="customer-warranty-add-btn" class="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white">新增保修</button>
+            </div>
+            <div class="mt-5 rounded-[1.5rem] border border-outline-variant/15 bg-surface-container-low p-5">
+              <div class="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+                <input id="customer-warranty-serial-search" class="w-full rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="text" placeholder="按序列号查询保修记录" />
+                <button id="customer-warranty-search-btn" class="rounded-xl bg-white px-4 py-3 text-sm font-bold text-primary border border-outline-variant/20">查询</button>
+              </div>
+              <div id="customer-warranty-search-results" class="mt-4 space-y-3"></div>
+            </div>
+            <div id="customer-warranty-history" class="mt-5 space-y-4"></div>
+            <div class="mt-5 rounded-[1.5rem] border border-outline-variant/15 bg-surface-container-low p-5 space-y-3">
+              <input id="customer-warranty-title-input" class="w-full rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="text" placeholder="保修标题" />
+              <input id="customer-warranty-serial-input" class="w-full rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="text" placeholder="关联设备序列号（可选）" />
+              <input id="customer-warranty-date-input" class="w-full rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="date" />
+              <textarea id="customer-warranty-detail-input" class="w-full rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" rows="3" placeholder="保修详情"></textarea>
+            </div>
+            <div class="mt-8 rounded-2xl bg-amber-50 px-5 py-4">
+              <div class="text-xs font-bold text-secondary">保修到期日</div>
+              <div id="customer-warranty-ends" class="mt-2 text-lg font-black text-primary">-</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="customer-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/40 px-4 py-6">
+      <div class="w-full max-w-5xl rounded-[2rem] bg-white p-6 md:p-8 shadow-2xl">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-secondary">客户管理</p>
+            <h2 id="customer-modal-title" class="mt-2 text-2xl font-extrabold text-primary">新增客户</h2>
+          </div>
+          <button id="customer-modal-close" class="rounded-full bg-slate-100 p-2 text-slate-500">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <form id="customer-form" class="mt-6 space-y-5">
+          <input id="customer-id" type="hidden" />
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">客户名称</span>
+              <input id="form-customer-name" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" required type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">档案编号</span>
+              <input id="form-customer-archive" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" required type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">联系人</span>
+              <input id="form-customer-contact" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">电话</span>
+              <input id="form-customer-phone" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">邮箱</span>
+              <input id="form-customer-email" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="email" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">省份</span>
+              <input id="form-customer-province" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">位置</span>
+              <input id="form-customer-location" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">用电类型</span>
+              <input id="form-customer-usage" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">安装日期</span>
+              <input id="form-customer-install" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="date" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">所属销售</span>
+              <select id="form-customer-sales" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm"></select>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">已付款</span>
+              <input id="form-customer-paid" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="number" min="0" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">待付款</span>
+              <input id="form-customer-balance" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="number" min="0" />
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">分期周期</span>
+              <input id="form-customer-cycle" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">完成期数</span>
+              <input id="form-customer-completed" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="number" min="0" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">总期数</span>
+              <input id="form-customer-total-weeks" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="number" min="1" />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">下次扣款</span>
+              <input id="form-customer-next-due" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
+            </label>
+          </div>
+
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">地址</span>
+            <textarea id="form-customer-address" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" rows="3"></textarea>
+          </label>
+
+          <div class="flex flex-wrap justify-end gap-3 pt-3">
+            <button id="customer-cancel-btn" class="rounded-xl bg-slate-100 px-5 py-3 text-sm font-bold text-slate-600" type="button">取消</button>
+            <button class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">保存客户</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="/shared-nav.js"></script>
+    <script src="/shared-header.js"></script>
+    <script src="/customer.js"></script>
+  </body>
+</html>
