@@ -37,7 +37,7 @@ function getSidebarGroups() {
       icon: "account_balance_wallet",
       items: [
         { key: "finance", href: "/finance.html", icon: "query_stats", label: "财务收支" },
-        { key: "invoices", href: "/invoices.html", icon: "receipt_long", label: "INVOICE管理" },
+      { key: "invoices", href: "/invoices.html", icon: "receipt_long", label: "发票管理" },
         { key: "expense-control", href: "/expense-control.html", icon: "payments", label: "费用管理" },
         { key: "installment", href: "/installment.html", icon: "calendar_month", label: "分期管理" },
         { key: "commission", href: "/commission.html", icon: "savings", label: "佣金管理" },
@@ -117,7 +117,7 @@ function buildSharedSidebar(activeKey = "") {
         </div>
         <div>
           <h1 class="text-xl font-bold tracking-tight text-primary">光伏管理系统</h1>
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Vanuatu Solar & Logistics</p>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Solar Sales System</p>
         </div>
       </div>
     </div>

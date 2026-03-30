@@ -3,7 +3,7 @@ const installmentState = {
   activeId: "",
   collectors: [],
   company: {
-    name: "VSLM Solar & Logistics",
+    name: "Solar Sales System",
     tin: "",
     bankName: "",
     bankAccountName: "",

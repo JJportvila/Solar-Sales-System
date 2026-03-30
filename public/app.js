@@ -29,7 +29,7 @@
     vatRate: 15,
     quoteDisplayMode: "tax_inclusive",
     company: {
-      name: "VSLM Solar & Logistics",
+      name: "Solar Sales System",
       tin: "",
       bankName: "",
       bankAccountName: "",
@@ -59,7 +59,7 @@ function getCompanyProfile(result = null) {
   const localCompany = JSON.parse(localStorage.getItem("smart_sizing_company_profile") || "{}");
   const source = result?.settings?.company || localCompany || state.settings.company || {};
   return {
-    name: source.name || "VSLM Solar & Logistics",
+    name: source.name || "Solar Sales System",
     tin: source.tin || "",
     bankName: source.bankName || "",
     bankAccountName: source.bankAccountName || "",

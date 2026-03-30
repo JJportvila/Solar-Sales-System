@@ -1,6 +1,6 @@
 {
   "meta.title": "PV Management System Smart Sizing & Quote",
-  "app.name": "PV Management System",
+  "app.name": "Solar Sales System",
   "app.subtitle": "Vanuatu Solar & Logistics",
   "nav.calculator": "Sales Quotation",
   "nav.productConfig": "Product Pricing",
@@ -236,6 +236,7 @@
   "productConfig.savedDiscount": "Discount template saved.",
   "inventory.metaTitle": "PV Management System Inventory & Procurement",
   "inventory.headerTitle": "PV Management System / Inventory & Procurement",
+  "inventory.badge": "Inventory Module",
   "inventory.title": "Inventory & Procurement",
   "inventory.description": "Track in-transit containers, core stock items and inventory transactions with live backend data.",
   "inventory.scan": "Scan Inbound",

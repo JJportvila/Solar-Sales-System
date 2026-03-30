@@ -10,6 +10,28 @@
     "googleDriveFolderId": "1E2UzfgJ4GJowOpHYI1l009vkLp8eb9jj",
     "googleDriveAccessToken": "",
     "lastDailyBackupAt": "2026-03-30T03:16:37.364Z",
-    "lastWeeklyBackupAt": "2026-03-30T03:16:37.364Z"
+    "lastWeeklyBackupAt": "2026-03-30T03:16:37.364Z",
+    "companyProfile": {
+      "name": "Solar Sales System",
+      "tin": "TIN-000000",
+      "bankName": "Bank Account",
+      "bankAccountName": "Solar Sales System",
+      "bankAccountNumber": "",
+      "address": "Port Vila, Vanuatu",
+      "phone": "",
+      "email": "",
+      "logoUrl": "/uploads/company-logo-1774856298149.png"
+    }
+  },
+  "company": {
+    "name": "Solar Sales System",
+    "tin": "TIN-000000",
+    "bankName": "Bank Account",
+    "bankAccountName": "Solar Sales System",
+    "bankAccountNumber": "",
+    "address": "Port Vila, Vanuatu",
+    "phone": "",
+    "email": "",
+    "logoUrl": "/uploads/company-logo-1774856298149.png"
   }
 }

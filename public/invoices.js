@@ -5,7 +5,7 @@ const invoiceState = {
   editingItem: null,
   previewDocType: "invoice",
   company: {
-    name: "VSLM Solar & Logistics",
+    name: "Solar Sales System",
     tin: "",
     bankName: "",
     bankAccountName: "",

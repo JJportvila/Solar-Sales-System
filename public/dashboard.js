@@ -516,7 +516,7 @@ function buildPreviewHtml(item) {
           <div style="margin-top:8px;font-size:13px;color:#64748b;">Commercial Invoice</div>
         </div>
         <div style="text-align:right;">
-          <div style="font-family:Manrope,sans-serif;font-size:26px;font-weight:800;color:#001d44;">VSLM Solar & Logistics</div>
+          <div style="font-family:Manrope,sans-serif;font-size:26px;font-weight:800;color:#001d44;">Solar Sales System</div>
           <div style="margin-top:10px;font-size:12px;color:#64748b;">Invoice No: ${invoiceNo}</div>
           <div style="margin-top:4px;font-size:12px;color:#64748b;">Issue Date: ${issueDate}</div>
         </div>
