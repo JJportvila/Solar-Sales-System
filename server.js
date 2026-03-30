@@ -6545,7 +6545,7 @@ function handleApi(req, res, url) {
   return false;
 }
 
-const server = http.createServer((req, res) => {
+function requestHandler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   if (handleApi(req, res, url)) return;
 
@@ -6561,16 +6561,21 @@ const server = http.createServer((req, res) => {
   }
 
   sendFile(res, filePath);
-});
+}
 
-server.listen(PORT, () => {
-  ensureDataDir();
-  runScheduledBackupsIfNeeded();
-  console.log(`smart_sizing server running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  const server = http.createServer(requestHandler);
+  server.listen(PORT, () => {
+    ensureDataDir();
+    runScheduledBackupsIfNeeded();
+    console.log(`smart_sizing server running at http://localhost:${PORT}`);
+  });
 
-setInterval(() => {
-  runScheduledBackupsIfNeeded();
-}, 60 * 60 * 1000);
+  setInterval(() => {
+    runScheduledBackupsIfNeeded();
+  }, 60 * 60 * 1000);
+}
+
+module.exports = requestHandler;
 
 
