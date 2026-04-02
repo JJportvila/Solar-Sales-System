@@ -4736,7 +4736,7 @@ function isApiAllowedForRole(role, pathname) {
 
 function isProtectedHtmlPath(pathname) {
   if (!String(pathname || "").toLowerCase().endsWith(".html")) return false;
-  return pathname !== "/login.html" && pathname !== "/field-app.html";
+  return pathname !== "/login.html";
 }
 
 function nameMatchesEmployee(value, employee) {
