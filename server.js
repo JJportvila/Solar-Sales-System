@@ -45,6 +45,9 @@ const BACKUPS_DIR = path.join(DATA_DIR, "backups");
 const BACKUP_INDEX_FILE = path.join(BACKUPS_DIR, "index.json");
 const DEMO_ATTENDANCE_DATA = buildDemoAttendanceData({ timeZone: BUSINESS_TIME_ZONE });
 
+let fieldDemoSeedPromise = null;
+let fieldDemoSeeded = false;
+
 const DATA_DOCUMENT_KEYS = {
   [SAVES_FILE]: { key: "saved_quotes", fallback: [] },
   [SETTINGS_FILE]: { key: "settings", fallback: {} },
@@ -1649,6 +1652,19 @@ function defaultExpenseControlData() {
   };
 }
 
+function mergeRecordsById(existing = [], incoming = []) {
+  const map = new Map();
+  for (const item of Array.isArray(existing) ? existing : []) {
+    const id = String(item?.id || "").trim();
+    if (id) map.set(id, item);
+  }
+  for (const item of Array.isArray(incoming) ? incoming : []) {
+    const id = String(item?.id || "").trim();
+    if (id) map.set(id, item);
+  }
+  return Array.from(map.values());
+}
+
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
@@ -1751,11 +1767,55 @@ function writeJson(filePath, value) {
 
 async function ensureFieldStoreReady() {
   if (!fieldStore.isEnabled()) return false;
+  const mergedTrackDocs = mergeRecordsById(readJson(FIELD_TRACKS_FILE, DEMO_ATTENDANCE_DATA.tracks), DEMO_ATTENDANCE_DATA.tracks);
+  const mergedVisitDocs = mergeRecordsById(readJson(FIELD_VISITS_FILE, DEMO_ATTENDANCE_DATA.visits), DEMO_ATTENDANCE_DATA.visits);
+  const mergedCheckinDocs = mergeRecordsById(readJson(FIELD_CHECKINS_FILE, DEMO_ATTENDANCE_DATA.checkins), DEMO_ATTENDANCE_DATA.checkins);
+
+  writeJson(FIELD_TRACKS_FILE, mergedTrackDocs);
+  writeJson(FIELD_VISITS_FILE, mergedVisitDocs);
+  writeJson(FIELD_CHECKINS_FILE, mergedCheckinDocs);
+
   await fieldStore.ensureReady({
-    tracks: readJson(FIELD_TRACKS_FILE, []),
-    visits: readJson(FIELD_VISITS_FILE, []),
-    checkins: readJson(FIELD_CHECKINS_FILE, [])
+    tracks: mergedTrackDocs,
+    visits: mergedVisitDocs,
+    checkins: mergedCheckinDocs
   });
+
+  if (!fieldDemoSeeded) {
+    if (!fieldDemoSeedPromise) {
+      fieldDemoSeedPromise = (async () => {
+        const [dbTracks, dbVisits, dbCheckins] = await Promise.all([
+          fieldStore.listTracks({}),
+          fieldStore.listVisits({}),
+          fieldStore.listCheckins({})
+        ]);
+        const nextTracks = mergeRecordsById(dbTracks, DEMO_ATTENDANCE_DATA.tracks);
+        const nextVisits = mergeRecordsById(dbVisits, DEMO_ATTENDANCE_DATA.visits);
+        const nextCheckins = mergeRecordsById(dbCheckins, DEMO_ATTENDANCE_DATA.checkins);
+        const changed = nextTracks.length !== dbTracks.length
+          || nextVisits.length !== dbVisits.length
+          || nextCheckins.length !== dbCheckins.length;
+
+        if (changed) {
+          await fieldStore.replaceAll({
+            tracks: nextTracks,
+            visits: nextVisits,
+            checkins: nextCheckins
+          });
+          writeJson(FIELD_TRACKS_FILE, nextTracks);
+          writeJson(FIELD_VISITS_FILE, nextVisits);
+          writeJson(FIELD_CHECKINS_FILE, nextCheckins);
+        }
+
+        fieldDemoSeeded = true;
+        return true;
+      })().catch((error) => {
+        fieldDemoSeedPromise = null;
+        throw error;
+      });
+    }
+    await fieldDemoSeedPromise;
+  }
   return true;
 }
 
