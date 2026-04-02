@@ -6681,6 +6681,21 @@ function handleApi(req, res, url) {
     return true;
   }
 
+  // Field photo upload (dataURL)
+  if (req.method === "POST" && url.pathname === "/api/uploads/field-photo") {
+    parseBody(req)
+      .then((body) => {
+        if (!body.dataUrl || typeof body.dataUrl !== "string" || !body.dataUrl.startsWith("data:image")) {
+          sendJson(res, 400, { error: "缺少图片 dataUrl" });
+          return;
+        }
+        const savedUrl = saveDataUrlImage(body.dataUrl, "field-photo");
+        sendJson(res, 200, { ok: true, url: savedUrl });
+      })
+      .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
+    return true;
+  }
+
   // Field check-in/out
   if (req.method === "POST" && url.pathname === "/api/field-checkin") {
     parseBody(req)

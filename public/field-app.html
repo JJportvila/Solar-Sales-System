@@ -98,6 +98,11 @@
           <input id="visit-address" type="text" class="rounded-xl border border-outline-variant/60 bg-slate-50 px-3 py-2 text-sm" placeholder="地址" />
           <textarea id="visit-note" class="rounded-xl border border-outline-variant/60 bg-slate-50 px-3 py-2 text-sm min-h-[80px]" placeholder="拜访备注"></textarea>
           <div class="flex flex-wrap items-center gap-2">
+            <input id="visit-photo-input" type="file" accept="image/*" multiple capture="environment" class="hidden" />
+            <label for="visit-photo-input" class="rounded-xl border border-outline-variant/20 bg-slate-50 px-4 py-2 text-sm font-bold text-primary cursor-pointer">添加照片</label>
+            <div id="visit-photo-preview" class="flex gap-2 flex-wrap text-xs text-slate-500">未选择照片</div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
             <button id="record-btn" class="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white">开始录音</button>
             <button id="stop-record-btn" class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-bold text-primary" disabled>结束录音</button>
             <span id="record-status" class="text-xs text-slate-500">未录音</span>

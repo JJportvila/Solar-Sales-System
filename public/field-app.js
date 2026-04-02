@@ -10,7 +10,8 @@ const state = {
   audioUrl: "",
   visits: [],
   tracks: [],
-  checkins: []
+  checkins: [],
+  photoUrls: []
 };
 
 function $(id) { return document.getElementById(id); }
@@ -154,7 +155,8 @@ async function saveVisit() {
       lat,
       lng,
       accuracy,
-      audioUrl: state.audioUrl
+      audioUrl: state.audioUrl,
+      photoUrls: state.photoUrls
     })
   });
   if (res.ok) {
@@ -163,6 +165,8 @@ async function saveVisit() {
     $("visit-address").value = "";
     $("visit-note").value = "";
     state.audioUrl = "";
+    state.photoUrls = [];
+    $("visit-photo-preview").textContent = "未选择照片";
     $("record-status").textContent = "未录音";
     await loadVisits();
   } else {
@@ -277,6 +281,7 @@ function renderVisits() {
       </div>
       <div class="text-slate-600">${v.address || "-"}</div>
       <div class="text-slate-500">${v.note || ""}</div>
+      ${v.photoUrls?.length ? `<div class="flex gap-2 flex-wrap">${v.photoUrls.map((url)=>`<img src="${url}" class="h-16 w-16 rounded-lg object-cover border" />`).join("")}</div>` : ""}
       ${v.audioUrl ? `<a class="text-primary font-bold" href="${v.audioUrl}" target="_blank" rel="noreferrer">播放录音</a>` : ""}
     </div>`
   ).join("");
@@ -313,6 +318,31 @@ function bindEvents() {
   $("visit-save-btn").onclick = saveVisit;
   $("record-btn").onclick = startRecording;
   $("stop-record-btn").onclick = stopRecording;
+  $("visit-photo-input").onchange = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    $("visit-photo-preview").textContent = "上传中...";
+    const urls = [];
+    for (const file of files) {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const res = await fetch("/api/uploads/field-photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dataUrl })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        urls.push(data.url);
+      }
+    }
+    state.photoUrls = urls;
+    $("visit-photo-preview").innerHTML = urls.length ? urls.map((url) => `<img src="${url}" class="h-16 w-16 rounded-lg object-cover border" />`).join("") : "未选择照片";
+  };
   $("track-date").onchange = () => { loadTracks(); loadCheckins(); };
   $("visit-date").onchange = () => loadVisits();
 }
