@@ -93,7 +93,7 @@ function renderCompany() {
           <div class="metric"><label>净工资</label><strong>${money(item.attendancePay || 0)}</strong></div>
         </div>
         <div class="grid" style="margin-top:10px;">
-          <a class="btn secondary" href="/mobile-attendance-detail.html?v=20260402&user=${encodeURIComponent(item.employeeId || "")}&date=${encodeURIComponent(attendanceState.date)}&name=${encodeURIComponent(item.employeeName || "")}">查看详细打卡记录</a>
+      <a class="btn secondary" href="/mobile-attendance-detail.html?v=20260403&user=${encodeURIComponent(item.employeeId || "")}&date=${encodeURIComponent(attendanceState.date)}&name=${encodeURIComponent(item.employeeName || "")}">查看详细打卡记录</a>
         </div>
       </div>
     `)

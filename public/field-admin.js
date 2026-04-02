@@ -100,7 +100,7 @@ function renderCompanyOverview() {
                 <td class="py-2 pr-4">${item.visitCount || 0}</td>
                 <td class="py-2 pr-4">VT ${Number(item.attendancePay || 0).toLocaleString("en-US")}</td>
                 <td class="py-2 pr-4">
-                  <a class="inline-flex rounded-lg bg-slate-100 px-3 py-1 font-bold text-primary" href="/mobile-attendance-detail.html?v=20260402&user=${encodeURIComponent(item.employeeId || "")}&date=${encodeURIComponent(adminState.date)}&name=${encodeURIComponent(item.employeeName || "")}">
+                  <a class="inline-flex rounded-lg bg-slate-100 px-3 py-1 font-bold text-primary" href="/mobile-attendance-detail.html?v=20260403&user=${encodeURIComponent(item.employeeId || "")}&date=${encodeURIComponent(adminState.date)}&name=${encodeURIComponent(item.employeeName || "")}">
                     GPS详情
                   </a>
                 </td>

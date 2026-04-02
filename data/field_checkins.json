@@ -1,5 +1,60 @@
 [
   {
+    "id": "demo-chk-out-eng-001-2026-04-03",
+    "userId": "emp-eng-001",
+    "action": "out",
+    "lat": -17.72144,
+    "lng": 168.32581,
+    "accuracy": 12,
+    "note": "完成维修后返回 Port Vila",
+    "ts": "2026-04-03T17:48:00+11:00",
+    "date": "2026-04-03"
+  },
+  {
+    "id": "demo-chk-out-sales-001-2026-04-03",
+    "userId": "emp-sales-001",
+    "action": "out",
+    "lat": -17.74183,
+    "lng": 168.32948,
+    "accuracy": 10,
+    "note": "提交客户跟进后签退",
+    "ts": "2026-04-03T17:12:00+11:00",
+    "date": "2026-04-03"
+  },
+  {
+    "id": "demo-chk-in-sales-001-2026-04-03",
+    "userId": "emp-sales-001",
+    "action": "in",
+    "lat": -17.73492,
+    "lng": 168.31744,
+    "accuracy": 7,
+    "note": "上午门店巡访开始",
+    "ts": "2026-04-03T08:52:00+11:00",
+    "date": "2026-04-03"
+  },
+  {
+    "id": "demo-chk-in-mgr-001-2026-04-03",
+    "userId": "emp-sales-mgr-001",
+    "action": "in",
+    "lat": -17.73956,
+    "lng": 168.32161,
+    "accuracy": 8,
+    "note": "总部晨会后开始现场巡检",
+    "ts": "2026-04-03T08:41:00+11:00",
+    "date": "2026-04-03"
+  },
+  {
+    "id": "demo-chk-in-eng-001-2026-04-03",
+    "userId": "emp-eng-001",
+    "action": "in",
+    "lat": -17.74615,
+    "lng": 168.3142,
+    "accuracy": 9,
+    "note": "总部仓库出发，开始今日外勤",
+    "ts": "2026-04-03T08:34:00+11:00",
+    "date": "2026-04-03"
+  },
+  {
     "id": "chk-1775093587547",
     "userId": "emp-sales-001",
     "action": "in",

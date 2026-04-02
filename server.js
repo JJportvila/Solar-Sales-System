@@ -12,6 +12,7 @@ const { createOperationsStore } = require("./db/operations-store");
 const { createCommerceStore } = require("./db/commerce-store");
 const { createExpenseStore } = require("./db/expense-store");
 const { createConfigStore } = require("./db/config-store");
+const { buildDemoAttendanceData } = require("./db/attendance-demo-data");
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, "public");
@@ -42,6 +43,7 @@ const BUSINESS_TIME_ZONE = process.env.BUSINESS_TIME_ZONE || "Pacific/Efate";
 const RUNTIME_DATA_DIR = process.env.VERCEL ? path.join("/tmp", "solar-sales-data") : "";
 const BACKUPS_DIR = path.join(DATA_DIR, "backups");
 const BACKUP_INDEX_FILE = path.join(BACKUPS_DIR, "index.json");
+const DEMO_ATTENDANCE_DATA = buildDemoAttendanceData({ timeZone: BUSINESS_TIME_ZONE });
 
 const DATA_DOCUMENT_KEYS = {
   [SAVES_FILE]: { key: "saved_quotes", fallback: [] },
@@ -59,9 +61,9 @@ const DATA_DOCUMENT_KEYS = {
   [WHOLESALE_FILE]: { key: "wholesale_orders", fallback: {} },
   [EXPENSE_CONTROL_FILE]: { key: "expense_control", fallback: {} },
   [INVOICES_FILE]: { key: "invoices", fallback: [] },
-  [FIELD_TRACKS_FILE]: { key: "field_tracks", fallback: [] },
-  [FIELD_VISITS_FILE]: { key: "field_visits", fallback: [] },
-  [FIELD_CHECKINS_FILE]: { key: "field_checkins", fallback: [] },
+  [FIELD_TRACKS_FILE]: { key: "field_tracks", fallback: DEMO_ATTENDANCE_DATA.tracks },
+  [FIELD_VISITS_FILE]: { key: "field_visits", fallback: DEMO_ATTENDANCE_DATA.visits },
+  [FIELD_CHECKINS_FILE]: { key: "field_checkins", fallback: DEMO_ATTENDANCE_DATA.checkins },
   [BACKUP_INDEX_FILE]: { key: "backup_index", fallback: { items: [] } }
 };
 
@@ -1703,21 +1705,18 @@ if (!fs.existsSync(VENDORS_FILE)) {
 if (!fs.existsSync(WHOLESALE_FILE)) {
   fs.writeFileSync(WHOLESALE_FILE, JSON.stringify(defaultWholesaleData(), null, 2), "utf8");
 }
-if (!fs.existsSync(EXPENSE_CONTROL_FILE)) {
-  fs.writeFileSync(EXPENSE_CONTROL_FILE, JSON.stringify(defaultExpenseControlData(), null, 2), "utf8");
-}
-if (!fs.existsSync(FIELD_TRACKS_FILE)) {
-  fs.writeFileSync(FIELD_TRACKS_FILE, "[]", "utf8");
-}
-if (!fs.existsSync(FIELD_VISITS_FILE)) {
-  fs.writeFileSync(FIELD_VISITS_FILE, "[]", "utf8");
-}
-if (!fs.existsSync(FIELD_CHECKINS_FILE)) {
-  fs.writeFileSync(FIELD_CHECKINS_FILE, "[]", "utf8");
-}
-if (!fs.existsSync(FIELD_CHECKINS_FILE)) {
-  fs.writeFileSync(FIELD_CHECKINS_FILE, "[]", "utf8");
-}
+  if (!fs.existsSync(EXPENSE_CONTROL_FILE)) {
+    fs.writeFileSync(EXPENSE_CONTROL_FILE, JSON.stringify(defaultExpenseControlData(), null, 2), "utf8");
+  }
+  if (!fs.existsSync(FIELD_TRACKS_FILE)) {
+    fs.writeFileSync(FIELD_TRACKS_FILE, JSON.stringify(DEMO_ATTENDANCE_DATA.tracks, null, 2), "utf8");
+  }
+  if (!fs.existsSync(FIELD_VISITS_FILE)) {
+    fs.writeFileSync(FIELD_VISITS_FILE, JSON.stringify(DEMO_ATTENDANCE_DATA.visits, null, 2), "utf8");
+  }
+  if (!fs.existsSync(FIELD_CHECKINS_FILE)) {
+    fs.writeFileSync(FIELD_CHECKINS_FILE, JSON.stringify(DEMO_ATTENDANCE_DATA.checkins, null, 2), "utf8");
+  }
 if (!fs.existsSync(BACKUP_INDEX_FILE)) {
   fs.writeFileSync(BACKUP_INDEX_FILE, JSON.stringify({ items: [] }, null, 2), "utf8");
 }

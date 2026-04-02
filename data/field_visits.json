@@ -1,5 +1,44 @@
 [
   {
+    "id": "demo-visit-hq-2026-04-03",
+    "userId": "emp-sales-mgr-001",
+    "customer": "Port Vila Headquarters",
+    "note": "复盘签到纪律和外勤覆盖率，抽查 GPS 采点。",
+    "lat": -17.73812,
+    "lng": 168.31976,
+    "accuracy": 6,
+    "address": "Port Vila HQ",
+    "audioUrl": "",
+    "photoUrls": [],
+    "recordedAt": "2026-04-03T14:18:00+11:00"
+  },
+  {
+    "id": "demo-visit-wharf-2026-04-03",
+    "userId": "emp-sales-001",
+    "customer": "Port Vila Solar Mart",
+    "note": "和门店核对批发补货数量，已确认 2 套 M-BOX1200。",
+    "lat": -17.73991,
+    "lng": 168.32784,
+    "accuracy": 8,
+    "address": "Port Vila town center",
+    "audioUrl": "",
+    "photoUrls": [],
+    "recordedAt": "2026-04-03T11:06:00+11:00"
+  },
+  {
+    "id": "demo-visit-emae-2026-04-03",
+    "userId": "emp-eng-001",
+    "customer": "Emae Village Center",
+    "note": "检查逆变器告警，确认电池线缆压接正常。",
+    "lat": -17.73758,
+    "lng": 168.32092,
+    "accuracy": 11,
+    "address": "Port Vila feeder depot, Efate",
+    "audioUrl": "",
+    "photoUrls": [],
+    "recordedAt": "2026-04-03T10:12:00+11:00"
+  },
+  {
     "id": "visit-1775112322628",
     "userId": "emp-sales-001",
     "customer": "lorenso",
