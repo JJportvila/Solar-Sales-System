@@ -4,6 +4,12 @@
   "private": true,
   "description": "Smart sizing web demo with integrated frontend and backend",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "db:check": "node db/check.js",
+    "db:migrate-all": "node db/migrate-all.js",
+    "db:status": "node db/status.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
   }
 }

@@ -13,6 +13,20 @@ function $(id) {
   return document.getElementById(id);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatMapLink(lat, lng) {
+  if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) return "";
+  return `https://maps.google.com/?q=${lat},${lng}`;
+}
+
 async function fetchJson(url) {
   const response = await fetch(url);
   const data = await response.json().catch(() => ({}));
@@ -71,6 +85,7 @@ function renderCompanyOverview() {
           <th class="py-2 pr-4">首卡 / 末卡</th>
           <th class="py-2 pr-4">拜访</th>
           <th class="py-2 pr-4">净工资</th>
+          <th class="py-2 pr-4">详情</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100 text-xs">
@@ -84,6 +99,11 @@ function renderCompanyOverview() {
                 <td class="py-2 pr-4">${item.firstCheckInLabel || "-"} / ${item.lastCheckOutLabel || "-"}</td>
                 <td class="py-2 pr-4">${item.visitCount || 0}</td>
                 <td class="py-2 pr-4">VT ${Number(item.attendancePay || 0).toLocaleString("en-US")}</td>
+                <td class="py-2 pr-4">
+                  <a class="inline-flex rounded-lg bg-slate-100 px-3 py-1 font-bold text-primary" href="/mobile-attendance-detail.html?v=20260402&user=${encodeURIComponent(item.employeeId || "")}&date=${encodeURIComponent(adminState.date)}&name=${encodeURIComponent(item.employeeName || "")}">
+                    GPS详情
+                  </a>
+                </td>
               </tr>
             `
           )
@@ -105,7 +125,9 @@ function renderCheckins() {
         <tr>
           <th class="py-2 pr-4">时间</th>
           <th class="py-2 pr-4">动作</th>
-          <th class="py-2 pr-4">坐标</th>
+          <th class="py-2 pr-4">GPS坐标</th>
+          <th class="py-2 pr-4">精度</th>
+          <th class="py-2 pr-4">地图</th>
           <th class="py-2 pr-4">备注</th>
         </tr>
       </thead>
@@ -116,7 +138,11 @@ function renderCheckins() {
               <tr>
                 <td class="py-2 pr-4">${new Date(item.ts).toLocaleTimeString()}</td>
                 <td class="py-2 pr-4">${item.action === "in" ? "上班" : "下班"}</td>
-                <td class="py-2 pr-4">${item.lat?.toFixed(5) || "-"}, ${item.lng?.toFixed(5) || "-"}</td>
+                <td class="py-2 pr-4">${item.lat?.toFixed?.(5) || "-"}, ${item.lng?.toFixed?.(5) || "-"}</td>
+                <td class="py-2 pr-4">${Math.round(item.accuracy || 0)}m</td>
+                <td class="py-2 pr-4">
+                  ${formatMapLink(item.lat, item.lng) ? `<a class="font-bold text-primary" href="${formatMapLink(item.lat, item.lng)}" target="_blank" rel="noreferrer">查看地图</a>` : "-"}
+                </td>
                 <td class="py-2 pr-4">${item.note || "-"}</td>
               </tr>
             `
@@ -143,6 +169,9 @@ function renderVisits() {
           </div>
           <div class="mt-1 text-slate-600">${visit.address || "-"}</div>
           <div class="mt-1 text-slate-500">${visit.note || ""}</div>
+          ${(Number.isFinite(Number(visit.lat)) && Number.isFinite(Number(visit.lng)))
+            ? `<div class="mt-1 text-slate-500">GPS: ${escapeHtml(Number(visit.lat).toFixed(5))}, ${escapeHtml(Number(visit.lng).toFixed(5))} / 精度 ${escapeHtml(Math.round(visit.accuracy || 0))}m / <a class="font-bold text-primary" href="${formatMapLink(visit.lat, visit.lng)}" target="_blank" rel="noreferrer">查看地图</a></div>`
+            : ""}
           ${visit.photoUrls?.length ? `<div class="mt-2 flex flex-wrap gap-2">${visit.photoUrls.map((url) => `<img src="${url}" class="h-14 w-14 rounded-lg border object-cover" />`).join("")}</div>` : ""}
           ${visit.audioUrl ? `<a class="mt-2 inline-block font-bold text-primary" href="${visit.audioUrl}" target="_blank" rel="noreferrer">播放录音</a>` : ""}
         </div>
@@ -165,6 +194,7 @@ function renderTracks() {
           <th class="py-2 pr-4">时间</th>
           <th class="py-2 pr-4">坐标</th>
           <th class="py-2 pr-4">精度</th>
+          <th class="py-2 pr-4">地图</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100 text-xs">
@@ -176,6 +206,7 @@ function renderTracks() {
                 <td class="py-2 pr-4">${new Date(point.ts).toLocaleTimeString()}</td>
                 <td class="py-2 pr-4">${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}</td>
                 <td class="py-2 pr-4">${Math.round(point.accuracy || 0)}m</td>
+                <td class="py-2 pr-4"><a class="font-bold text-primary" href="${formatMapLink(point.lat, point.lng)}" target="_blank" rel="noreferrer">查看地图</a></td>
               </tr>
             `
           )

@@ -2,7 +2,16 @@
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const { URL } = require("url");
+const { createDocumentStore } = require("./db/document-store");
+const { createFieldStore } = require("./db/field-store");
+const { createCrmStore } = require("./db/crm-store");
+const { createBusinessStore } = require("./db/business-store");
+const { createOperationsStore } = require("./db/operations-store");
+const { createCommerceStore } = require("./db/commerce-store");
+const { createExpenseStore } = require("./db/expense-store");
+const { createConfigStore } = require("./db/config-store");
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, "public");
@@ -28,8 +37,42 @@ const FIELD_VISITS_FILE = path.join(DATA_DIR, "field_visits.json");
 const FIELD_CHECKINS_FILE = path.join(DATA_DIR, "field_checkins.json");
 const ACTIVE_TOKENS = new Map(); // token -> userId
 const ACTIVE_LOGIN_SESSIONS = new Map(); // token -> auth session
+const AUTH_COOKIE_SECRET = process.env.AUTH_COOKIE_SECRET || "solar-sales-system-auth-secret";
+const BUSINESS_TIME_ZONE = process.env.BUSINESS_TIME_ZONE || "Pacific/Efate";
+const RUNTIME_DATA_DIR = process.env.VERCEL ? path.join("/tmp", "solar-sales-data") : "";
 const BACKUPS_DIR = path.join(DATA_DIR, "backups");
 const BACKUP_INDEX_FILE = path.join(BACKUPS_DIR, "index.json");
+
+const DATA_DOCUMENT_KEYS = {
+  [SAVES_FILE]: { key: "saved_quotes", fallback: [] },
+  [SETTINGS_FILE]: { key: "settings", fallback: {} },
+  [COMPANY_FILE]: { key: "company_profile", fallback: {} },
+  [PRODUCT_CONFIG_FILE]: { key: "product_config", fallback: {} },
+  [INVENTORY_FILE]: { key: "inventory", fallback: {} },
+  [REPAIR_FILE]: { key: "repair_order", fallback: {} },
+  [REPAIR_ORDERS_FILE]: { key: "repair_orders", fallback: {} },
+  [SURVEY_FILE]: { key: "site_survey", fallback: {} },
+  [EMPLOYEES_FILE]: { key: "employees", fallback: {} },
+  [RBAC_FILE]: { key: "rbac", fallback: {} },
+  [CUSTOMERS_FILE]: { key: "customers", fallback: {} },
+  [VENDORS_FILE]: { key: "vendors", fallback: {} },
+  [WHOLESALE_FILE]: { key: "wholesale_orders", fallback: {} },
+  [EXPENSE_CONTROL_FILE]: { key: "expense_control", fallback: {} },
+  [INVOICES_FILE]: { key: "invoices", fallback: [] },
+  [FIELD_TRACKS_FILE]: { key: "field_tracks", fallback: [] },
+  [FIELD_VISITS_FILE]: { key: "field_visits", fallback: [] },
+  [FIELD_CHECKINS_FILE]: { key: "field_checkins", fallback: [] },
+  [BACKUP_INDEX_FILE]: { key: "backup_index", fallback: { items: [] } }
+};
+
+const documentStore = createDocumentStore(DATA_DOCUMENT_KEYS);
+const fieldStore = createFieldStore();
+const crmStore = createCrmStore();
+const businessStore = createBusinessStore();
+const operationsStore = createOperationsStore();
+const commerceStore = createCommerceStore();
+const expenseStore = createExpenseStore();
+const configStore = createConfigStore();
 
 const applianceCategories = [
   {
@@ -1515,6 +1558,7 @@ function defaultAttendanceSettings() {
     checkInEnd: "10:00",
     checkOutStart: "17:00",
     checkOutEnd: "21:00",
+    enforceTimeWindow: false,
     requireLocation: true
   };
 }
@@ -1679,28 +1723,268 @@ if (!fs.existsSync(BACKUP_INDEX_FILE)) {
 }
 }
 
+function resolveWritableDataPath(filePath) {
+  if (!RUNTIME_DATA_DIR) return filePath;
+  const normalizedSource = path.resolve(filePath);
+  const normalizedDataDir = path.resolve(DATA_DIR);
+  if (!normalizedSource.startsWith(normalizedDataDir)) return filePath;
+  const relativePath = path.relative(normalizedDataDir, normalizedSource);
+  const runtimePath = path.join(RUNTIME_DATA_DIR, relativePath);
+  const runtimeDir = path.dirname(runtimePath);
+  if (!fs.existsSync(runtimeDir)) {
+    fs.mkdirSync(runtimeDir, { recursive: true });
+  }
+  if (!fs.existsSync(runtimePath) && fs.existsSync(normalizedSource)) {
+    fs.copyFileSync(normalizedSource, runtimePath);
+  }
+  return runtimePath;
+}
+
 function readJson(filePath, fallback) {
   ensureDataDir();
-  try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
-  } catch {
-    return fallback;
-  }
+  return documentStore.read(filePath, fallback);
 }
 
 function writeJson(filePath, value) {
   ensureDataDir();
-  fs.writeFileSync(filePath, JSON.stringify(value, null, 2), "utf8");
+  documentStore.write(filePath, value);
+}
+
+async function ensureFieldStoreReady() {
+  if (!fieldStore.isEnabled()) return false;
+  await fieldStore.ensureReady({
+    tracks: readJson(FIELD_TRACKS_FILE, []),
+    visits: readJson(FIELD_VISITS_FILE, []),
+    checkins: readJson(FIELD_CHECKINS_FILE, [])
+  });
+  return true;
+}
+
+async function getFieldTracksData({ userId = "", dateKey = "" } = {}) {
+  if (fieldStore.isEnabled()) {
+    await ensureFieldStoreReady();
+    return fieldStore.listTracks({ userId, dateKey });
+  }
+  return readJson(FIELD_TRACKS_FILE, []).filter((item) => (!userId || item.userId === userId) && (!dateKey || item.date === dateKey));
+}
+
+async function getFieldVisitsData({ userId = "", dateKey = "" } = {}) {
+  if (fieldStore.isEnabled()) {
+    await ensureFieldStoreReady();
+    return fieldStore.listVisits({ userId, dateKey });
+  }
+  return readJson(FIELD_VISITS_FILE, []).filter((item) => (!userId || item.userId === userId) && (!dateKey || String(item.recordedAt || "").startsWith(dateKey)));
+}
+
+async function getFieldCheckinsData({ userId = "", dateKey = "" } = {}) {
+  if (fieldStore.isEnabled()) {
+    await ensureFieldStoreReady();
+    return fieldStore.listCheckins({ userId, dateKey });
+  }
+  return readJson(FIELD_CHECKINS_FILE, []).filter((item) => (!userId || item.userId === userId) && (!dateKey || item.date === dateKey));
+}
+
+async function syncFieldDocumentsFromStore() {
+  if (!fieldStore.isEnabled()) return;
+  const [tracks, visits, checkins] = await Promise.all([
+    fieldStore.listTracks({}),
+    fieldStore.listVisits({}),
+    fieldStore.listCheckins({})
+  ]);
+  writeJson(FIELD_TRACKS_FILE, tracks);
+  writeJson(FIELD_VISITS_FILE, visits);
+  writeJson(FIELD_CHECKINS_FILE, checkins);
+}
+
+async function ensureCrmStoreReady() {
+  if (!crmStore.isEnabled()) return false;
+  await crmStore.ensureReady({
+    customers: getCustomersData().items,
+    invoices: getInvoicesData()
+  });
+  return true;
+}
+
+async function getCustomersDataAsync() {
+  if (crmStore.isEnabled()) {
+    await ensureCrmStoreReady();
+    const items = (await crmStore.listCustomers()).map(normalizeCustomerRecord);
+    return {
+      items,
+      summary: buildCustomerSummary(items)
+    };
+  }
+  return getCustomersData();
+}
+
+async function getInvoicesDataAsync() {
+  if (crmStore.isEnabled()) {
+    await ensureCrmStoreReady();
+    return (await crmStore.listInvoices())
+      .map(normalizeInvoiceRecord)
+      .sort((a, b) => new Date(b.issuedAt).getTime() - new Date(a.issuedAt).getTime());
+  }
+  return getInvoicesData();
+}
+
+async function syncCrmDocumentsFromStore() {
+  if (!crmStore.isEnabled()) return;
+  const [customers, invoices] = await Promise.all([
+    crmStore.listCustomers(),
+    crmStore.listInvoices()
+  ]);
+  writeJson(CUSTOMERS_FILE, { items: customers.map(normalizeCustomerRecord) });
+  writeJson(INVOICES_FILE, invoices.map(normalizeInvoiceRecord));
+}
+
+async function ensureBusinessStoreReady() {
+  if (!businessStore.isEnabled()) return false;
+  await businessStore.ensureReady({
+    employees: readJson(EMPLOYEES_FILE, defaultEmployeesData()),
+    quotes: readJson(SAVES_FILE, [])
+  });
+  return true;
+}
+
+async function syncBusinessDocumentsFromStore() {
+  if (!businessStore.isEnabled()) return;
+  const [employees, quotes] = await Promise.all([
+    businessStore.listEmployees(),
+    businessStore.listQuotes()
+  ]);
+  writeJson(EMPLOYEES_FILE, {
+    monthlyTrend: (Array.isArray(employees.monthlyTrend) ? employees.monthlyTrend : []).map(normalizeEmployeeTrend),
+    items: (Array.isArray(employees.items) ? employees.items : []).map(normalizeEmployee)
+  });
+  writeJson(SAVES_FILE, Array.isArray(quotes) ? quotes : []);
+}
+
+async function ensureOperationsStoreReady() {
+  if (!operationsStore.isEnabled()) return false;
+  await operationsStore.ensureReady({
+    inventory: readJson(INVENTORY_FILE, defaultInventoryData()),
+    repairs: getRepairOrders(),
+    surveys: getSurveyData().bookings
+  });
+  return true;
+}
+
+async function syncOperationsDocumentsFromStore() {
+  if (!operationsStore.isEnabled()) return;
+  const [inventory, repairs, surveys] = await Promise.all([
+    operationsStore.listInventoryData(),
+    operationsStore.listRepairOrders(),
+    operationsStore.listSurveyBookings()
+  ]);
+  if (inventory) {
+    writeJson(INVENTORY_FILE, inventory);
+  }
+  const normalizedRepairs = (Array.isArray(repairs) ? repairs : []).map(normalizeRepairOrder);
+  writeJson(REPAIR_ORDERS_FILE, { items: normalizedRepairs });
+  if (normalizedRepairs[0]) {
+    writeJson(REPAIR_FILE, normalizedRepairs[0]);
+  }
+  writeJson(SURVEY_FILE, { bookings: (Array.isArray(surveys) ? surveys : []).map(normalizeSurveyBooking) });
+}
+
+async function ensureCommerceStoreReady() {
+  if (!commerceStore.isEnabled()) return false;
+  const vendorsRaw = readJson(VENDORS_FILE, defaultVendorsData());
+  const wholesaleRaw = readJson(WHOLESALE_FILE, defaultWholesaleData());
+  await commerceStore.ensureReady({
+    vendors: {
+      items: (Array.isArray(vendorsRaw.items) ? vendorsRaw.items : defaultVendorsData().items).map(normalizeVendor),
+      orders: (Array.isArray(vendorsRaw.orders) ? vendorsRaw.orders : defaultVendorsData().orders).map(normalizeVendorOrder)
+    },
+    wholesaleOrders: (Array.isArray(wholesaleRaw.orders) ? wholesaleRaw.orders : defaultWholesaleData().orders).map(normalizeWholesaleOrder)
+  });
+  return true;
+}
+
+async function syncCommerceDocumentsFromStore() {
+  if (!commerceStore.isEnabled()) return;
+  const [vendors, vendorOrders, wholesaleOrders] = await Promise.all([
+    commerceStore.listVendors(),
+    commerceStore.listVendorOrders(),
+    commerceStore.listWholesaleOrders()
+  ]);
+  writeJson(VENDORS_FILE, {
+    items: (Array.isArray(vendors) ? vendors : []).map(normalizeVendor),
+    orders: (Array.isArray(vendorOrders) ? vendorOrders : []).map(normalizeVendorOrder)
+  });
+  writeJson(WHOLESALE_FILE, {
+    orders: (Array.isArray(wholesaleOrders) ? wholesaleOrders : []).map(normalizeWholesaleOrder)
+  });
+}
+
+async function ensureExpenseStoreReady() {
+  if (!expenseStore.isEnabled()) return false;
+  await expenseStore.ensureReady(readJson(EXPENSE_CONTROL_FILE, defaultExpenseControlData()));
+  return true;
+}
+
+async function syncExpenseDocumentsFromStore() {
+  if (!expenseStore.isEnabled()) return;
+  const payload = await expenseStore.getAll();
+  if (!payload) return;
+  writeJson(EXPENSE_CONTROL_FILE, {
+    paymentQueue: normalizeExpenseControlCollection(payload.paymentQueue, normalizeExpensePaymentQueue),
+    installmentPlans: normalizeExpenseControlCollection(payload.installmentPlans, normalizeExpenseInstallment),
+    commissionPool: normalizeExpenseControlCollection(payload.commissionPool, normalizeExpenseCommission),
+    transactionLogs: normalizeExpenseControlCollection(payload.transactionLogs, normalizeExpenseTransaction),
+    livingCosts: normalizeExpenseControlCollection(payload.livingCosts, (item, index) => normalizeExpenseSimpleItem(item, index, "LIFE")),
+    taxes: normalizeExpenseControlCollection(payload.taxes, (item, index) => normalizeExpenseSimpleItem(item, index, "TAX")),
+    invoices: normalizeExpenseControlCollection(payload.invoices, (item, index) => normalizeExpenseSimpleItem(item, index, "INV")),
+    rentLedger: normalizeExpenseControlCollection(payload.rentLedger, (item, index) => normalizeExpenseSimpleItem(item, index, "RENT", "location"))
+  });
+}
+
+async function ensureConfigStoreReady() {
+  if (!configStore.isEnabled()) return false;
+  await configStore.ensureReady({
+    settings: readJson(SETTINGS_FILE, {
+      audToVuv: 80,
+      nzdToVuv: 72,
+      quoteDisplayMode: "tax_inclusive",
+      homepage: "dashboard",
+      backup: defaultBackupSettings(),
+      company: defaultCompanyProfile(),
+      attendance: defaultAttendanceSettings()
+    }),
+    companyProfile: readJson(COMPANY_FILE, defaultCompanyProfile()),
+    productConfig: readJson(PRODUCT_CONFIG_FILE, defaultProductConfig()),
+    rbac: readJson(RBAC_FILE, defaultRbacData()),
+    backupIndex: readJson(BACKUP_INDEX_FILE, { items: [] })
+  });
+  return true;
+}
+
+async function syncConfigDocumentsFromStore() {
+  if (!configStore.isEnabled()) return;
+  writeJson(SETTINGS_FILE, configStore.getSettings());
+  writeJson(COMPANY_FILE, configStore.getCompanyProfile());
+  writeJson(PRODUCT_CONFIG_FILE, configStore.getProductConfig());
+  writeJson(RBAC_FILE, configStore.getRbac());
+  writeJson(BACKUP_INDEX_FILE, configStore.getBackupIndex());
 }
 
 function getBackupIndex() {
+  if (configStore.isEnabled()) {
+    return configStore.getBackupIndex();
+  }
   return readJson(BACKUP_INDEX_FILE, { items: [] });
 }
 
 function saveBackupIndex(data) {
-  writeJson(BACKUP_INDEX_FILE, {
+  const payload = {
     items: Array.isArray(data.items) ? data.items : []
-  });
+  };
+  writeJson(BACKUP_INDEX_FILE, payload);
+  if (configStore.isEnabled()) {
+    configStore.saveBackupIndex(payload).catch((error) => {
+      console.error("[backup-index] Failed to persist config store:", error);
+    });
+  }
   return getBackupIndex();
 }
 
@@ -1796,7 +2080,7 @@ function writeBackupSnapshot(trigger = "manual", notes = "") {
   return { item, filePath, payload };
 }
 
-function restoreBackupSnapshot(backupId) {
+async function restoreBackupSnapshot(backupId) {
   const history = getBackupHistory();
   const item = history.find((entry) => entry.id === String(backupId || "").trim());
   if (!item) return { error: "Backup not found" };
@@ -1811,20 +2095,74 @@ function restoreBackupSnapshot(backupId) {
   writeJson(COMPANY_FILE, payload.files.companyProfile || defaultCompanyProfile());
   writeJson(SAVES_FILE, sanitizeSavedQuotesForBackup(payload.files.savedQuotes || []));
   writeJson(PRODUCT_CONFIG_FILE, payload.files.productConfig || defaultProductConfig());
+  if (configStore.isEnabled()) {
+    await ensureConfigStoreReady();
+    await configStore.replaceAll({
+      settings: restoredSettings,
+      companyProfile: payload.files.companyProfile || defaultCompanyProfile(),
+      productConfig: payload.files.productConfig || defaultProductConfig(),
+      rbac: payload.files.rbac || defaultRbacData(),
+      backupIndex: getBackupIndex()
+    });
+  }
   writeJson(INVENTORY_FILE, payload.files.inventory || defaultInventoryData());
   writeJson(REPAIR_FILE, payload.files.repairOrder || defaultRepairOrder());
   writeJson(REPAIR_ORDERS_FILE, payload.files.repairOrders || defaultRepairOrders());
   writeJson(SURVEY_FILE, payload.files.siteSurvey || defaultSurveyData());
+  if (operationsStore.isEnabled()) {
+    await ensureOperationsStoreReady();
+    await operationsStore.replaceAll({
+      inventory: payload.files.inventory || defaultInventoryData(),
+      repairs: Array.isArray(payload.files.repairOrders?.items) ? payload.files.repairOrders.items : [],
+      surveys: Array.isArray(payload.files.siteSurvey?.bookings) ? payload.files.siteSurvey.bookings : []
+    });
+  }
   writeJson(EMPLOYEES_FILE, payload.files.employees || defaultEmployeesData());
+  if (businessStore.isEnabled()) {
+    await ensureBusinessStoreReady();
+    await businessStore.replaceAll({
+      employees: payload.files.employees || defaultEmployeesData(),
+      quotes: sanitizeSavedQuotesForBackup(payload.files.savedQuotes || [])
+    });
+  }
   writeJson(RBAC_FILE, payload.files.rbac || defaultRbacData());
   writeJson(CUSTOMERS_FILE, payload.files.customers || defaultCustomersData());
   writeJson(VENDORS_FILE, payload.files.vendors || defaultVendorsData());
   writeJson(WHOLESALE_FILE, payload.files.wholesale || defaultWholesaleData());
+  if (commerceStore.isEnabled()) {
+    await ensureCommerceStoreReady();
+    await commerceStore.replaceAll({
+      vendors: {
+        items: Array.isArray(payload.files.vendors?.items) ? payload.files.vendors.items : defaultVendorsData().items,
+        orders: Array.isArray(payload.files.vendors?.orders) ? payload.files.vendors.orders : defaultVendorsData().orders
+      },
+      wholesaleOrders: Array.isArray(payload.files.wholesale?.orders) ? payload.files.wholesale.orders : defaultWholesaleData().orders
+    });
+  }
   writeJson(EXPENSE_CONTROL_FILE, payload.files.expenseControl || defaultExpenseControlData());
+  if (expenseStore.isEnabled()) {
+    await ensureExpenseStoreReady();
+    await expenseStore.replaceAll(payload.files.expenseControl || defaultExpenseControlData());
+  }
   writeJson(INVOICES_FILE, Array.isArray(payload.files.invoices) ? payload.files.invoices : []);
+  if (crmStore.isEnabled()) {
+    await ensureCrmStoreReady();
+    await crmStore.replaceAll({
+      customers: Array.isArray(payload.files.customers?.items) ? payload.files.customers.items : [],
+      invoices: Array.isArray(payload.files.invoices) ? payload.files.invoices : []
+    });
+  }
   writeJson(FIELD_TRACKS_FILE, Array.isArray(payload.files.fieldTracks) ? payload.files.fieldTracks : []);
   writeJson(FIELD_VISITS_FILE, Array.isArray(payload.files.fieldVisits) ? payload.files.fieldVisits : []);
   writeJson(FIELD_CHECKINS_FILE, Array.isArray(payload.files.fieldCheckins) ? payload.files.fieldCheckins : []);
+  if (fieldStore.isEnabled()) {
+    await ensureFieldStoreReady();
+    await fieldStore.replaceAll({
+      tracks: Array.isArray(payload.files.fieldTracks) ? payload.files.fieldTracks : [],
+      visits: Array.isArray(payload.files.fieldVisits) ? payload.files.fieldVisits : [],
+      checkins: Array.isArray(payload.files.fieldCheckins) ? payload.files.fieldCheckins : []
+    });
+  }
   ensureDataDir();
   fs.readdirSync(UPLOADS_DIR, { withFileTypes: true })
     .filter((entry) => entry.isFile())
@@ -2101,16 +2439,20 @@ function toId(value, fallback = "item") {
 }
 
 function getSettings() {
-  const settings = readJson(SETTINGS_FILE, {
-    audToVuv: 80,
-    nzdToVuv: 72,
-    quoteDisplayMode: "tax_inclusive",
-    homepage: "dashboard",
-    backup: defaultBackupSettings(),
-    company: defaultCompanyProfile(),
-    attendance: defaultAttendanceSettings()
-  });
-  const company = settings.company || settings.backup?.companyProfile || readJson(COMPANY_FILE, defaultCompanyProfile());
+  const settings = configStore.isEnabled()
+    ? configStore.getSettings()
+    : readJson(SETTINGS_FILE, {
+      audToVuv: 80,
+      nzdToVuv: 72,
+      quoteDisplayMode: "tax_inclusive",
+      homepage: "dashboard",
+      backup: defaultBackupSettings(),
+      company: defaultCompanyProfile(),
+      attendance: defaultAttendanceSettings()
+    });
+  const company = settings.company || settings.backup?.companyProfile || (configStore.isEnabled()
+    ? configStore.getCompanyProfile()
+    : readJson(COMPANY_FILE, defaultCompanyProfile()));
   return {
     audToVuv: Math.max(0.01, clampNumber(settings.audToVuv, 80)),
     nzdToVuv: Math.max(0.01, clampNumber(settings.nzdToVuv, 72)),
@@ -2137,6 +2479,7 @@ function getSettings() {
       checkInEnd: String(settings.attendance?.checkInEnd || defaultAttendanceSettings().checkInEnd).trim(),
       checkOutStart: String(settings.attendance?.checkOutStart || defaultAttendanceSettings().checkOutStart).trim(),
       checkOutEnd: String(settings.attendance?.checkOutEnd || defaultAttendanceSettings().checkOutEnd).trim(),
+      enforceTimeWindow: settings.attendance?.enforceTimeWindow === true,
       requireLocation: settings.attendance?.requireLocation !== false
     },
     company: {
@@ -2200,6 +2543,9 @@ function buildSystemSettings(body = {}) {
       checkInEnd: String(body.attendance?.checkInEnd || current.attendance?.checkInEnd || defaultAttendanceSettings().checkInEnd).trim(),
       checkOutStart: String(body.attendance?.checkOutStart || current.attendance?.checkOutStart || defaultAttendanceSettings().checkOutStart).trim(),
       checkOutEnd: String(body.attendance?.checkOutEnd || current.attendance?.checkOutEnd || defaultAttendanceSettings().checkOutEnd).trim(),
+      enforceTimeWindow: body.attendance?.enforceTimeWindow == null
+        ? current.attendance?.enforceTimeWindow === true
+        : Boolean(body.attendance.enforceTimeWindow),
       requireLocation: body.attendance?.requireLocation == null
         ? current.attendance?.requireLocation !== false
         : Boolean(body.attendance.requireLocation)
@@ -2263,7 +2609,7 @@ function normalizeDiscount(item = {}, index = 0) {
 }
 
 function getProductConfig() {
-  const raw = readJson(PRODUCT_CONFIG_FILE, defaultProductConfig());
+  const raw = configStore.isEnabled() ? configStore.getProductConfig() : readJson(PRODUCT_CONFIG_FILE, defaultProductConfig());
   const vatRate = Math.max(0, Number(clampNumber(raw.vatRate, 15)).toFixed(2));
   const packages = (Array.isArray(raw.packages) ? raw.packages : defaultProductConfig().packages)
     .map((item, index) => enrichPackage(item, vatRate))
@@ -2274,11 +2620,17 @@ function getProductConfig() {
 }
 
 function saveProductConfig(nextConfig) {
-  writeJson(PRODUCT_CONFIG_FILE, {
+  const payload = {
     vatRate: nextConfig.vatRate,
     packages: nextConfig.packages.map((item) => normalizePackage(item)),
     discounts: nextConfig.discounts.map((item) => normalizeDiscount(item))
-  });
+  };
+  writeJson(PRODUCT_CONFIG_FILE, payload);
+  if (configStore.isEnabled()) {
+    configStore.saveProductConfig(payload).catch((error) => {
+      console.error("[product-config] Failed to persist config store:", error);
+    });
+  }
   return getProductConfig();
 }
 
@@ -2602,6 +2954,11 @@ function getInventoryData() {
 
 function saveInventoryData(data) {
   writeJson(INVENTORY_FILE, data);
+  if (operationsStore.isEnabled()) {
+    operationsStore.replaceInventoryData(data).catch((error) => {
+      console.error("[inventory] Failed to persist operations store:", error);
+    });
+  }
   return getInventoryData();
 }
 
@@ -2971,9 +3328,8 @@ function normalizeWholesaleOrder(item = {}, index = 0) {
   };
 }
 
-function getWholesaleData() {
-  const raw = readJson(WHOLESALE_FILE, defaultWholesaleData());
-  const orders = (Array.isArray(raw.orders) ? raw.orders : defaultWholesaleData().orders)
+function buildWholesaleDataFromOrders(rawOrders = []) {
+  const orders = (Array.isArray(rawOrders) ? rawOrders : [])
     .map(normalizeWholesaleOrder)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const customers = getCustomersData();
@@ -3030,10 +3386,29 @@ function getWholesaleData() {
   };
 }
 
+function getWholesaleData() {
+  const raw = readJson(WHOLESALE_FILE, defaultWholesaleData());
+  return buildWholesaleDataFromOrders(Array.isArray(raw.orders) ? raw.orders : defaultWholesaleData().orders);
+}
+
+async function getWholesaleDataAsync() {
+  if (commerceStore.isEnabled()) {
+    await ensureCommerceStoreReady();
+    return buildWholesaleDataFromOrders(await commerceStore.listWholesaleOrders());
+  }
+  return getWholesaleData();
+}
+
 function saveWholesaleData(data) {
-  writeJson(WHOLESALE_FILE, {
+  const payload = {
     orders: (Array.isArray(data.orders) ? data.orders : []).map(normalizeWholesaleOrder)
-  });
+  };
+  writeJson(WHOLESALE_FILE, payload);
+  if (commerceStore.isEnabled()) {
+    commerceStore.replaceWholesaleOrders(payload.orders).catch((error) => {
+      console.error("[wholesale] Failed to persist commerce store:", error);
+    });
+  }
   return getWholesaleData();
 }
 
@@ -3189,8 +3564,7 @@ function normalizeVendorOrder(item = {}, index = 0) {
   };
 }
 
-function getVendorsData() {
-  const raw = readJson(VENDORS_FILE, defaultVendorsData());
+function buildVendorsData(raw = {}) {
   const items = (Array.isArray(raw.items) ? raw.items : defaultVendorsData().items).map(normalizeVendor);
   const orders = (Array.isArray(raw.orders) ? raw.orders : defaultVendorsData().orders).map(normalizeVendorOrder)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -3276,6 +3650,36 @@ function getVendorsData() {
       transitBatches
     }
   };
+}
+
+function getVendorsData() {
+  return buildVendorsData(readJson(VENDORS_FILE, defaultVendorsData()));
+}
+
+async function getVendorsDataAsync() {
+  if (commerceStore.isEnabled()) {
+    await ensureCommerceStoreReady();
+    const [items, orders] = await Promise.all([
+      commerceStore.listVendors(),
+      commerceStore.listVendorOrders()
+    ]);
+    return buildVendorsData({ items, orders });
+  }
+  return getVendorsData();
+}
+
+function saveVendorsData(data) {
+  const payload = {
+    items: (Array.isArray(data.items) ? data.items : defaultVendorsData().items).map(normalizeVendor),
+    orders: (Array.isArray(data.orders) ? data.orders : defaultVendorsData().orders).map(normalizeVendorOrder)
+  };
+  writeJson(VENDORS_FILE, payload);
+  if (commerceStore.isEnabled()) {
+    commerceStore.replaceVendorData(payload).catch((error) => {
+      console.error("[vendors] Failed to persist commerce store:", error);
+    });
+  }
+  return getVendorsData();
 }
 
 function inferLocationCoordinates(customer = {}) {
@@ -3947,6 +4351,44 @@ function getExpenseControlData() {
   };
 }
 
+async function getExpenseControlDataAsync() {
+  if (expenseStore.isEnabled()) {
+    await ensureExpenseStoreReady();
+    const raw = await expenseStore.getAll();
+    if (raw) {
+      const paymentQueue = normalizeExpenseControlCollection(raw.paymentQueue, normalizeExpensePaymentQueue);
+      const installmentPlans = normalizeExpenseControlCollection(raw.installmentPlans, normalizeExpenseInstallment);
+      const commissionPool = normalizeExpenseControlCollection(raw.commissionPool, normalizeExpenseCommission);
+      const transactionLogs = normalizeExpenseControlCollection(raw.transactionLogs, normalizeExpenseTransaction)
+        .sort((a, b) => String(b.id).localeCompare(String(a.id)));
+      const livingCosts = normalizeExpenseControlCollection(raw.livingCosts, (item, index) => normalizeExpenseSimpleItem(item, index, "LIFE"));
+      const taxes = normalizeExpenseControlCollection(raw.taxes, (item, index) => normalizeExpenseSimpleItem(item, index, "TAX"));
+      const invoices = normalizeExpenseControlCollection(raw.invoices, (item, index) => normalizeExpenseSimpleItem(item, index, "INV"));
+      const rentLedger = normalizeExpenseControlCollection(raw.rentLedger, (item, index) => normalizeExpenseSimpleItem(item, index, "RENT", "location"));
+      return {
+        summary: {
+          pendingPayments: paymentQueue.filter((item) => item.status !== "已核销").length,
+          totalCommissionPool: commissionPool.reduce((sum, item) => sum + item.amount, 0),
+          recentTransactions: transactionLogs.length,
+          livingCostTotal: livingCosts.reduce((sum, item) => sum + item.amount, 0),
+          taxTotal: taxes.reduce((sum, item) => sum + item.amount, 0),
+          invoiceTotal: invoices.reduce((sum, item) => sum + item.amount, 0),
+          rentTotal: rentLedger.reduce((sum, item) => sum + item.amount, 0)
+        },
+        paymentQueue,
+        installmentPlans,
+        commissionPool,
+        transactionLogs,
+        livingCosts,
+        taxes,
+        invoices,
+        rentLedger
+      };
+    }
+  }
+  return getExpenseControlData();
+}
+
 function saveExpenseControlData(data) {
   const payload = {
     paymentQueue: normalizeExpenseControlCollection(data.paymentQueue, normalizeExpensePaymentQueue),
@@ -3959,6 +4401,11 @@ function saveExpenseControlData(data) {
     rentLedger: normalizeExpenseControlCollection(data.rentLedger, (item, index) => normalizeExpenseSimpleItem(item, index, "RENT", "location"))
   };
   writeJson(EXPENSE_CONTROL_FILE, payload);
+  if (expenseStore.isEnabled()) {
+    expenseStore.replaceAll(payload).catch((error) => {
+      console.error("[expense-control] Failed to persist expense store:", error);
+    });
+  }
   return getExpenseControlData();
 }
 
@@ -4057,7 +4504,7 @@ function normalizeAuditLog(item = {}, index = 0) {
 }
 
 function getSecurityData() {
-  const raw = readJson(RBAC_FILE, defaultRbacData());
+  const raw = configStore.isEnabled() ? configStore.getRbac() : readJson(RBAC_FILE, defaultRbacData());
   const employees = getEmployeesData().items;
   const employeeAccess = (Array.isArray(raw.employeeAccess) ? raw.employeeAccess : defaultRbacData().employeeAccess)
     .map(normalizeRbacAccess)
@@ -4344,13 +4791,19 @@ function ensureAuthedProfile(req, res) {
 }
 
 function saveSecurityData(data) {
-  writeJson(RBAC_FILE, {
+  const payload = {
     employeeAccess: (Array.isArray(data.employeeAccess) ? data.employeeAccess : []).map(normalizeRbacAccess),
     moduleMatrix: (Array.isArray(data.moduleMatrix) ? data.moduleMatrix : []).map(normalizeRbacModule),
     ipWhitelist: (Array.isArray(data.ipWhitelist) ? data.ipWhitelist : []).map(normalizeRbacIp),
     emergencyLocked: Boolean(data.emergencyLocked),
     auditLogs: (Array.isArray(data.auditLogs) ? data.auditLogs : []).map(normalizeAuditLog)
-  });
+  };
+  writeJson(RBAC_FILE, payload);
+  if (configStore.isEnabled()) {
+    configStore.saveRbac(payload).catch((error) => {
+      console.error("[rbac] Failed to persist config store:", error);
+    });
+  }
   return getSecurityData();
 }
 
@@ -4532,6 +4985,11 @@ function saveRepairOrders(items) {
   if (normalizedItems[0]) {
     writeJson(REPAIR_FILE, normalizedItems[0]);
   }
+  if (operationsStore.isEnabled()) {
+    operationsStore.replaceRepairOrders(normalizedItems).catch((error) => {
+      console.error("[repair] Failed to persist operations store:", error);
+    });
+  }
   return getRepairOrders();
 }
 
@@ -4696,9 +5154,15 @@ function getSurveyData() {
 }
 
 function saveSurveyData(data) {
+  const bookings = (Array.isArray(data.bookings) ? data.bookings : []).map(normalizeSurveyBooking);
   writeJson(SURVEY_FILE, {
-    bookings: (Array.isArray(data.bookings) ? data.bookings : []).map(normalizeSurveyBooking)
+    bookings
   });
+  if (operationsStore.isEnabled()) {
+    operationsStore.replaceSurveyBookings(bookings).catch((error) => {
+      console.error("[survey] Failed to persist operations store:", error);
+    });
+  }
   return getSurveyData();
 }
 
@@ -4966,17 +5430,55 @@ function sendFile(res, filePath) {
 
 function parseBody(req) {
   return new Promise((resolve, reject) => {
-    let raw = "";
+    const parseRawJson = (rawInput) => {
+      const rawBody = Buffer.isBuffer(rawInput)
+        ? rawInput.toString("utf8").trim()
+        : String(rawInput || "").trim();
+      if (!rawBody) return {};
+      return JSON.parse(rawBody);
+    };
+
+    if (req.body != null) {
+      try {
+        if (Buffer.isBuffer(req.body) || req.body instanceof Uint8Array) {
+          resolve(parseRawJson(Buffer.from(req.body)));
+          return;
+        }
+        if (typeof req.body === "string") {
+          resolve(parseRawJson(req.body));
+          return;
+        }
+        if (typeof req.body === "object") {
+          resolve(req.body);
+          return;
+        }
+      } catch (error) {
+        reject(error);
+        return;
+      }
+    }
+
+    const chunks = [];
     req.on("data", (chunk) => {
-      raw += chunk;
+      if (Buffer.isBuffer(chunk) || chunk instanceof Uint8Array) {
+        chunks.push(Buffer.from(chunk));
+        return;
+      }
+      if (typeof chunk === "string") {
+        chunks.push(Buffer.from(chunk, "utf8"));
+        return;
+      }
+      if (chunk && typeof chunk === "object") {
+        chunks.push(Buffer.from(JSON.stringify(chunk), "utf8"));
+      }
     });
     req.on("end", () => {
-      if (!raw) {
+      if (!chunks.length) {
         resolve({});
         return;
       }
       try {
-        resolve(JSON.parse(raw));
+        resolve(parseRawJson(Buffer.concat(chunks)));
       } catch (error) {
         reject(error);
       }
@@ -5047,10 +5549,45 @@ function parseCookies(req) {
   }, {});
 }
 
+function createAuthCookieSignature(payload) {
+  return crypto.createHmac("sha256", AUTH_COOKIE_SECRET).update(payload).digest("hex");
+}
+
+function createAuthCookieToken(userId) {
+  const payload = JSON.stringify({
+    userId: String(userId || "").trim(),
+    issuedAt: Date.now()
+  });
+  const encodedPayload = Buffer.from(payload).toString("base64url");
+  const signature = createAuthCookieSignature(encodedPayload);
+  return `${encodedPayload}.${signature}`;
+}
+
+function parseAuthCookieToken(token) {
+  const rawToken = String(token || "").trim();
+  if (!rawToken || !rawToken.includes(".")) return null;
+  const [encodedPayload, signature] = rawToken.split(".");
+  if (!encodedPayload || !signature) return null;
+  const expectedSignature = createAuthCookieSignature(encodedPayload);
+  const signatureBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expectedSignature);
+  if (signatureBuffer.length !== expectedBuffer.length) return null;
+  if (!crypto.timingSafeEqual(signatureBuffer, expectedBuffer)) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8"));
+    return {
+      userId: String(payload.userId || "").trim(),
+      issuedAt: Number(payload.issuedAt || 0)
+    };
+  } catch (_error) {
+    return null;
+  }
+}
+
 function issueLoginSession(userId) {
   const profile = getAccessProfile(userId);
   if (!profile) return null;
-  const token = `auth_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
+  const token = createAuthCookieToken(profile.employee.id);
   const session = {
     token,
     userId: profile.employee.id,
@@ -5065,8 +5602,16 @@ function getLoginSession(req) {
   const cookies = parseCookies(req);
   const token = String(cookies.smart_auth || "").trim();
   if (!token) return null;
-  const session = ACTIVE_LOGIN_SESSIONS.get(token);
-  if (!session) return null;
+  let session = ACTIVE_LOGIN_SESSIONS.get(token);
+  if (!session) {
+    const parsed = parseAuthCookieToken(token);
+    if (!parsed?.userId) return null;
+    session = {
+      token,
+      userId: parsed.userId,
+      issuedAt: parsed.issuedAt || 0
+    };
+  }
   const profile = getAccessProfile(session.userId);
   if (!profile || !profile.accessEnabled) return null;
   return {
@@ -5110,14 +5655,41 @@ function parseTimeToMinutes(value, fallbackMinutes) {
   return hours * 60 + minutes;
 }
 
+function getBusinessTimeParts(ts = new Date()) {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: BUSINESS_TIME_ZONE,
+    weekday: "short",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+  const parts = formatter.formatToParts(ts).reduce((acc, item) => {
+    acc[item.type] = item.value;
+    return acc;
+  }, {});
+  const weekdayMap = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return {
+    weekday: weekdayMap[parts.weekday] ?? ts.getDay(),
+    dateKey: `${parts.year}-${parts.month}-${parts.day}`,
+    minutes: (Number(parts.hour || 0) * 60) + Number(parts.minute || 0)
+  };
+}
+
 function getAttendanceValidation(action, ts = new Date()) {
   const settings = getSettings().attendance || defaultAttendanceSettings();
-  const weekday = ts.getDay();
+  if (settings.enforceTimeWindow !== true) {
+    return { ok: true };
+  }
+  const businessTime = getBusinessTimeParts(ts);
+  const weekday = businessTime.weekday;
   const enabledWeekdays = Array.isArray(settings.enabledWeekdays) ? settings.enabledWeekdays : defaultAttendanceSettings().enabledWeekdays;
   if (!enabledWeekdays.includes(weekday)) {
     return { ok: false, error: "今天不是允许打卡的工作日" };
   }
-  const currentMinutes = ts.getHours() * 60 + ts.getMinutes();
+  const currentMinutes = businessTime.minutes;
   const checkInStart = parseTimeToMinutes(settings.checkInStart, 8 * 60 + 30);
   const checkInEnd = parseTimeToMinutes(settings.checkInEnd, 10 * 60);
   const checkOutStart = parseTimeToMinutes(settings.checkOutStart, 17 * 60);
@@ -5131,13 +5703,15 @@ function getAttendanceValidation(action, ts = new Date()) {
   return { ok: true };
 }
 
-function getFieldPayrollSummary(userId, dateKey) {
+async function getFieldPayrollSummary(userId, dateKey) {
   const employee = getFieldEmployeeById(userId);
   if (!employee) return null;
-  const targetDate = String(dateKey || new Date().toISOString().slice(0, 10)).trim();
-  const checkins = readJson(FIELD_CHECKINS_FILE, []).filter((item) => item.userId === employee.id && item.date === targetDate);
-  const visits = readJson(FIELD_VISITS_FILE, []).filter((item) => item.userId === employee.id && String(item.recordedAt || "").startsWith(targetDate));
-  const tracks = readJson(FIELD_TRACKS_FILE, []).filter((item) => item.userId === employee.id && item.date === targetDate);
+  const targetDate = String(dateKey || getBusinessTimeParts(new Date()).dateKey).trim();
+  const [checkins, visits, tracks] = await Promise.all([
+    getFieldCheckinsData({ userId: employee.id, dateKey: targetDate }),
+    getFieldVisitsData({ userId: employee.id, dateKey: targetDate }),
+    getFieldTracksData({ userId: employee.id, dateKey: targetDate })
+  ]);
   const sortedCheckins = checkins.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
   const firstCheckIn = sortedCheckins.find((item) => item.action === "in") || null;
   const lastCheckOut = [...sortedCheckins].reverse().find((item) => item.action === "out") || null;
@@ -5178,10 +5752,10 @@ function getFieldPayrollSummary(userId, dateKey) {
   };
 }
 
-function getCompanyAttendanceOverview(dateKey = "") {
+async function getCompanyAttendanceOverview(dateKey = "") {
   const targetDate = String(dateKey || new Date().toISOString().slice(0, 10)).trim();
   const employees = getEmployeesData().items.filter((item) => item.status !== "resigned");
-  const items = employees.map((employee) => getFieldPayrollSummary(employee.id, targetDate)).filter(Boolean);
+  const items = (await Promise.all(employees.map((employee) => getFieldPayrollSummary(employee.id, targetDate)))).filter(Boolean);
   const presentCount = items.filter((item) => item.checkinCount > 0).length;
   const onDutyCount = items.filter((item) => item.attendanceStatus === "在岗中").length;
   const completedCount = items.filter((item) => item.attendanceStatus === "已完成打卡").length;
@@ -5209,7 +5783,7 @@ function getCompanyAttendanceOverview(dateKey = "") {
   };
 }
 
-function handleApi(req, res, url) {
+async function handleApi(req, res, url) {
   if (req.method === "GET" && url.pathname === "/api/health") {
     sendJson(res, 200, { ok: true, service: "smart_sizing", time: new Date().toISOString() });
     return true;
@@ -5355,7 +5929,7 @@ function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && url.pathname === "/api/company-profile") {
-    sendJson(res, 200, { ok: true, company: readJson(COMPANY_FILE, defaultCompanyProfile()) });
+    sendJson(res, 200, { ok: true, company: configStore.isEnabled() ? configStore.getCompanyProfile() : readJson(COMPANY_FILE, defaultCompanyProfile()) });
     return true;
   }
 
@@ -5365,6 +5939,14 @@ function handleApi(req, res, url) {
         const nextSettings = buildSystemSettings(body);
         writeJson(SETTINGS_FILE, nextSettings);
         writeJson(COMPANY_FILE, nextSettings.company || defaultCompanyProfile());
+        if (configStore.isEnabled()) {
+          configStore.saveSettings(nextSettings).catch((error) => {
+            console.error("[settings] Failed to persist config store:", error);
+          });
+          configStore.saveCompanyProfile(nextSettings.company || defaultCompanyProfile()).catch((error) => {
+            console.error("[company-profile] Failed to persist config store:", error);
+          });
+        }
         sendJson(res, 200, { ok: true, settings: getSettings(), backups: getBackupHistory() });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -5374,7 +5956,7 @@ function handleApi(req, res, url) {
   if (req.method === "POST" && url.pathname === "/api/company-profile") {
     parseBody(req)
       .then((body) => {
-        const currentCompany = readJson(COMPANY_FILE, defaultCompanyProfile());
+        const currentCompany = configStore.isEnabled() ? configStore.getCompanyProfile() : readJson(COMPANY_FILE, defaultCompanyProfile());
         const nextCompany = {
           ...defaultCompanyProfile(),
           ...currentCompany,
@@ -5390,6 +5972,11 @@ function handleApi(req, res, url) {
           logoUrl: String(body.company?.logoUrl || body.logoUrl || currentCompany.logoUrl || "").trim()
         };
         writeJson(COMPANY_FILE, nextCompany);
+        if (configStore.isEnabled()) {
+          configStore.saveCompanyProfile(nextCompany).catch((error) => {
+            console.error("[company-profile] Failed to persist config store:", error);
+          });
+        }
         sendJson(res, 200, { ok: true, company: nextCompany });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -5404,13 +5991,18 @@ function handleApi(req, res, url) {
           sendJson(res, 400, { error: "Invalid image data" });
           return;
         }
-        const currentCompany = readJson(COMPANY_FILE, defaultCompanyProfile());
+        const currentCompany = configStore.isEnabled() ? configStore.getCompanyProfile() : readJson(COMPANY_FILE, defaultCompanyProfile());
         const nextCompany = {
           ...defaultCompanyProfile(),
           ...currentCompany,
           logoUrl: uploadedUrl
         };
         writeJson(COMPANY_FILE, nextCompany);
+        if (configStore.isEnabled()) {
+          configStore.saveCompanyProfile(nextCompany).catch((error) => {
+            console.error("[company-profile] Failed to persist config store:", error);
+          });
+        }
         sendJson(res, 200, { ok: true, logoUrl: uploadedUrl, company: nextCompany });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -5453,8 +6045,8 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && url.pathname.startsWith("/api/system-backups/restore")) {
     parseBody(req)
-      .then((body) => {
-        const restored = restoreBackupSnapshot(body.id);
+      .then(async (body) => {
+        const restored = await restoreBackupSnapshot(body.id);
         if (restored.error) {
           sendJson(res, 404, { error: restored.error });
           return;
@@ -5518,8 +6110,8 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && url.pathname.startsWith("/api/backups/restore")) {
     parseBody(req)
-      .then((body) => {
-        const restored = restoreBackupSnapshot(body.id);
+      .then(async (body) => {
+        const restored = await restoreBackupSnapshot(body.id);
         if (restored.error) {
           sendJson(res, 404, { error: restored.error });
           return;
@@ -5564,6 +6156,11 @@ function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && (url.pathname === "/api/employees" || url.pathname === "/api/employees/")) {
+    if (businessStore.isEnabled()) {
+      syncBusinessDocumentsFromStore().catch((error) => {
+        console.error("[employees:sync] failed:", error);
+      });
+    }
     const employees = getEmployeesData();
     const role = String(url.searchParams.get("role") || "").trim();
     const items = role ? employees.items.filter((item) => item.role === role) : employees.items;
@@ -5645,12 +6242,18 @@ function handleApi(req, res, url) {
       return true;
     }
     const dateKey = String(url.searchParams.get("date") || "").trim();
-    const summary = getFieldPayrollSummary(userId, dateKey);
-    if (!summary) {
-      sendJson(res, 404, { error: "未找到员工工资结算信息" });
-      return true;
-    }
-    sendJson(res, 200, summary);
+    Promise.resolve(getFieldPayrollSummary(userId, dateKey))
+      .then((summary) => {
+        if (!summary) {
+          sendJson(res, 404, { error: "未找到员工工资结算信息" });
+          return;
+        }
+        sendJson(res, 200, summary);
+      })
+      .catch((error) => {
+        console.error("[field-payroll] failed:", error);
+        sendJson(res, 500, { error: "工资结算读取失败" });
+      });
     return true;
   }
 
@@ -5658,26 +6261,32 @@ function handleApi(req, res, url) {
     const profile = ensureAuthedProfile(req, res);
     if (!profile) return true;
     const dateKey = String(url.searchParams.get("date") || "").trim();
-    const overview = getCompanyAttendanceOverview(dateKey);
-    if (profile.role === "admin" || profile.role === "sales_manager") {
-      sendJson(res, 200, overview);
-      return true;
-    }
-    const ownItem = (overview.items || []).filter((item) => String(item.employeeId || "").trim() === profile.employee.id);
-    sendJson(res, 200, {
-      ...overview,
-      summary: {
-        ...overview.summary,
-        totalEmployees: ownItem.length,
-        presentCount: ownItem.filter((item) => item.attendanceStatus !== "未出勤").length,
-        onDutyCount: ownItem.filter((item) => item.attendanceStatus === "在岗中").length,
-        completedCount: ownItem.filter((item) => item.attendanceStatus === "已完成打卡").length,
-        absentCount: ownItem.filter((item) => item.attendanceStatus === "未出勤").length,
-        totalAttendancePay: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.netPay, 0))), 0),
-        totalVisits: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.visitCount, 0))), 0)
-      },
-      items: ownItem
-    });
+    Promise.resolve(getCompanyAttendanceOverview(dateKey))
+      .then((overview) => {
+        if (profile.role === "admin" || profile.role === "sales_manager") {
+          sendJson(res, 200, overview);
+          return;
+        }
+        const ownItem = (overview.items || []).filter((item) => String(item.employeeId || "").trim() === profile.employee.id);
+        sendJson(res, 200, {
+          ...overview,
+          summary: {
+            ...overview.summary,
+            totalEmployees: ownItem.length,
+            presentCount: ownItem.filter((item) => item.attendanceStatus !== "未出勤").length,
+            onDutyCount: ownItem.filter((item) => item.attendanceStatus === "在岗中").length,
+            completedCount: ownItem.filter((item) => item.attendanceStatus === "已完成打卡").length,
+            absentCount: ownItem.filter((item) => item.attendanceStatus === "未出勤").length,
+            totalAttendancePay: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.netPay, 0))), 0),
+            totalVisits: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.visitCount, 0))), 0)
+          },
+          items: ownItem
+        });
+      })
+      .catch((error) => {
+        console.error("[attendance-overview] failed:", error);
+        sendJson(res, 500, { error: "考勤总览读取失败" });
+      });
     return true;
   }
 
@@ -5724,7 +6333,12 @@ function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && (url.pathname === "/api/expense-control" || url.pathname === "/api/expense-control/")) {
-    sendJson(res, 200, { ok: true, ...getExpenseControlData() });
+    Promise.resolve(getExpenseControlDataAsync())
+      .then((data) => sendJson(res, 200, { ok: true, ...data }))
+      .catch((error) => {
+        console.error("[expense-control:list] failed:", error);
+        sendJson(res, 500, { error: "费用数据读取失败" });
+      });
     return true;
   }
 
@@ -5893,12 +6507,22 @@ function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && (url.pathname === "/api/vendors" || url.pathname === "/api/vendors/")) {
-    sendJson(res, 200, { ok: true, ...getVendorsData() });
+    Promise.resolve(getVendorsDataAsync())
+      .then((data) => sendJson(res, 200, { ok: true, ...data }))
+      .catch((error) => {
+        console.error("[vendors:list] failed:", error);
+        sendJson(res, 500, { error: "供应商数据读取失败" });
+      });
     return true;
   }
 
   if (req.method === "GET" && (url.pathname === "/api/wholesale" || url.pathname === "/api/wholesale/")) {
-    sendJson(res, 200, { ok: true, ...getWholesaleData() });
+    Promise.resolve(getWholesaleDataAsync())
+      .then((data) => sendJson(res, 200, { ok: true, ...data }))
+      .catch((error) => {
+        console.error("[wholesale:list] failed:", error);
+        sendJson(res, 500, { error: "批发数据读取失败" });
+      });
     return true;
   }
 
@@ -6153,7 +6777,7 @@ function handleApi(req, res, url) {
         });
 
         const orders = [order, ...((Array.isArray(current.orders) ? current.orders : defaultVendorsData().orders).map(normalizeVendorOrder))];
-        writeJson(VENDORS_FILE, {
+        saveVendorsData({
           items: vendorItems,
           orders
         });
@@ -6166,24 +6790,39 @@ function handleApi(req, res, url) {
   if (req.method === "GET" && (url.pathname === "/api/customers" || url.pathname === "/api/customers/")) {
     const profile = ensureAuthedProfile(req, res);
     if (!profile) return true;
-    const current = getCustomersData();
-    sendJson(res, 200, { ok: true, ...current, items: filterCustomersForProfile(profile, getActiveCustomers(current.items)) });
+    Promise.resolve(getCustomersDataAsync())
+      .then((current) => {
+        sendJson(res, 200, { ok: true, ...current, items: filterCustomersForProfile(profile, getActiveCustomers(current.items)) });
+      })
+      .catch((error) => {
+        console.error("[customers:list] failed:", error);
+        sendJson(res, 500, { error: "客户数据读取失败" });
+      });
     return true;
   }
 
   if (req.method === "GET" && (url.pathname === "/api/customers/detail" || url.pathname === "/api/customers/detail/")) {
     const profile = ensureAuthedProfile(req, res);
     if (!profile) return true;
-    const customer = getCustomerDetail(url.searchParams.get("id"));
-    if (!customer) {
-      sendJson(res, 404, { error: "Customer not found" });
-      return true;
-    }
-    if (!canAccessCustomer(profile, customer)) {
-      sendJson(res, 403, { ok: false, error: "当前账号无权限查看该客户" });
-      return true;
-    }
-    sendJson(res, 200, { ok: true, customer });
+    Promise.resolve((async () => {
+      await syncCrmDocumentsFromStore();
+      return getCustomerDetail(url.searchParams.get("id"));
+    })())
+      .then((customer) => {
+        if (!customer) {
+          sendJson(res, 404, { error: "Customer not found" });
+          return;
+        }
+        if (!canAccessCustomer(profile, customer)) {
+          sendJson(res, 403, { ok: false, error: "当前账号无权限查看该客户" });
+          return;
+        }
+        sendJson(res, 200, { ok: true, customer });
+      })
+      .catch((error) => {
+        console.error("[customers:detail] failed:", error);
+        sendJson(res, 500, { error: "客户详情读取失败" });
+      });
     return true;
   }
 
@@ -6199,9 +6838,9 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/customers/payment" || url.pathname === "/api/customers/payment/")) {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const id = String(body.id || "").trim();
-        const current = getCustomersData();
+        const current = await getCustomersDataAsync();
         const index = current.items.findIndex((item) => item.id === id);
         if (index < 0) {
           sendJson(res, 404, { error: "Customer not found" });
@@ -6235,8 +6874,14 @@ function handleApi(req, res, url) {
           },
           paymentHistory: [record, ...(Array.isArray(customer.paymentHistory) ? customer.paymentHistory : [])]
         }, index);
-        const saved = saveCustomersData(current);
-        sendJson(res, 200, { ok: true, customer: getCustomerDetail(saved.items[index].id), customers: saved });
+        let saved = saveCustomersData(current);
+        if (crmStore.isEnabled()) {
+          await ensureCrmStoreReady();
+          await crmStore.upsertCustomer(current.items[index]);
+          await syncCrmDocumentsFromStore();
+          saved = await getCustomersDataAsync();
+        }
+        sendJson(res, 200, { ok: true, customer: getCustomerDetail(current.items[index].id), customers: saved });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
     return true;
@@ -6244,9 +6889,9 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/customers/warranty" || url.pathname === "/api/customers/warranty/")) {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const id = String(body.id || "").trim();
-        const current = getCustomersData();
+        const current = await getCustomersDataAsync();
         const index = current.items.findIndex((item) => item.id === id);
         if (index < 0) {
           sendJson(res, 404, { error: "Customer not found" });
@@ -6274,8 +6919,14 @@ function handleApi(req, res, url) {
           ],
           warrantyEndsAt: String(body.warrantyEndsAt || customer.warrantyEndsAt || "").trim()
         }, index);
-        const saved = saveCustomersData(current);
-        sendJson(res, 200, { ok: true, customer: getCustomerDetail(saved.items[index].id), customers: saved });
+        let saved = saveCustomersData(current);
+        if (crmStore.isEnabled()) {
+          await ensureCrmStoreReady();
+          await crmStore.upsertCustomer(current.items[index]);
+          await syncCrmDocumentsFromStore();
+          saved = await getCustomersDataAsync();
+        }
+        sendJson(res, 200, { ok: true, customer: getCustomerDetail(current.items[index].id), customers: saved });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
     return true;
@@ -6283,9 +6934,9 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/customers/photo" || url.pathname === "/api/customers/photo/")) {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const id = String(body.id || "").trim();
-        const current = getCustomersData();
+        const current = await getCustomersDataAsync();
         const index = current.items.findIndex((item) => item.id === id);
         if (index < 0) {
           sendJson(res, 404, { error: "Customer not found" });
@@ -6314,8 +6965,14 @@ function handleApi(req, res, url) {
             ...(Array.isArray(customer.photos) ? customer.photos : [])
           ]
         }, index);
-        const saved = saveCustomersData(current);
-        sendJson(res, 200, { ok: true, customer: getCustomerDetail(saved.items[index].id), customers: saved });
+        let saved = saveCustomersData(current);
+        if (crmStore.isEnabled()) {
+          await ensureCrmStoreReady();
+          await crmStore.upsertCustomer(current.items[index]);
+          await syncCrmDocumentsFromStore();
+          saved = await getCustomersDataAsync();
+        }
+        sendJson(res, 200, { ok: true, customer: getCustomerDetail(current.items[index].id), customers: saved });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
     return true;
@@ -6543,7 +7200,7 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/employees" || url.pathname === "/api/employees/")) {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const current = getEmployeesData();
         const nextEmployee = normalizeEmployee(body.employee || body, current.items.length);
         const exists = current.items.some((item) => item.id === nextEmployee.id || item.employeeNo === nextEmployee.employeeNo);
@@ -6553,6 +7210,12 @@ function handleApi(req, res, url) {
         }
         current.items.unshift(nextEmployee);
         const saved = saveEmployeesData(current);
+        if (businessStore.isEnabled()) {
+          await ensureBusinessStoreReady();
+          await businessStore.upsertEmployee(nextEmployee);
+          await businessStore.saveEmployeeMeta("monthly_trend", saved.monthlyTrend || []);
+          await syncBusinessDocumentsFromStore();
+        }
         sendJson(res, 200, { ok: true, item: nextEmployee, employees: saved });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -6561,7 +7224,7 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/employees/update" || url.pathname === "/api/employees/update/")) {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const current = getEmployeesData();
         const id = String(body.id || body.employee?.id || "").trim();
         const index = current.items.findIndex((item) => item.id === id);
@@ -6575,6 +7238,12 @@ function handleApi(req, res, url) {
           id: current.items[index].id
         }, index);
         const saved = saveEmployeesData(current);
+        if (businessStore.isEnabled()) {
+          await ensureBusinessStoreReady();
+          await businessStore.upsertEmployee(saved.items[index]);
+          await businessStore.saveEmployeeMeta("monthly_trend", saved.monthlyTrend || []);
+          await syncBusinessDocumentsFromStore();
+        }
         sendJson(res, 200, { ok: true, item: saved.items[index], employees: saved });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -6583,7 +7252,7 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/employees/delete" || url.pathname === "/api/employees/delete/")) {
       parseBody(req)
-        .then((body) => {
+        .then(async (body) => {
           const id = String(body.id || "").trim();
           const current = getEmployeesData();
           const index = current.items.findIndex((item) => item.id === id);
@@ -6598,6 +7267,12 @@ function handleApi(req, res, url) {
             resignedAt: String(body.resignedAt || new Date().toISOString().slice(0, 10)).trim()
           }, index);
           const saved = saveEmployeesData(current);
+          if (businessStore.isEnabled()) {
+            await ensureBusinessStoreReady();
+            await businessStore.upsertEmployee(saved.items[index]);
+            await businessStore.saveEmployeeMeta("monthly_trend", saved.monthlyTrend || []);
+            await syncBusinessDocumentsFromStore();
+          }
           sendJson(res, 200, { ok: true, item: saved.items[index], employees: saved });
         })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -6606,10 +7281,10 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/customers/order/archive" || url.pathname === "/api/customers/order/archive/")) {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const customerId = String(body.customerId || body.id || "").trim();
         const orderId = String(body.orderId || "").trim();
-        const current = getCustomersData();
+        const current = await getCustomersDataAsync();
         const customerIndex = current.items.findIndex((item) => item.id === customerId);
         if (customerIndex < 0) {
           sendJson(res, 404, { error: "Customer not found" });
@@ -6631,7 +7306,13 @@ function handleApi(req, res, url) {
           ...current.items[customerIndex],
           orders
         }, customerIndex);
-        const saved = saveCustomersData({ items: current.items });
+        let saved = saveCustomersData({ items: current.items });
+        if (crmStore.isEnabled()) {
+          await ensureCrmStoreReady();
+          await crmStore.upsertCustomer(current.items[customerIndex]);
+          await syncCrmDocumentsFromStore();
+          saved = await getCustomersDataAsync();
+        }
         sendJson(res, 200, { ok: true, archived: true, customer: saved.items[customerIndex] });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -6640,8 +7321,8 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/customers" || url.pathname === "/api/customers/")) {
     parseBody(req)
-      .then((body) => {
-        const current = getCustomersData();
+      .then(async (body) => {
+        const current = await getCustomersDataAsync();
         const nextCustomer = normalizeCustomerRecord(body.customer || body, current.items.length);
         const exists = current.items.some((item) => item.id === nextCustomer.id || item.archiveNo === nextCustomer.archiveNo);
         if (exists) {
@@ -6649,7 +7330,13 @@ function handleApi(req, res, url) {
           return;
         }
         current.items.unshift(nextCustomer);
-        const saved = saveCustomersData(current);
+        let saved = saveCustomersData(current);
+        if (crmStore.isEnabled()) {
+          await ensureCrmStoreReady();
+          await crmStore.upsertCustomer(nextCustomer);
+          await syncCrmDocumentsFromStore();
+          saved = await getCustomersDataAsync();
+        }
         sendJson(res, 200, { ok: true, customer: nextCustomer, customers: saved });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -6658,8 +7345,8 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/customers/update" || url.pathname === "/api/customers/update/")) {
     parseBody(req)
-      .then((body) => {
-        const current = getCustomersData();
+      .then(async (body) => {
+        const current = await getCustomersDataAsync();
         const id = String(body.id || body.customer?.id || "").trim();
         const index = current.items.findIndex((item) => item.id === id);
         if (index < 0) {
@@ -6671,7 +7358,13 @@ function handleApi(req, res, url) {
           ...(body.customer || body),
           id: current.items[index].id
         }, index);
-        const saved = saveCustomersData(current);
+        let saved = saveCustomersData(current);
+        if (crmStore.isEnabled()) {
+          await ensureCrmStoreReady();
+          await crmStore.upsertCustomer(current.items[index]);
+          await syncCrmDocumentsFromStore();
+          saved = await getCustomersDataAsync();
+        }
         sendJson(res, 200, { ok: true, customer: saved.items[index], customers: saved });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -6680,9 +7373,9 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/customers/delete" || url.pathname === "/api/customers/delete/")) {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const id = String(body.id || "").trim();
-        const current = getCustomersData();
+        const current = await getCustomersDataAsync();
         const index = current.items.findIndex((item) => item.id === id);
         if (index < 0) {
           sendJson(res, 404, { error: "Customer not found" });
@@ -6694,7 +7387,13 @@ function handleApi(req, res, url) {
           archivedAt: new Date().toISOString(),
           archiveReason: String(body.archiveReason || "manual_archive").trim()
         }, index);
-        const saved = saveCustomersData({ items: current.items });
+        let saved = saveCustomersData({ items: current.items });
+        if (crmStore.isEnabled()) {
+          await ensureCrmStoreReady();
+          await crmStore.upsertCustomer(current.items[index]);
+          await syncCrmDocumentsFromStore();
+          saved = await getCustomersDataAsync();
+        }
         sendJson(res, 200, { ok: true, archived: true, customer: saved.items[index], customers: saved });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -7215,6 +7914,14 @@ function handleApi(req, res, url) {
         const nextSettings = buildSystemSettings(body);
         writeJson(SETTINGS_FILE, nextSettings);
         writeJson(COMPANY_FILE, nextSettings.company || defaultCompanyProfile());
+        if (configStore.isEnabled()) {
+          configStore.saveSettings(nextSettings).catch((error) => {
+            console.error("[settings] Failed to persist config store:", error);
+          });
+          configStore.saveCompanyProfile(nextSettings.company || defaultCompanyProfile()).catch((error) => {
+            console.error("[company-profile] Failed to persist config store:", error);
+          });
+        }
         sendJson(res, 200, { ok: true, settings: getSettings(), backups: getBackupHistory() });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -7233,8 +7940,8 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && (url.pathname === "/api/backups/restore" || url.pathname === "/api/backups/restore/")) {
     parseBody(req)
-      .then((body) => {
-        const restored = restoreBackupSnapshot(body.id);
+      .then(async (body) => {
+        const restored = await restoreBackupSnapshot(body.id);
         if (restored.error) {
           sendJson(res, 404, { error: restored.error });
           return;
@@ -7262,12 +7969,22 @@ function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && url.pathname === "/api/saved-quotes") {
+    if (businessStore.isEnabled()) {
+      syncBusinessDocumentsFromStore().catch((error) => {
+        console.error("[saved-quotes:sync] failed:", error);
+      });
+    }
     sendJson(res, 200, { items: readJson(SAVES_FILE, []).slice(-20).reverse() });
     return true;
   }
 
   if (req.method === "GET" && url.pathname === "/api/invoices") {
-    sendJson(res, 200, { items: getInvoicesData() });
+    Promise.resolve(getInvoicesDataAsync())
+      .then((items) => sendJson(res, 200, { items }))
+      .catch((error) => {
+        console.error("[invoices:list] failed:", error);
+        sendJson(res, 500, { error: "发票数据读取失败" });
+      });
     return true;
   }
 
@@ -7278,7 +7995,7 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && url.pathname === "/api/saved-quotes/status") {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const allowedStatuses = new Set(["draft", "sent", "paid", "in_progress"]);
         const items = readJson(SAVES_FILE, []);
         const index = items.findIndex((item) => item.id === String(body.id || ""));
@@ -7288,6 +8005,11 @@ function handleApi(req, res, url) {
         }
         items[index].status = allowedStatuses.has(body.status) ? body.status : "draft";
         writeJson(SAVES_FILE, items);
+        if (businessStore.isEnabled()) {
+          await ensureBusinessStoreReady();
+          await businessStore.upsertQuote(items[index]);
+          await syncBusinessDocumentsFromStore();
+        }
         sendJson(res, 200, { ok: true, item: items[index] });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -7303,7 +8025,7 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && url.pathname === "/api/save-quote") {
     parseBody(req)
-        .then((body) => {
+        .then(async (body) => {
           const items = readJson(SAVES_FILE, []);
           const installmentPlan = normalizeInstallmentPlan(body.installmentPlan, body.quote?.displayTotal || 0);
           const savedRecord = {
@@ -7323,6 +8045,11 @@ function handleApi(req, res, url) {
           };
           items.push(savedRecord);
           writeJson(SAVES_FILE, items);
+          if (businessStore.isEnabled()) {
+            await ensureBusinessStoreReady();
+            await businessStore.upsertQuote(savedRecord);
+            await syncBusinessDocumentsFromStore();
+          }
           syncCustomerInstallmentFromQuote(savedRecord);
           sendJson(res, 200, { ok: true, item: savedRecord });
         })
@@ -7332,12 +8059,12 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && url.pathname === "/api/invoices") {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const sourcePayload = body.payload && typeof body.payload === "object" ? body.payload : body;
         const sourceCustomer = normalizeCustomer(body.customer || sourcePayload.customer || {});
         const sourceQuote = sourcePayload.quote && typeof sourcePayload.quote === "object" ? sourcePayload.quote : {};
         const sourceRecommendation = sourcePayload.recommendation && typeof sourcePayload.recommendation === "object" ? sourcePayload.recommendation : {};
-        const items = getInvoicesData();
+        const items = await getInvoicesDataAsync();
         const nextItem = normalizeInvoiceRecord({
           id: `invoice-${Date.now()}`,
           invoiceNo: `INV-${String(Date.now()).slice(-8)}`,
@@ -7351,8 +8078,14 @@ function handleApi(req, res, url) {
           salesPersonName: body.salesPersonName || sourcePayload.salesPersonName || sourcePayload.salesPerson?.name || "",
           payload: sanitizeInvoicePayload(sourcePayload)
         }, items.length);
-        const savedItems = saveInvoicesData([nextItem, ...items]);
-        sendJson(res, 200, { ok: true, item: savedItems[0] });
+        let savedItems = saveInvoicesData([nextItem, ...items]);
+        if (crmStore.isEnabled()) {
+          await ensureCrmStoreReady();
+          await crmStore.upsertInvoice(nextItem);
+          await syncCrmDocumentsFromStore();
+          savedItems = await getInvoicesDataAsync();
+        }
+        sendJson(res, 200, { ok: true, item: savedItems.find((item) => item.id === nextItem.id) || savedItems[0] });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
     return true;
@@ -7360,14 +8093,14 @@ function handleApi(req, res, url) {
 
   if (req.method === "POST" && url.pathname === "/api/invoices/update") {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const invoiceId = String(body.id || "").trim();
         if (!invoiceId) {
           sendJson(res, 400, { error: "Invoice id is required" });
           return;
         }
 
-        const items = getInvoicesData();
+        const items = await getInvoicesDataAsync();
         const index = items.findIndex((item) => item.id === invoiceId);
         if (index < 0) {
           sendJson(res, 404, { error: "Invoice not found" });
@@ -7417,7 +8150,13 @@ function handleApi(req, res, url) {
           payload: nextPayload
         }, index);
 
-        const savedItems = saveInvoicesData(items);
+        let savedItems = saveInvoicesData(items);
+        if (crmStore.isEnabled()) {
+          await ensureCrmStoreReady();
+          await crmStore.upsertInvoice(items[index]);
+          await syncCrmDocumentsFromStore();
+          savedItems = await getInvoicesDataAsync();
+        }
         const savedItem = savedItems.find((item) => item.id === invoiceId) || savedItems[0];
         sendJson(res, 200, { ok: true, item: savedItem });
       })
@@ -7428,7 +8167,7 @@ function handleApi(req, res, url) {
   // Field tracking: append point
   if (req.method === "POST" && url.pathname === "/api/field-tracks/point") {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const userId = String(body.userId || "").trim();
         const auth = getCheckinAuth(req, userId);
         const lat = Number(body.lat);
@@ -7443,15 +8182,27 @@ function handleApi(req, res, url) {
           sendJson(res, 400, { error: "缺少 userId 或坐标" });
           return;
         }
-        const dateKey = ts.toISOString().slice(0, 10);
-        const tracks = readJson(FIELD_TRACKS_FILE, []);
-        let track = tracks.find((t) => t.userId === userId && t.date === dateKey);
-        if (!track) {
-          track = { id: `trk-${Date.now()}`, userId, date: dateKey, startedAt: ts.toISOString(), endedAt: "", points: [] };
-          tracks.push(track);
+        const dateKey = getBusinessTimeParts(ts).dateKey;
+        let track;
+        if (fieldStore.isEnabled()) {
+          await ensureFieldStoreReady();
+          track = await fieldStore.appendTrackPoint({
+            userId,
+            dateKey,
+            startedAt: ts.toISOString(),
+            point: { lat, lng, accuracy, ts: ts.toISOString() }
+          });
+          await syncFieldDocumentsFromStore();
+        } else {
+          const tracks = readJson(FIELD_TRACKS_FILE, []);
+          track = tracks.find((t) => t.userId === userId && t.date === dateKey);
+          if (!track) {
+            track = { id: `trk-${Date.now()}`, userId, date: dateKey, startedAt: ts.toISOString(), endedAt: "", points: [] };
+            tracks.push(track);
+          }
+          track.points.push({ lat, lng, accuracy, ts: ts.toISOString() });
+          writeJson(FIELD_TRACKS_FILE, tracks);
         }
-        track.points.push({ lat, lng, accuracy, ts: ts.toISOString() });
-        writeJson(FIELD_TRACKS_FILE, tracks);
         sendJson(res, 200, { ok: true, track });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -7461,10 +8212,10 @@ function handleApi(req, res, url) {
   // Field tracking: close session
   if (req.method === "POST" && url.pathname === "/api/field-tracks/close") {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const userId = String(body.userId || "").trim();
         const auth = getCheckinAuth(req, userId);
-        const dateKey = String(body.date || "").trim() || new Date().toISOString().slice(0, 10);
+        const dateKey = String(body.date || "").trim() || getBusinessTimeParts(new Date()).dateKey;
         if (!auth) {
           sendJson(res, 401, { error: "请先登录当前账号" });
           return;
@@ -7473,11 +8224,18 @@ function handleApi(req, res, url) {
           sendJson(res, 400, { error: "缺少 userId" });
           return;
         }
-        const tracks = readJson(FIELD_TRACKS_FILE, []);
-        const track = tracks.find((t) => t.userId === userId && t.date === dateKey);
-        if (track) {
-          track.endedAt = new Date().toISOString();
-          writeJson(FIELD_TRACKS_FILE, tracks);
+        let track = null;
+        if (fieldStore.isEnabled()) {
+          await ensureFieldStoreReady();
+          track = await fieldStore.closeTrack({ userId, dateKey, endedAt: new Date().toISOString() });
+          await syncFieldDocumentsFromStore();
+        } else {
+          const tracks = readJson(FIELD_TRACKS_FILE, []);
+          track = tracks.find((t) => t.userId === userId && t.date === dateKey);
+          if (track) {
+            track.endedAt = new Date().toISOString();
+            writeJson(FIELD_TRACKS_FILE, tracks);
+          }
         }
         sendJson(res, 200, { ok: true, track });
       })
@@ -7489,16 +8247,19 @@ function handleApi(req, res, url) {
   if (req.method === "GET" && url.pathname === "/api/field-tracks") {
     const userId = String(url.searchParams.get("user") || "").trim();
     const dateKey = String(url.searchParams.get("date") || "").trim();
-    const tracks = readJson(FIELD_TRACKS_FILE, []);
-    const filtered = tracks.filter((t) => (!userId || t.userId === userId) && (!dateKey || t.date === dateKey));
-    sendJson(res, 200, { items: filtered });
+    Promise.resolve(getFieldTracksData({ userId, dateKey }))
+      .then((items) => sendJson(res, 200, { items }))
+      .catch((error) => {
+        console.error("[field-tracks] failed:", error);
+        sendJson(res, 500, { error: "轨迹记录读取失败" });
+      });
     return true;
   }
 
   // Field visit: add
   if (req.method === "POST" && url.pathname === "/api/field-visits") {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const userId = String(body.userId || "").trim();
         const auth = getCheckinAuth(req, userId);
         const customer = String(body.customer || "").trim();
@@ -7519,7 +8280,6 @@ function handleApi(req, res, url) {
           sendJson(res, 400, { error: "缺少 userId 或客户名称" });
           return;
         }
-        const visits = readJson(FIELD_VISITS_FILE, []);
         const item = {
           id: `visit-${Date.now()}`,
           userId,
@@ -7533,8 +8293,15 @@ function handleApi(req, res, url) {
           photoUrls,
           recordedAt: new Date().toISOString()
         };
-        visits.unshift(item);
-        writeJson(FIELD_VISITS_FILE, visits);
+        if (fieldStore.isEnabled()) {
+          await ensureFieldStoreReady();
+          await fieldStore.addVisit(item);
+          await syncFieldDocumentsFromStore();
+        } else {
+          const visits = readJson(FIELD_VISITS_FILE, []);
+          visits.unshift(item);
+          writeJson(FIELD_VISITS_FILE, visits);
+        }
         sendJson(res, 200, { ok: true, item });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -7545,9 +8312,12 @@ function handleApi(req, res, url) {
   if (req.method === "GET" && url.pathname === "/api/field-visits") {
     const userId = String(url.searchParams.get("user") || "").trim();
     const dateKey = String(url.searchParams.get("date") || "").trim();
-    const visits = readJson(FIELD_VISITS_FILE, []);
-    const filtered = visits.filter((v) => (!userId || v.userId === userId) && (!dateKey || (v.recordedAt || "").startsWith(dateKey)));
-    sendJson(res, 200, { items: filtered });
+    Promise.resolve(getFieldVisitsData({ userId, dateKey }))
+      .then((items) => sendJson(res, 200, { items }))
+      .catch((error) => {
+        console.error("[field-visits] failed:", error);
+        sendJson(res, 500, { error: "拜访记录读取失败" });
+      });
     return true;
   }
 
@@ -7598,7 +8368,7 @@ function handleApi(req, res, url) {
   // Field check-in/out
   if (req.method === "POST" && url.pathname === "/api/field-checkin") {
     parseBody(req)
-      .then((body) => {
+      .then(async (body) => {
         const userId = String(body.userId || "").trim();
         const auth = getCheckinAuth(req, userId);
         const action = body.action === "out" ? "out" : "in";
@@ -7625,8 +8395,22 @@ function handleApi(req, res, url) {
           sendJson(res, 400, { error: "缺少 userId 或坐标" });
           return;
         }
-        const dateKey = ts.toISOString().slice(0, 10);
-        const items = readJson(FIELD_CHECKINS_FILE, []);
+        const dateKey = getBusinessTimeParts(ts).dateKey;
+        const sameDayItems = await getFieldCheckinsData({ userId, dateKey });
+        const hasCheckIn = sameDayItems.some((entry) => entry.action === "in");
+        const hasCheckOut = sameDayItems.some((entry) => entry.action === "out");
+        if (action === "in" && hasCheckIn) {
+          sendJson(res, 400, { error: "今天已经上班打卡，不需要重复提交" });
+          return;
+        }
+        if (action === "out" && !hasCheckIn) {
+          sendJson(res, 400, { error: "请先完成上班打卡" });
+          return;
+        }
+        if (action === "out" && hasCheckOut) {
+          sendJson(res, 400, { error: "今天已经下班打卡，不需要重复提交" });
+          return;
+        }
         const item = {
           id: `chk-${Date.now()}`,
           userId,
@@ -7638,13 +8422,20 @@ function handleApi(req, res, url) {
           ts: ts.toISOString(),
           date: dateKey
         };
-        items.unshift(item);
-        writeJson(FIELD_CHECKINS_FILE, items);
+        if (fieldStore.isEnabled()) {
+          await ensureFieldStoreReady();
+          await fieldStore.addCheckin(item);
+          await syncFieldDocumentsFromStore();
+        } else {
+          const items = readJson(FIELD_CHECKINS_FILE, []);
+          items.unshift(item);
+          writeJson(FIELD_CHECKINS_FILE, items);
+        }
         sendJson(res, 200, {
           ok: true,
           item,
-          payroll: getFieldPayrollSummary(userId, dateKey),
-          companyAttendance: getCompanyAttendanceOverview(dateKey).summary
+          payroll: await getFieldPayrollSummary(userId, dateKey),
+          companyAttendance: (await getCompanyAttendanceOverview(dateKey)).summary
         });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -7654,45 +8445,72 @@ function handleApi(req, res, url) {
   if (req.method === "GET" && url.pathname === "/api/field-checkins") {
     const userId = String(url.searchParams.get("user") || "").trim();
     const dateKey = String(url.searchParams.get("date") || "").trim();
-    const items = readJson(FIELD_CHECKINS_FILE, []);
-    const filtered = items.filter((i) => (!userId || i.userId === userId) && (!dateKey || i.date === dateKey));
-    sendJson(res, 200, { items: filtered });
+    Promise.resolve(getFieldCheckinsData({ userId, dateKey }))
+      .then((items) => sendJson(res, 200, { items }))
+      .catch((error) => {
+        console.error("[field-checkins] failed:", error);
+        sendJson(res, 500, { error: "打卡记录读取失败" });
+      });
     return true;
   }
 
   return false;
 }
 
-function requestHandler(req, res) {
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  if (handleApi(req, res, url)) return;
+async function requestHandler(req, res) {
+  try {
+    await documentStore.ensureHydrated();
+    await ensureFieldStoreReady();
+    await ensureCrmStoreReady();
+    await ensureBusinessStoreReady();
+    await ensureOperationsStoreReady();
+    await ensureCommerceStoreReady();
+    await ensureExpenseStoreReady();
+    await ensureConfigStoreReady();
+    await syncCrmDocumentsFromStore();
+    await syncBusinessDocumentsFromStore();
+    await syncOperationsDocumentsFromStore();
+    await syncCommerceDocumentsFromStore();
+    await syncExpenseDocumentsFromStore();
+    await syncConfigDocumentsFromStore();
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    if (await handleApi(req, res, url)) return;
 
-  const requestedPath = url.pathname === "/" ? "/login.html" : url.pathname;
-  const session = getLoginSession(req);
-  if (requestedPath === "/login.html" && session) {
-    sendRedirect(res, getRoleLandingPage(session.profile.role));
-    return;
-  }
-  if (isProtectedHtmlPath(requestedPath)) {
-    if (!session) {
-      sendRedirect(res, `/login.html?next=${encodeURIComponent(requestedPath)}`);
+    const requestedPath = url.pathname === "/" ? "/login.html" : url.pathname;
+    const session = getLoginSession(req);
+    if (requestedPath === "/login.html" && session) {
+      const next = String(url.searchParams.get("next") || "").trim();
+      sendRedirect(res, next || getRoleLandingPage(session.profile.role));
       return;
     }
-    if (!isPageAllowedForRole(session.profile.role, requestedPath)) {
-      sendRedirect(res, getRoleLandingPage(session.profile.role));
+    if (isProtectedHtmlPath(requestedPath)) {
+      if (!session) {
+        sendRedirect(res, `/login.html?next=${encodeURIComponent(requestedPath)}`);
+        return;
+      }
+      if (!isPageAllowedForRole(session.profile.role, requestedPath)) {
+        sendRedirect(res, getRoleLandingPage(session.profile.role));
+        return;
+      }
+    }
+    const safePath = path.normalize(requestedPath).replace(/^(\.\.[/\\])+/, "");
+    const filePath = path.join(PUBLIC_DIR, safePath);
+
+    if (!filePath.startsWith(PUBLIC_DIR)) {
+      res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("Forbidden");
       return;
     }
-  }
-  const safePath = path.normalize(requestedPath).replace(/^(\.\.[/\\])+/, "");
-  const filePath = path.join(PUBLIC_DIR, safePath);
 
-  if (!filePath.startsWith(PUBLIC_DIR)) {
-    res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
-    res.end("Forbidden");
-    return;
+    sendFile(res, filePath);
+  } catch (error) {
+    console.error("[requestHandler]", error);
+    if (!res.headersSent) {
+      sendJson(res, 500, { error: "Server initialization failed" });
+    } else {
+      res.end();
+    }
   }
-
-  sendFile(res, filePath);
 }
 
 if (require.main === module) {

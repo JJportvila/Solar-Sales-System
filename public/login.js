@@ -111,7 +111,8 @@ async function init() {
     const auth = await fetch("/api/auth/me", { credentials: "same-origin" });
     if (auth.ok) {
       const result = await auth.json();
-      window.location.href = result.landingPage || "/dashboard.html";
+      const next = new URLSearchParams(window.location.search).get("next");
+      window.location.href = next || result.landingPage || "/dashboard.html";
       return;
     }
   } catch (error) {

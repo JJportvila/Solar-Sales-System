@@ -24,10 +24,13 @@
   visitItems: [],
   payrollSummary: null,
   installPromptEvent: null,
-  overviewShown: false
+  overviewShown: false,
+  checkinSubmitting: false,
+  checkinRecords: []
 };
 
 const OVERVIEW_DISMISS_KEY = "mobile_overview_dismiss_date";
+const FIELD_CHECKIN_CACHE_PREFIX = "mobile_field_checkins";
 const numberFormatter = new Intl.NumberFormat("en-US");
 
 function $(id) {
@@ -35,11 +38,76 @@ function $(id) {
 }
 
 function getTodayKey() {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function shouldSkipOverviewModal() {
   return localStorage.getItem(OVERVIEW_DISMISS_KEY) === getTodayKey();
+}
+
+function getFieldCheckinCacheKey(userId = "") {
+  const normalizedUserId = String(userId || getEffectiveCheckinUserId() || "").trim();
+  return normalizedUserId ? `${FIELD_CHECKIN_CACHE_PREFIX}:${normalizedUserId}:${getTodayKey()}` : "";
+}
+
+function getCheckinProgress() {
+  const hasIn = mobileState.checkinRecords.some((item) => item.action === "in");
+  const hasOut = mobileState.checkinRecords.some((item) => item.action === "out");
+  return { hasIn, hasOut };
+}
+
+function saveCachedCheckins() {
+  const cacheKey = getFieldCheckinCacheKey();
+  if (!cacheKey) return;
+  localStorage.setItem(cacheKey, JSON.stringify(mobileState.checkinRecords));
+}
+
+function loadCachedCheckins() {
+  const cacheKey = getFieldCheckinCacheKey();
+  if (!cacheKey) {
+    mobileState.checkinRecords = [];
+    return;
+  }
+  try {
+    const raw = JSON.parse(localStorage.getItem(cacheKey) || "[]");
+    mobileState.checkinRecords = Array.isArray(raw) ? raw : [];
+  } catch (_error) {
+    mobileState.checkinRecords = [];
+  }
+}
+
+function updateCheckinButtons() {
+  const effectiveLoggedIn = hasEffectiveFieldUser();
+  const { hasIn, hasOut } = getCheckinProgress();
+  const disableIn = !effectiveLoggedIn || mobileState.checkinSubmitting || hasIn;
+  const disableOut = !effectiveLoggedIn || mobileState.checkinSubmitting || !hasIn || hasOut;
+  ["field-checkin-in", "home-checkin-in"].forEach((id) => {
+    if ($(id)) $(id).disabled = disableIn;
+  });
+  ["field-checkin-out", "home-checkin-out"].forEach((id) => {
+    if ($(id)) $(id).disabled = disableOut;
+  });
+}
+
+function syncCachedCheckinUi() {
+  loadCachedCheckins();
+  updateCheckinButtons();
+  const { hasIn, hasOut } = getCheckinProgress();
+  if (hasOut) {
+    setFieldStatus("field-checkin-status", "今天已完成上下班打卡");
+    return;
+  }
+  if (hasIn) {
+    setFieldStatus("field-checkin-status", "今天已上班打卡，可继续下班打卡");
+    return;
+  }
+  if (hasEffectiveFieldUser()) {
+    setFieldStatus("field-checkin-status", "尚未打卡");
+  }
 }
 
 function money(value) {
@@ -126,8 +194,17 @@ function hasEffectiveFieldUser() {
 async function fetchJson(url, options = {}) {
   const response = await fetch(url, options);
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || "请求失败");
+  if (!response.ok) {
+    const error = new Error(data.error || "请求失败");
+    error.status = response.status;
+    throw error;
+  }
   return data;
+}
+
+function redirectToMobileLogin() {
+  const next = encodeURIComponent("/mobile-app.html");
+  window.location.replace(`/login.html?next=${next}`);
 }
 
 function setActiveTab(tab) {
@@ -212,6 +289,7 @@ function updateFieldUi() {
       ? "当前账号已就绪，可以直接打卡、记录轨迹、提交拜访，并继续处理客户与报价。"
       : "把报价、客户、现场、考勤和维修入口整合到一页，手机上打开就能直接处理当天工作。";
   }
+  syncCachedCheckinUi();
 }
 
 function renderFieldAttendance() {
@@ -424,6 +502,24 @@ function clearFieldLogin() {
   localStorage.removeItem("field_user_name");
   localStorage.removeItem("field_user_role");
   localStorage.removeItem("field_user_role_label");
+  mobileState.checkinRecords = [];
+  updateCheckinButtons();
+}
+
+async function logoutMobileApp() {
+  try {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "same-origin"
+    });
+  } catch (_error) {
+    // Ignore logout request failures and still clear local state.
+  }
+  clearFieldLogin();
+  mobileState.currentUserId = "";
+  mobileState.currentUserName = "";
+  mobileState.currentUserRole = "";
+  window.location.replace("/login.html?next=%2Fmobile-app.html");
 }
 
 async function getPosition() {
@@ -553,7 +649,7 @@ async function loadFieldAttendance() {
     renderFieldAttendance();
     return;
   }
-  const date = new Date().toISOString().slice(0, 10);
+  const date = getTodayKey();
   const result = await fetchJson(`/api/field-payroll?user=${encodeURIComponent(effectiveUserId)}&date=${encodeURIComponent(date)}`);
   mobileState.payrollSummary = result || null;
   renderFieldAttendance();
@@ -565,6 +661,24 @@ async function fieldCheckin(action) {
     setFieldStatus("field-checkin-status", "请先登录当前账号");
     return;
   }
+  const { hasIn, hasOut } = getCheckinProgress();
+  if (action === "in" && hasIn) {
+    setFieldStatus("field-checkin-status", "今天已经上班打卡，不需要重复提交");
+    updateCheckinButtons();
+    return;
+  }
+  if (action === "out" && !hasIn) {
+    setFieldStatus("field-checkin-status", "请先完成上班打卡");
+    updateCheckinButtons();
+    return;
+  }
+  if (action === "out" && hasOut) {
+    setFieldStatus("field-checkin-status", "今天已经下班打卡，不需要重复提交");
+    updateCheckinButtons();
+    return;
+  }
+  mobileState.checkinSubmitting = true;
+  updateCheckinButtons();
   try {
     const coords = await getPosition();
     const result = await fetchJson("/api/field-checkin", {
@@ -578,6 +692,16 @@ async function fieldCheckin(action) {
         accuracy: coords.accuracy
       })
     });
+    const nextItem = result.item || {
+      userId: effectiveUserId,
+      action,
+      ts: new Date().toISOString()
+    };
+    mobileState.checkinRecords = mobileState.checkinRecords
+      .filter((item) => item.action !== nextItem.action)
+      .concat(nextItem)
+      .sort((a, b) => new Date(a.ts) - new Date(b.ts));
+    saveCachedCheckins();
     const companySummary = result.companyAttendance || {};
     setFieldStatus(
       "field-checkin-status",
@@ -585,9 +709,11 @@ async function fieldCheckin(action) {
     );
     mobileState.payrollSummary = result.payroll || mobileState.payrollSummary;
     renderFieldAttendance();
-    await loadFieldVisits();
   } catch (error) {
     setFieldStatus("field-checkin-status", error.message || "打卡失败");
+  } finally {
+    mobileState.checkinSubmitting = false;
+    updateCheckinButtons();
   }
 }
 
@@ -835,7 +961,7 @@ async function loadFieldVisits() {
     renderFieldVisits();
     return;
   }
-  const date = new Date().toISOString().slice(0, 10);
+  const date = getTodayKey();
   const result = await fetchJson(`/api/field-visits?user=${encodeURIComponent(effectiveUserId)}&date=${encodeURIComponent(date)}`);
   mobileState.visitItems = Array.isArray(result.items) ? result.items.slice().reverse() : [];
   renderFieldVisits();
@@ -934,6 +1060,9 @@ function bindEvents() {
   $("field-checkin-out").addEventListener("click", () => fieldCheckin("out"));
   $("home-checkin-in").addEventListener("click", () => fieldCheckin("in"));
   $("home-checkin-out").addEventListener("click", () => fieldCheckin("out"));
+  if ($("mobile-logout-btn")) {
+    $("mobile-logout-btn").addEventListener("click", logoutMobileApp);
+  }
   $("field-trip-start").addEventListener("click", startTrack);
   $("field-trip-stop").addEventListener("click", stopTrack);
   $("field-visit-photos").addEventListener("change", handlePhotoSelect);
@@ -948,7 +1077,15 @@ async function initMobileApp() {
   updateFieldUi();
   renderFieldAttendance();
   renderFieldVisits();
-  await Promise.all([loadCurrentUser(), loadFieldEmployees(), loadCoreData(), tryRestoreFieldLogin(), registerServiceWorker()]);
+  try {
+    await Promise.all([loadCurrentUser(), loadFieldEmployees(), loadCoreData(), tryRestoreFieldLogin(), registerServiceWorker()]);
+  } catch (error) {
+    if (error?.status === 401 || String(error?.message || "").includes("请先登录")) {
+      redirectToMobileLogin();
+      return;
+    }
+    throw error;
+  }
   updateFieldUi();
   renderHome();
   renderQuotes();

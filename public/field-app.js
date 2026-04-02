@@ -23,6 +23,14 @@ function $(id) {
   return document.getElementById(id);
 }
 
+function getTodayKey() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function getAuthHeaders() {
   const headers = { "Content-Type": "application/json" };
   if (state.token) headers.Authorization = `Bearer ${state.token}`;
@@ -150,23 +158,13 @@ function renderLatestCards() {
 
   const points = state.tracks.flatMap((track) => track.points || []).sort((a, b) => new Date(b.ts) - new Date(a.ts));
   const latestPoint = points[0];
-  const mapUrl = latestPoint
-    ? `https://maps.google.com/?q=${latestPoint.lat},${latestPoint.lng}`
-    : "";
-  const embedUrl = latestPoint
-    ? `https://maps.google.com/maps?q=${latestPoint.lat},${latestPoint.lng}&z=15&output=embed`
-    : "about:blank";
   $("latest-location-card").innerHTML = latestPoint
     ? `
       <div class="font-bold text-primary">${formatTime(latestPoint.ts)}</div>
       <div class="mt-1">${latestPoint.lat.toFixed(5)}, ${latestPoint.lng.toFixed(5)}</div>
-      <div class="mt-2">
-        <a class="inline-flex rounded-xl bg-white px-3 py-2 text-xs font-bold text-primary shadow-sm" href="${mapUrl}" target="_blank" rel="noreferrer">打开地图</a>
-      </div>
+      <div class="mt-1 text-xs text-slate-500">定位精度 ${Math.round(latestPoint.accuracy || 0)}m</div>
     `
     : "暂无定位记录";
-  $("latest-location-map").classList.toggle("hidden", !latestPoint);
-  $("latest-location-iframe").src = embedUrl;
 }
 
 function clearLoginState() {
@@ -209,7 +207,10 @@ function buildDateOptions(selectId) {
   for (let i = 0; i < 7; i += 1) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    dates.push(d.toISOString().slice(0, 10));
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    dates.push(`${year}-${month}-${day}`);
   }
   select.innerHTML = dates.map((value) => `<option value="${value}">${value}</option>`).join("");
 }

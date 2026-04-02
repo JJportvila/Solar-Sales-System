@@ -27,6 +27,11 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+function getMapLink(lat, lng) {
+  if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) return "";
+  return `https://maps.google.com/?q=${lat},${lng}`;
+}
+
 function setStatus(text, isError = false) {
   const node = $("detail-status-text");
   node.textContent = text || "";
@@ -76,6 +81,8 @@ function renderCheckins() {
       <div class="list-item-title">${item.action === "in" ? "上班打卡" : "下班打卡"}</div>
       <div class="list-item-meta">时间: ${escapeHtml(formatTime(item.ts))}</div>
       <div class="list-item-meta">坐标: ${escapeHtml(item.lat ?? "-")}, ${escapeHtml(item.lng ?? "-")}</div>
+      <div class="list-item-meta">精度: ${escapeHtml(Math.round(item.accuracy || 0))}m</div>
+      ${getMapLink(item.lat, item.lng) ? `<div class="list-item-meta"><a href="${getMapLink(item.lat, item.lng)}" target="_blank" rel="noreferrer">查看地图</a></div>` : ""}
     </div>
   `).join("");
 }
@@ -92,6 +99,8 @@ function renderVisits() {
       <div class="list-item-meta">时间: ${escapeHtml(formatTime(item.recordedAt))}</div>
       <div class="list-item-meta">地址: ${escapeHtml(item.address || "-")}</div>
       ${item.note ? `<div class="list-item-meta">备注: ${escapeHtml(item.note)}</div>` : ""}
+      ${(Number.isFinite(Number(item.lat)) && Number.isFinite(Number(item.lng))) ? `<div class="list-item-meta">GPS: ${escapeHtml(Number(item.lat).toFixed(5))}, ${escapeHtml(Number(item.lng).toFixed(5))} / 精度 ${escapeHtml(Math.round(item.accuracy || 0))}m</div>` : ""}
+      ${getMapLink(item.lat, item.lng) ? `<div class="list-item-meta"><a href="${getMapLink(item.lat, item.lng)}" target="_blank" rel="noreferrer">查看地图</a></div>` : ""}
     </div>
   `).join("");
 }
@@ -108,6 +117,7 @@ function renderTracks() {
       <div class="list-item-title">${escapeHtml(formatTime(point.ts))}</div>
       <div class="list-item-meta">坐标: ${escapeHtml(point.lat)}, ${escapeHtml(point.lng)}</div>
       <div class="list-item-meta">精度: ${escapeHtml(Math.round(point.accuracy || 0))}m</div>
+      ${getMapLink(point.lat, point.lng) ? `<div class="list-item-meta"><a href="${getMapLink(point.lat, point.lng)}" target="_blank" rel="noreferrer">查看地图</a></div>` : ""}
     </div>
   `).join("");
 }

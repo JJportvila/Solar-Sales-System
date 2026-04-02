@@ -8,6 +8,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
+      (function redirectMobileEntry() {
+        const path = window.location.pathname || "/";
+        const isRootEntry = path === "/" || path === "/index.html";
+        const forceDesktop = new URLSearchParams(window.location.search).get("desktop") === "1";
+        const mobileUa = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const narrowScreen = window.matchMedia("(max-width: 900px)").matches;
+        if (isRootEntry && !forceDesktop && (mobileUa || narrowScreen)) {
+          window.location.replace("/mobile-app.html");
+        }
+      }());
+
       tailwind.config = {
         theme: {
           extend: {
