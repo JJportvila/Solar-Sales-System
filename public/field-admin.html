@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>外勤管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#001d44",
+              secondary: "#f59e0b",
+              surface: "#f8fafc",
+              outline: "#cbd5e1"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", "Manrope", sans-serif; }
+    </style>
+  </head>
+  <body class="bg-surface text-slate-900 min-h-screen">
+    <main class="mx-auto w-full max-w-6xl px-4 py-6 space-y-6">
+      <header class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.32em] text-secondary">外勤管理</p>
+          <h1 class="text-2xl font-extrabold text-primary">销售外勤管理后台</h1>
+          <p class="text-sm text-slate-600">查看打卡、轨迹、拜访；简易出勤工资估算。</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <select id="admin-user-select" class="rounded-xl border border-outline bg-white px-3 py-2 text-sm"></select>
+          <input id="admin-date" type="date" class="rounded-xl border border-outline bg-white px-3 py-2 text-sm" />
+          <input id="daily-rate" type="number" min="0" class="w-28 rounded-xl border border-outline bg-white px-3 py-2 text-sm" placeholder="日薪" />
+          <button id="admin-refresh" class="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white">刷新</button>
+        </div>
+      </header>
+
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="rounded-2xl bg-white border border-outline/50 p-4 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500">今日打卡</p>
+              <p id="kpi-checkins" class="text-2xl font-extrabold text-primary">0 次</p>
+            </div>
+            <span class="material-symbols-outlined text-primary">schedule</span>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-outline/50 p-4 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500">拜访数</p>
+              <p id="kpi-visits" class="text-2xl font-extrabold text-primary">0</p>
+            </div>
+            <span class="material-symbols-outlined text-primary">maps_ugc</span>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-outline/50 p-4 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500">出勤工资（估算）</p>
+              <p id="kpi-payroll" class="text-2xl font-extrabold text-primary">0</p>
+            </div>
+            <span class="material-symbols-outlined text-primary">payments</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-2xl bg-white border border-outline/50 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold text-primary">打卡记录</h2>
+        </div>
+        <div id="checkin-table" class="text-sm text-slate-700">加载中...</div>
+      </section>
+
+      <section class="rounded-2xl bg-white border border-outline/50 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold text-primary">拜访记录</h2>
+        </div>
+        <div id="visit-table" class="text-sm text-slate-700">加载中...</div>
+      </section>
+
+      <section class="rounded-2xl bg-white border border-outline/50 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold text-primary">轨迹点</h2>
+        </div>
+        <div id="track-table" class="text-sm text-slate-700">加载中...</div>
+      </section>
+    </main>
+
+    <script src="/field-admin.js"></script>
+  </body>
+</html>
