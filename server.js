@@ -1639,24 +1639,27 @@ function ensureDataDir() {
   if (!fs.existsSync(CUSTOMERS_FILE)) {
     fs.writeFileSync(CUSTOMERS_FILE, JSON.stringify(defaultCustomersData(), null, 2), "utf8");
   }
-  if (!fs.existsSync(VENDORS_FILE)) {
-    fs.writeFileSync(VENDORS_FILE, JSON.stringify(defaultVendorsData(), null, 2), "utf8");
-  }
-  if (!fs.existsSync(WHOLESALE_FILE)) {
-    fs.writeFileSync(WHOLESALE_FILE, JSON.stringify(defaultWholesaleData(), null, 2), "utf8");
-  }
-  if (!fs.existsSync(EXPENSE_CONTROL_FILE)) {
-    fs.writeFileSync(EXPENSE_CONTROL_FILE, JSON.stringify(defaultExpenseControlData(), null, 2), "utf8");
-  }
-  if (!fs.existsSync(FIELD_TRACKS_FILE)) {
-    fs.writeFileSync(FIELD_TRACKS_FILE, "[]", "utf8");
-  }
-  if (!fs.existsSync(FIELD_VISITS_FILE)) {
-    fs.writeFileSync(FIELD_VISITS_FILE, "[]", "utf8");
-  }
-  if (!fs.existsSync(BACKUP_INDEX_FILE)) {
-    fs.writeFileSync(BACKUP_INDEX_FILE, JSON.stringify({ items: [] }, null, 2), "utf8");
-  }
+if (!fs.existsSync(VENDORS_FILE)) {
+  fs.writeFileSync(VENDORS_FILE, JSON.stringify(defaultVendorsData(), null, 2), "utf8");
+}
+if (!fs.existsSync(WHOLESALE_FILE)) {
+  fs.writeFileSync(WHOLESALE_FILE, JSON.stringify(defaultWholesaleData(), null, 2), "utf8");
+}
+if (!fs.existsSync(EXPENSE_CONTROL_FILE)) {
+  fs.writeFileSync(EXPENSE_CONTROL_FILE, JSON.stringify(defaultExpenseControlData(), null, 2), "utf8");
+}
+if (!fs.existsSync(FIELD_TRACKS_FILE)) {
+  fs.writeFileSync(FIELD_TRACKS_FILE, "[]", "utf8");
+}
+if (!fs.existsSync(FIELD_VISITS_FILE)) {
+  fs.writeFileSync(FIELD_VISITS_FILE, "[]", "utf8");
+}
+if (!fs.existsSync(FIELD_CHECKINS_FILE)) {
+  fs.writeFileSync(FIELD_CHECKINS_FILE, "[]", "utf8");
+}
+if (!fs.existsSync(BACKUP_INDEX_FILE)) {
+  fs.writeFileSync(BACKUP_INDEX_FILE, JSON.stringify({ items: [] }, null, 2), "utf8");
+}
 }
 
 function readJson(filePath, fallback) {
@@ -1733,7 +1736,8 @@ function buildBackupPayload(trigger = "manual", notes = "") {
       expenseControl: readJson(EXPENSE_CONTROL_FILE, {}),
       invoices: readJson(INVOICES_FILE, []),
       fieldTracks: readJson(FIELD_TRACKS_FILE, []),
-      fieldVisits: readJson(FIELD_VISITS_FILE, [])
+      fieldVisits: readJson(FIELD_VISITS_FILE, []),
+      fieldCheckins: readJson(FIELD_CHECKINS_FILE, [])
     },
     assets: {
       uploads: fs.existsSync(UPLOADS_DIR)
@@ -1803,6 +1807,7 @@ function restoreBackupSnapshot(backupId) {
   writeJson(INVOICES_FILE, Array.isArray(payload.files.invoices) ? payload.files.invoices : []);
   writeJson(FIELD_TRACKS_FILE, Array.isArray(payload.files.fieldTracks) ? payload.files.fieldTracks : []);
   writeJson(FIELD_VISITS_FILE, Array.isArray(payload.files.fieldVisits) ? payload.files.fieldVisits : []);
+  writeJson(FIELD_CHECKINS_FILE, Array.isArray(payload.files.fieldCheckins) ? payload.files.fieldCheckins : []);
   ensureDataDir();
   fs.readdirSync(UPLOADS_DIR, { withFileTypes: true })
     .filter((entry) => entry.isFile())
@@ -6673,6 +6678,51 @@ function handleApi(req, res, url) {
         sendJson(res, 200, { ok: true, url: savedUrl });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
+    return true;
+  }
+
+  // Field check-in/out
+  if (req.method === "POST" && url.pathname === "/api/field-checkin") {
+    parseBody(req)
+      .then((body) => {
+        const userId = String(body.userId || "").trim();
+        const action = body.action === "out" ? "out" : "in";
+        const lat = Number(body.lat);
+        const lng = Number(body.lng);
+        const accuracy = Number(body.accuracy || 0);
+        const note = String(body.note || "").trim();
+        const ts = body.ts ? new Date(body.ts) : new Date();
+        if (!userId || Number.isNaN(lat) || Number.isNaN(lng)) {
+          sendJson(res, 400, { error: "缺少 userId 或坐标" });
+          return;
+        }
+        const dateKey = ts.toISOString().slice(0, 10);
+        const items = readJson(FIELD_CHECKINS_FILE, []);
+        const item = {
+          id: `chk-${Date.now()}`,
+          userId,
+          action,
+          lat,
+          lng,
+          accuracy,
+          note,
+          ts: ts.toISOString(),
+          date: dateKey
+        };
+        items.unshift(item);
+        writeJson(FIELD_CHECKINS_FILE, items);
+        sendJson(res, 200, { ok: true, item });
+      })
+      .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
+    return true;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/field-checkins") {
+    const userId = String(url.searchParams.get("user") || "").trim();
+    const dateKey = String(url.searchParams.get("date") || "").trim();
+    const items = readJson(FIELD_CHECKINS_FILE, []);
+    const filtered = items.filter((i) => (!userId || i.userId === userId) && (!dateKey || i.date === dateKey));
+    sendJson(res, 200, { items: filtered });
     return true;
   }
 
