@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f3b66" />
+    <title>手机维修详情</title>
+    <link rel="icon" href="/mobile-icon.svg" type="image/svg+xml" />
+    <style>
+      :root { --bg:#eef5fb; --card:#fff; --line:rgba(15,59,102,.1); --text:#0f172a; --muted:#64748b; --primary:#0f3b66; }
+      * { box-sizing:border-box; }
+      body { margin:0; background:linear-gradient(180deg,#edf4fb 0%,#f8fbfd 100%); color:var(--text); font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+      a { color:inherit; text-decoration:none; }
+      .shell { max-width:480px; margin:0 auto; min-height:100vh; padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 28px); }
+      .hero { display:flex; align-items:center; gap:12px; margin-bottom:12px; background:none; color:var(--text); border-radius:0; padding:0; box-shadow:none; }
+      .hero h1 { margin:0; font-size:20px; line-height:1.2; color:var(--text); }
+      .hero .btn { background:#eef4fb; color:var(--primary); border:1px solid rgba(15,59,102,.12); }
+      .hero p { margin:8px 0 0; color:rgba(255,255,255,.78); font-size:13px; }
+      .grid,.list { display:grid; gap:10px; }
+      .btn { display:inline-flex; align-items:center; justify-content:center; min-height:44px; border-radius:16px; padding:0 14px; font-weight:700; border:none; cursor:pointer; }
+      .btn.primary { background:#fff; color:var(--primary); }
+      .btn.secondary { background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.18); }
+      .section { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:16px; margin-top:14px; box-shadow:0 10px 24px rgba(15,59,102,.05); }
+      .section h2 { margin:0 0 12px; font-size:18px; }
+      .grid.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .metric,.item { border-radius:18px; background:#fbfdff; border:1px solid rgba(15,59,102,.08); padding:13px; }
+      .metric label,.item-meta { color:var(--muted); font-size:12px; }
+      .metric strong,.item-title { display:block; margin-top:5px; font-size:15px; font-weight:800; }
+      .tag { display:inline-flex; align-items:center; justify-content:center; min-height:28px; padding:0 10px; border-radius:999px; font-size:12px; font-weight:700; }
+      .empty { padding:16px; text-align:center; border:1px dashed rgba(15,59,102,.16); border-radius:16px; color:var(--muted); font-size:13px; }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <a class="btn secondary" href="/mobile-repair.html" style="min-height:34px;padding:0 12px;flex:0 0 auto;">返回</a>
+        <h1 id="repair-title">维修详情</h1>
+      </section>
+
+      <section class="section">
+        <h2>工单概览</h2>
+        <div id="repair-summary" class="grid two"></div>
+      </section>
+
+      <section class="section">
+        <h2>客户与站点</h2>
+        <div id="repair-customer" class="grid"></div>
+      </section>
+
+      <section class="section">
+        <h2>问题描述</h2>
+        <div id="repair-description" class="item"></div>
+      </section>
+
+      <section class="section">
+        <h2>维修时间线</h2>
+        <div id="repair-timeline" class="list"></div>
+      </section>
+    </main>
+    <script src="/mobile-repair-detail.js"></script>
+  </body>
+  </html>

@@ -1,1 +1,43 @@
-[]
+[
+  {
+    "id": "visit-1775112322628",
+    "userId": "emp-sales-001",
+    "customer": "lorenso",
+    "note": "solar 3000W",
+    "lat": 0,
+    "lng": 0,
+    "accuracy": 0,
+    "address": "no2",
+    "audioUrl": "",
+    "photoUrls": [],
+    "recordedAt": "2026-04-02T06:45:22.628Z"
+  },
+  {
+    "id": "visit-1775093639134",
+    "userId": "emp-sales-001",
+    "customer": "Demo Customer",
+    "note": "visit from phone",
+    "lat": null,
+    "lng": null,
+    "accuracy": 0,
+    "address": "Port Vila",
+    "audioUrl": "",
+    "photoUrls": [],
+    "recordedAt": "2026-04-02T01:33:59.134Z"
+  },
+  {
+    "id": "visit-1775092911905",
+    "userId": "sales-test",
+    "customer": "Test Customer",
+    "note": "visit note",
+    "lat": null,
+    "lng": null,
+    "accuracy": 0,
+    "address": "Port Vila",
+    "audioUrl": "",
+    "photoUrls": [
+      "/uploads/test.jpg"
+    ],
+    "recordedAt": "2026-04-02T01:21:51.905Z"
+  }
+]

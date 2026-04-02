@@ -583,5 +583,86 @@
       "salesPersonName": "Lina Vatoko",
       "salesPersonRole": "销售"
     }
+  },
+  {
+    "id": "1775113319765",
+    "customer": {
+      "name": "Mobile Save",
+      "phone": "5551111",
+      "email": "",
+      "address": ""
+    },
+    "location": "Port Vila",
+    "salesPersonId": "emp-sales-001",
+    "salesPersonName": "Lina Vatoko",
+    "salesPersonRole": "Sales",
+    "packageName": "M-BOX300",
+    "total": 97000,
+    "dailyWh": 240,
+    "installmentPlan": {
+      "enabled": false,
+      "termWeeks": 0,
+      "termCount": 0,
+      "totalAmount": 97000,
+      "downPayment": 0,
+      "financedAmount": 97000,
+      "weeklyAmount": 0,
+      "installments": [],
+      "cycleLabel": "???",
+      "nextDueLabel": "-",
+      "startDate": "2026-04-02",
+      "depositDate": ""
+    },
+    "status": "draft",
+    "createdAt": "2026-04-02T07:01:59.765Z",
+    "payload": {
+      "quote": {
+        "displayTotal": 97000,
+        "installFee": 30000,
+        "logisticsFee": 12000,
+        "vat": 12652
+      },
+      "devices": [
+        {
+          "hours": 6,
+          "power": 10,
+          "quantity": 4,
+          "name": "LED Light"
+        }
+      ],
+      "recommendation": {
+        "solarPanels": "1 x 200W Mono Solar Panels",
+        "packageName": "M-BOX300",
+        "battery": "0.6kWh LiFePO4 Battery Bank",
+        "inverter": "300W Inverter",
+        "loadCapacityW": 300
+      },
+      "installmentPlan": {
+        "cycleLabel": "???",
+        "depositAmount": 0,
+        "installmentAmount": 0
+      },
+      "salesPersonId": "emp-sales-001",
+      "customer": {
+        "email": "",
+        "name": "Mobile Save",
+        "phone": "5551111",
+        "address": ""
+      },
+      "salesPersonName": "Lina Vatoko",
+      "selectedPackageName": "M-BOX300",
+      "location": "Port Vila",
+      "metrics": {
+        "dailyWh": 240,
+        "peakPower": 40
+      },
+      "salesPerson": {
+        "roleLabel": "Sales",
+        "name": "Lina Vatoko",
+        "id": "emp-sales-001",
+        "role": "sales"
+      },
+      "salesPersonRole": "Sales"
+    }
   }
 ]

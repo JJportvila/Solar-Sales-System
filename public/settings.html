@@ -124,6 +124,57 @@
 
           <section class="rounded-[2rem] border border-line bg-surface p-8 shadow-sm">
             <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-3xl text-primary">schedule</span>
+              <div>
+                <h2 class="text-xl font-bold text-primary">考勤工作时间</h2>
+                <p class="text-sm text-slate-500">设置允许打卡的工作日、上班打卡时间和下班打卡时间。</p>
+              </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-2">
+              <div>
+                <span class="mb-3 block text-xs font-bold uppercase tracking-wider text-slate-500">工作日</span>
+                <div class="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
+                  <label class="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"><input id="attendance-day-1" class="mr-2 rounded border-slate-300 text-primary" type="checkbox" />周一</label>
+                  <label class="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"><input id="attendance-day-2" class="mr-2 rounded border-slate-300 text-primary" type="checkbox" />周二</label>
+                  <label class="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"><input id="attendance-day-3" class="mr-2 rounded border-slate-300 text-primary" type="checkbox" />周三</label>
+                  <label class="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"><input id="attendance-day-4" class="mr-2 rounded border-slate-300 text-primary" type="checkbox" />周四</label>
+                  <label class="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"><input id="attendance-day-5" class="mr-2 rounded border-slate-300 text-primary" type="checkbox" />周五</label>
+                  <label class="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"><input id="attendance-day-6" class="mr-2 rounded border-slate-300 text-primary" type="checkbox" />周六</label>
+                  <label class="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"><input id="attendance-day-0" class="mr-2 rounded border-slate-300 text-primary" type="checkbox" />周日</label>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <label class="block">
+                  <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">上班打卡开始</span>
+                  <input id="attendance-checkin-start" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="time" />
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">上班打卡截止</span>
+                  <input id="attendance-checkin-end" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="time" />
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">下班打卡开始</span>
+                  <input id="attendance-checkout-start" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="time" />
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">下班打卡截止</span>
+                  <input id="attendance-checkout-end" class="h-12 w-full rounded-2xl border-none bg-slate-100 px-4 text-sm" type="time" />
+                </label>
+                <label class="md:col-span-2 flex items-center justify-between rounded-2xl bg-slate-100 px-5 py-4">
+                  <div>
+                    <div class="text-sm font-bold text-primary">打卡必须定位</div>
+                    <div class="mt-1 text-xs text-slate-500">开启后，没有坐标的打卡会被拒绝。</div>
+                  </div>
+                  <input id="attendance-require-location" class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" />
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="rounded-[2rem] border border-line bg-surface p-8 shadow-sm">
+            <div class="flex items-center gap-3">
               <span class="material-symbols-outlined text-3xl text-primary">business</span>
               <div>
                 <h2 class="text-xl font-bold text-primary">公司资料与发票信息</h2>

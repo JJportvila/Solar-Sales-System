@@ -1,35 +1,11 @@
 {
   "monthlyTrend": [
-    {
-      "label": "10月",
-      "completed": 28,
-      "target": 32
-    },
-    {
-      "label": "11月",
-      "completed": 24,
-      "target": 30
-    },
-    {
-      "label": "12月",
-      "completed": 35,
-      "target": 36
-    },
-    {
-      "label": "1月",
-      "completed": 18,
-      "target": 26
-    },
-    {
-      "label": "2月",
-      "completed": 31,
-      "target": 34
-    },
-    {
-      "label": "3月",
-      "completed": 38,
-      "target": 40
-    }
+    { "label": "10月", "completed": 28, "target": 32 },
+    { "label": "11月", "completed": 24, "target": 30 },
+    { "label": "12月", "completed": 35, "target": 36 },
+    { "label": "1月", "completed": 18, "target": 26 },
+    { "label": "2月", "completed": 31, "target": 34 },
+    { "label": "3月", "completed": 38, "target": 40 }
   ],
   "items": [
     {
@@ -45,11 +21,7 @@
       "email": "chen.jiacheng@vslm.vu",
       "hireDate": "2024-09-01",
       "resignedAt": "",
-      "skills": [
-        "PV-Expert",
-        "并网安装",
-        "高空作业"
-      ],
+      "skills": ["PV-Expert", "并网安装", "高空作业"],
       "metrics": {
         "primaryLabel": "完工率",
         "primaryValue": "98%",
@@ -64,7 +36,12 @@
         "baseSalary": 0,
         "performanceSalary": 12000,
         "commissionRate": 0
-      }
+      },
+      "pin": "0000",
+      "baseDailyRate": 0,
+      "advanceBalance": 0,
+      "debtBalance": 0,
+      "vnpfRate": 4
     },
     {
       "id": "emp-sales-001",
@@ -79,14 +56,11 @@
       "email": "lina@vslm.vu",
       "hireDate": "2024-11-05",
       "resignedAt": "",
-      "skills": [
-        "Sales-L3",
-        "CRM-Pro"
-      ],
+      "skills": ["Sales-L3", "CRM-Pro"],
       "metrics": {
-        "primaryLabel": "回款率",
+        "primaryLabel": "成交率",
         "primaryValue": "100%",
-        "secondaryLabel": "签约额",
+        "secondaryLabel": "签约金额",
         "secondaryValue": "VT 240000",
         "ratingLabel": "评分",
         "ratingValue": "5.0"
@@ -97,7 +71,12 @@
         "baseSalary": 0,
         "performanceSalary": 0,
         "commissionRate": 0.045
-      }
+      },
+      "pin": "0000",
+      "baseDailyRate": 9500,
+      "advanceBalance": 2000,
+      "debtBalance": 1500,
+      "vnpfRate": 4
     },
     {
       "id": "emp-sales-mgr-001",
@@ -112,11 +91,7 @@
       "email": "mele.tari@vslm.vu",
       "hireDate": "2024-02-18",
       "resignedAt": "",
-      "skills": [
-        "区域管理",
-        "渠道策略",
-        "重点客户"
-      ],
+      "skills": ["区域管理", "渠道策略", "重点客户"],
       "metrics": {
         "primaryLabel": "团队达成",
         "primaryValue": "94%",
@@ -131,7 +106,12 @@
         "baseSalary": 185000,
         "performanceSalary": 42000,
         "commissionRate": 0.018
-      }
+      },
+      "pin": "0000",
+      "baseDailyRate": 0,
+      "advanceBalance": 0,
+      "debtBalance": 0,
+      "vnpfRate": 4
     },
     {
       "id": "emp-admin-001",
@@ -146,11 +126,7 @@
       "email": "ruth.moli@vslm.vu",
       "hireDate": "2023-01-12",
       "resignedAt": "",
-      "skills": [
-        "系统权限",
-        "流程审批",
-        "报表管理"
-      ],
+      "skills": ["系统权限", "流程审批", "报表管理"],
       "metrics": {
         "primaryLabel": "流程及时率",
         "primaryValue": "97%",
@@ -165,7 +141,12 @@
         "baseSalary": 165000,
         "performanceSalary": 18000,
         "commissionRate": 0
-      }
+      },
+      "pin": "0000",
+      "baseDailyRate": 0,
+      "advanceBalance": 0,
+      "debtBalance": 0,
+      "vnpfRate": 4
     },
     {
       "id": "emp-sales-002",
@@ -180,10 +161,7 @@
       "email": "tom.bani@vslm.vu",
       "hireDate": "2024-08-15",
       "resignedAt": "2026-03-30",
-      "skills": [
-        "门店销售",
-        "客户回访"
-      ],
+      "skills": ["门店销售", "客户回访"],
       "metrics": {
         "primaryLabel": "成交率",
         "primaryValue": "88%",
@@ -198,7 +176,12 @@
         "baseSalary": 0,
         "performanceSalary": 0,
         "commissionRate": 0.03
-      }
+      },
+      "pin": "0000",
+      "baseDailyRate": 0,
+      "advanceBalance": 0,
+      "debtBalance": 0,
+      "vnpfRate": 4
     }
   ]
 }

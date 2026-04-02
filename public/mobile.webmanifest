@@ -1,0 +1,47 @@
+﻿{
+  "name": "Solar Sales Mobile",
+  "short_name": "Solar Mobile",
+  "start_url": "/mobile-app.html?v=20260402",
+  "display": "standalone",
+  "background_color": "#f3f7fb",
+  "theme_color": "#0f3b66",
+  "description": "Solar Sales System 独立手机工作台",
+  "shortcuts": [
+    {
+      "name": "手机工作台",
+      "url": "/mobile-app.html?v=20260402"
+    },
+    {
+      "name": "手机报价页",
+      "url": "/mobile-quote.html?v=20260402"
+    },
+    {
+      "name": "全员考勤",
+      "url": "/mobile-attendance.html?v=20260402"
+    },
+    {
+      "name": "已保存报价",
+      "url": "/mobile-saved-quotes.html?v=20260402"
+    },
+    {
+      "name": "客户详情",
+      "url": "/mobile-customer-detail.html?id=crm-1774850670190"
+    },
+    {
+      "name": "手机发票页",
+      "url": "/mobile-invoices.html"
+    },
+    {
+      "name": "手机维修页",
+      "url": "/mobile-repair.html"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/mobile-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f3b66" />
+    <title>鎵嬫満鎶ヤ环椤?/title>
+    <link rel="icon" href="/mobile-icon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        --bg: #edf3f8;
+        --card: rgba(255, 255, 255, 0.96);
+        --line: rgba(15, 59, 102, 0.12);
+        --text: #0f172a;
+        --muted: #64748b;
+        --primary: #0f3b66;
+        --primary-2: #17558c;
+        --accent: #15803d;
+        --accent-2: #dcfce7;
+        --radius-xl: 28px;
+        --radius-lg: 22px;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 28%),
+          linear-gradient(180deg, #edf4fb 0%, var(--bg) 38%, #e8eef4 100%);
+        font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+      a { color: inherit; text-decoration: none; }
+      button, input, select { font: inherit; }
+
+      .shell {
+        max-width: 480px;
+        margin: 0 auto;
+        min-height: 100vh;
+        padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 28px);
+      }
+      .hero {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        color: var(--text);
+        border-radius: 0;
+        padding: 0;
+        background: none;
+        box-shadow: none;
+      }
+      .hero h1 { margin: 0; font-size: 20px; line-height: 1.2; color: var(--text); }
+      .hero .btn { background: #eef4fb; color: var(--primary); border: 1px solid rgba(15,59,102,.12); }
+      .hero p { margin: 8px 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.82); line-height: 1.6; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .pill.success { color: #166534; background: var(--accent-2); }
+      .btn-row, .grid, .list { display: grid; gap: 10px; }
+      .btn-row { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 14px; }
+      .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 14px;
+        border: none;
+        border-radius: 16px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn.primary { color: #fff; background: var(--primary); }
+      .btn.secondary { color: var(--primary); background: #e8eef5; }
+      .btn.ghost { color: #fff; background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.18); }
+      .section {
+        margin-top: 14px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        box-shadow: 0 10px 24px rgba(15, 59, 102, 0.05);
+      }
+      .section h2 { margin: 0 0 12px; font-size: 18px; }
+      .input, .select {
+        width: 100%;
+        min-height: 44px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(15, 59, 102, 0.12);
+        background: #fff;
+      }
+      .device-item, .metric, .package-card {
+        padding: 13px;
+        border-radius: 18px;
+        border: 1px solid rgba(15, 59, 102, 0.08);
+        background: #fbfdff;
+      }
+      .metric label, .muted { color: var(--muted); font-size: 12px; }
+      .metric strong { display: block; margin-top: 5px; font-size: 15px; font-weight: 800; }
+      .device-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.7fr 0.7fr 0.7fr auto;
+        gap: 8px;
+        align-items: center;
+      }
+      .device-stack { display: none; }
+      .empty {
+        padding: 16px;
+        text-align: center;
+        border: 1px dashed rgba(15, 59, 102, 0.16);
+        border-radius: 16px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .status { min-height: 18px; margin-top: 10px; color: var(--muted); font-size: 12px; }
+      .helper { margin-top: 10px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+      .preset-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .preset-category,
+      .preset-chip {
+        border: none;
+        border-radius: 999px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .preset-category {
+        min-height: 34px;
+        padding: 0 14px;
+        color: var(--primary);
+        background: #eef4fa;
+      }
+      .preset-category.active {
+        color: #fff;
+        background: var(--primary);
+      }
+      .preset-panel {
+        padding: 12px;
+        border-radius: 18px;
+        border: 1px solid rgba(15, 59, 102, 0.08);
+        background: #fbfdff;
+      }
+      .preset-chip {
+        min-height: 34px;
+        padding: 0 12px;
+        color: var(--primary);
+        background: #e8eef5;
+      }
+
+      @media (max-width: 420px) {
+        .device-grid { display: none; }
+        .device-stack { display: grid; gap: 8px; }
+        .device-stack .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .device-remove-mobile { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <a class="btn ghost" href="/mobile-app.html?v=20260402" style="min-height:34px;padding:0 12px;flex:0 0 auto;">返回</a>
+        <h1>继续报价</h1>
+      </section>
+
+      <section class="section">
+        <h2>瀹㈡埛淇℃伅</h2>
+        <div class="grid">
+          <input id="quote-customer-name" class="input" type="text" placeholder="瀹㈡埛濮撳悕" />
+          <input id="quote-customer-phone" class="input" type="text" placeholder="瀹㈡埛鐢佃瘽" />
+          <input id="quote-customer-email" class="input" type="email" placeholder="瀹㈡埛閭" />
+          <input id="quote-customer-address" class="input" type="text" placeholder="瀹㈡埛鍦板潃" />
+          <select id="quote-location" class="select">
+            <option value="Port Vila">Port Vila</option>
+            <option value="Efate">Efate</option>
+            <option value="Espiritu Santo">Espiritu Santo</option>
+            <option value="Tanna">Tanna</option>
+          </select>
+          <select id="quote-sales-person" class="select"></select>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>榛樿鐢靛櫒</h2>
+        <div id="preset-categories" class="preset-bar"></div>
+        <div id="preset-panel" class="preset-panel"></div>
+      </section>
+
+      <section class="section">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <h2>璁惧鍒楄〃</h2>
+          <button id="add-device-btn" class="btn secondary" type="button">娣诲姞璁惧</button>
+        </div>
+        <div id="device-list" class="list"></div>
+        <div id="device-empty" class="empty" style="display:none;">鍏堟坊鍔犱竴涓澶囷紝鍐嶈绠楁姤浠枫€?/div>
+      </section>
+
+      <section class="section">
+        <h2>璁＄畻缁撴灉</h2>
+        <div class="grid two">
+          <div class="metric"><label>鏃ヨ€楃數</label><strong id="result-daily-wh">0 Wh</strong></div>
+          <div class="metric"><label>宄板€艰礋杞?/label><strong id="result-peak-power">0 W</strong></div>
+          <div class="metric"><label>鎺ㄨ崘濂楅</label><strong id="result-package-name">寰呰绠?/strong></div>
+          <div class="metric"><label>鎬绘姤浠?/label><strong id="result-total-price">VT 0</strong></div>
+        </div>
+        <div id="package-card" class="package-card" style="margin-top:12px;">
+          <div class="muted">濂楅璇︽儏</div>
+          <div id="package-details" style="margin-top:8px;font-size:14px;line-height:1.7;">濉啓淇℃伅鍚庣偣鍑烩€滅珛鍗虫姤浠封€濄€?/div>
+        </div>
+        <div class="helper">淇濆瓨鍚庝細杩涘叆宸蹭繚瀛樻姤浠峰垪琛紝涔熷彲浠ヤ粠鎵嬫満宸ヤ綔鍙扮户缁窡杩涘鎴枫€?/div>
+        <div class="btn-row">
+          <button id="calculate-btn" class="btn primary" type="button">绔嬪嵆鎶ヤ环</button>
+          <button id="reset-btn" class="btn secondary" type="button">閲嶇疆</button>
+        </div>
+        <div id="quote-status" class="status"></div>
+      </section>
+    </main>
+
+    <template id="device-row-template">
+      <div class="device-item">
+        <div class="device-grid">
+          <input class="input device-name" type="text" placeholder="璁惧鍚嶇О" />
+          <input class="input device-power" type="number" min="0" placeholder="W" />
+          <input class="input device-hours" type="number" min="0" step="0.5" placeholder="h" />
+          <input class="input device-quantity" type="number" min="0" step="1" placeholder="鏁伴噺" />
+          <button class="btn secondary device-remove" type="button" style="min-width:44px;padding:0;">鍒?/button>
+        </div>
+        <div class="device-stack">
+          <input class="input device-name" type="text" placeholder="璁惧鍚嶇О" />
+          <div class="grid two">
+            <input class="input device-power" type="number" min="0" placeholder="鍔熺巼 W" />
+            <input class="input device-hours" type="number" min="0" step="0.5" placeholder="灏忔椂 h" />
+          </div>
+          <div class="grid two">
+            <input class="input device-quantity" type="number" min="0" step="1" placeholder="鏁伴噺" />
+            <button class="btn secondary device-remove device-remove-mobile" type="button">鍒犻櫎璁惧</button>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <script src="/mobile-quote.js?v=20260402"></script>
+  </body>
+</html>
+

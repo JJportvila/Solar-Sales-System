@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f3b66" />
+    <title>手机维修工单</title>
+    <link rel="icon" href="/mobile-icon.svg" type="image/svg+xml" />
+    <style>
+      :root { --bg:#eef5fb; --card:#fff; --line:rgba(15,59,102,.1); --text:#0f172a; --muted:#64748b; --primary:#0f3b66; }
+      * { box-sizing:border-box; }
+      body { margin:0; background:linear-gradient(180deg,#edf4fb 0%,#f8fbfd 100%); color:var(--text); font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+      a { color:inherit; text-decoration:none; }
+      .shell { max-width:480px; margin:0 auto; min-height:100vh; padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 28px); }
+      .hero { display:flex; align-items:center; gap:12px; margin-bottom:12px; background:none; color:var(--text); border-radius:0; padding:0; box-shadow:none; }
+      .hero h1 { margin:0; font-size:20px; line-height:1.2; color:var(--text); }
+      .hero .btn { background:#eef4fb; color:var(--primary); border:1px solid rgba(15,59,102,.12); }
+      .hero p { margin:8px 0 0; color:rgba(255,255,255,.76); font-size:13px; }
+      .btn-row, .grid, .list { display:grid; gap:10px; }
+      .btn-row { grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:14px; }
+      .btn { display:inline-flex; align-items:center; justify-content:center; min-height:44px; border-radius:16px; padding:0 14px; font-weight:700; border:none; cursor:pointer; }
+      .btn.primary { background:#fff; color:var(--primary); }
+      .btn.secondary { background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.18); }
+      .section { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:16px; margin-top:14px; box-shadow:0 10px 24px rgba(15,59,102,.05); }
+      .section h2 { margin:0 0 12px; font-size:18px; }
+      .grid.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .metric, .item { border-radius:18px; background:#fbfdff; border:1px solid rgba(15,59,102,.08); padding:13px; }
+      .metric label, .item-meta, .muted { color:var(--muted); font-size:12px; }
+      .metric strong, .item-title { display:block; margin-top:5px; font-size:15px; font-weight:800; }
+      .input, .select { width:100%; min-height:44px; border-radius:14px; border:1px solid rgba(15,59,102,.12); padding:12px 14px; background:#fff; }
+      .tag { display:inline-flex; align-items:center; justify-content:center; min-height:28px; padding:0 10px; border-radius:999px; font-size:12px; font-weight:700; }
+      .tag.pending { background:#fef3c7; color:#92400e; }
+      .tag.in_progress { background:#dbeafe; color:#1d4ed8; }
+      .tag.completed { background:#dcfce7; color:#166534; }
+      .tag.p1, .tag.P1 { background:#fee2e2; color:#b91c1c; }
+      .tag.p2, .tag.P2 { background:#e2e8f0; color:#475569; }
+      .tag.p3, .tag.P3 { background:#ede9fe; color:#6d28d9; }
+      .empty { padding:16px; text-align:center; border:1px dashed rgba(15,59,102,.16); border-radius:16px; color:var(--muted); font-size:13px; }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <a class="btn secondary" href="/mobile-app.html" style="min-height:34px;padding:0 12px;flex:0 0 auto;">返回</a>
+        <h1>手机维修工单</h1>
+      </section>
+
+      <section class="section">
+        <h2>筛选</h2>
+        <div class="grid">
+          <input id="repair-search" class="input" type="search" placeholder="搜索工单号 / 标题 / 客户 / 站点 / 工程师" />
+          <select id="repair-status" class="select">
+            <option value="all">全部状态</option>
+            <option value="pending">待处理</option>
+            <option value="in_progress">维修中</option>
+            <option value="completed">已完成</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>工单列表</h2>
+        <div id="repair-list" class="list"></div>
+      </section>
+    </main>
+
+    <div id="repair-summary-modal" style="position:fixed;inset:0;background:rgba(15,23,42,.48);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;padding:16px;z-index:50;">
+      <div style="width:min(480px,100%);max-height:88vh;overflow:auto;border-radius:28px;background:#fff;padding:18px;box-shadow:0 24px 48px rgba(15,23,42,.22);">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+          <div>
+            <div style="font-size:12px;color:#64748b;font-weight:700;">维修工单摘要</div>
+            <h2 id="repair-summary-title" style="margin:6px 0 0;font-size:22px;color:#0f172a;">-</h2>
+          </div>
+          <button id="repair-summary-close" type="button" style="min-width:42px;height:42px;border:none;border-radius:999px;background:#eef4fb;color:#0f3b66;font-size:18px;font-weight:700;cursor:pointer;">×</button>
+        </div>
+        <div id="repair-summary-content" style="margin-top:16px;display:grid;gap:10px;"></div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px;">
+          <a id="repair-summary-call" href="#" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:16px;background:#0f3b66;color:#fff;font-weight:700;">联系客户</a>
+          <a id="repair-summary-open" href="#" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:16px;background:#eef4fb;color:#0f3b66;font-weight:700;border:1px solid rgba(15,59,102,.12);">打开详情</a>
+        </div>
+      </div>
+    </div>
+    <script src="/mobile-repair.js"></script>
+  </body>
+</html>

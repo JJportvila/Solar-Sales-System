@@ -25,6 +25,9 @@ const EXPENSE_CONTROL_FILE = path.join(DATA_DIR, "expense_control.json");
 const INVOICES_FILE = path.join(DATA_DIR, "invoices.json");
 const FIELD_TRACKS_FILE = path.join(DATA_DIR, "field_tracks.json");
 const FIELD_VISITS_FILE = path.join(DATA_DIR, "field_visits.json");
+const FIELD_CHECKINS_FILE = path.join(DATA_DIR, "field_checkins.json");
+const ACTIVE_TOKENS = new Map(); // token -> userId
+const ACTIVE_LOGIN_SESSIONS = new Map(); // token -> auth session
 const BACKUPS_DIR = path.join(DATA_DIR, "backups");
 const BACKUP_INDEX_FILE = path.join(BACKUPS_DIR, "index.json");
 
@@ -1505,6 +1508,17 @@ function defaultBackupSettings() {
   };
 }
 
+function defaultAttendanceSettings() {
+  return {
+    enabledWeekdays: [1, 2, 3, 4, 5],
+    checkInStart: "08:30",
+    checkInEnd: "10:00",
+    checkOutStart: "17:00",
+    checkOutEnd: "21:00",
+    requireLocation: true
+  };
+}
+
 function sanitizeBackupSettings(settings = {}) {
   return {
     ...settings,
@@ -1621,9 +1635,9 @@ function ensureDataDir() {
   if (!fs.existsSync(INVENTORY_FILE)) {
     fs.writeFileSync(INVENTORY_FILE, JSON.stringify(defaultInventoryData(), null, 2), "utf8");
   }
-  if (!fs.existsSync(REPAIR_FILE)) {
-    fs.writeFileSync(REPAIR_FILE, JSON.stringify(defaultRepairOrder(), null, 2), "utf8");
-  }
+if (!fs.existsSync(REPAIR_FILE)) {
+  fs.writeFileSync(REPAIR_FILE, JSON.stringify(defaultRepairOrder(), null, 2), "utf8");
+}
   if (!fs.existsSync(REPAIR_ORDERS_FILE)) {
     fs.writeFileSync(REPAIR_ORDERS_FILE, JSON.stringify(defaultRepairOrders(), null, 2), "utf8");
   }
@@ -1653,6 +1667,9 @@ if (!fs.existsSync(FIELD_TRACKS_FILE)) {
 }
 if (!fs.existsSync(FIELD_VISITS_FILE)) {
   fs.writeFileSync(FIELD_VISITS_FILE, "[]", "utf8");
+}
+if (!fs.existsSync(FIELD_CHECKINS_FILE)) {
+  fs.writeFileSync(FIELD_CHECKINS_FILE, "[]", "utf8");
 }
 if (!fs.existsSync(FIELD_CHECKINS_FILE)) {
   fs.writeFileSync(FIELD_CHECKINS_FILE, "[]", "utf8");
@@ -2045,6 +2062,31 @@ function saveDataUrlImage(dataUrl, prefix = "repair") {
   return `/uploads/${filename}`;
 }
 
+function saveDataUrlFile(dataUrl, prefix = "upload") {
+  const match = String(dataUrl || "").match(/^data:([^;]+);base64,(.+)$/i);
+  if (!match) return "";
+  const mimeType = match[1].toLowerCase();
+  const buffer = Buffer.from(match[2], "base64");
+  if (!buffer.length) return "";
+  ensureDataDir();
+  const extensionMap = {
+    "audio/webm": "webm",
+    "audio/mpeg": "mp3",
+    "audio/mp3": "mp3",
+    "audio/wav": "wav",
+    "audio/ogg": "ogg",
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/webp": "webp"
+  };
+  const extension = extensionMap[mimeType] || mimeType.split("/").pop() || "bin";
+  const filename = `${prefix}-${Date.now()}.${extension}`;
+  const filePath = path.join(UPLOADS_DIR, filename);
+  fs.writeFileSync(filePath, buffer);
+  return `/uploads/${filename}`;
+}
+
 function clampNumber(value, fallback) {
   const num = Number(value);
   return Number.isFinite(num) ? num : fallback;
@@ -2065,7 +2107,8 @@ function getSettings() {
     quoteDisplayMode: "tax_inclusive",
     homepage: "dashboard",
     backup: defaultBackupSettings(),
-    company: defaultCompanyProfile()
+    company: defaultCompanyProfile(),
+    attendance: defaultAttendanceSettings()
   });
   const company = settings.company || settings.backup?.companyProfile || readJson(COMPANY_FILE, defaultCompanyProfile());
   return {
@@ -2083,6 +2126,18 @@ function getSettings() {
       googleDriveAccessToken: String(settings.backup?.googleDriveAccessToken || "").trim(),
       lastDailyBackupAt: String(settings.backup?.lastDailyBackupAt || "").trim(),
       lastWeeklyBackupAt: String(settings.backup?.lastWeeklyBackupAt || "").trim()
+    },
+    attendance: {
+      ...defaultAttendanceSettings(),
+      ...(settings.attendance || {}),
+      enabledWeekdays: Array.isArray(settings.attendance?.enabledWeekdays)
+        ? settings.attendance.enabledWeekdays.map((item) => Math.max(0, Math.min(6, Math.round(clampNumber(item, 1))))).filter((item, index, arr) => arr.indexOf(item) === index).sort((a, b) => a - b)
+        : defaultAttendanceSettings().enabledWeekdays,
+      checkInStart: String(settings.attendance?.checkInStart || defaultAttendanceSettings().checkInStart).trim(),
+      checkInEnd: String(settings.attendance?.checkInEnd || defaultAttendanceSettings().checkInEnd).trim(),
+      checkOutStart: String(settings.attendance?.checkOutStart || defaultAttendanceSettings().checkOutStart).trim(),
+      checkOutEnd: String(settings.attendance?.checkOutEnd || defaultAttendanceSettings().checkOutEnd).trim(),
+      requireLocation: settings.attendance?.requireLocation !== false
     },
     company: {
       ...defaultCompanyProfile(),
@@ -2133,6 +2188,21 @@ function buildSystemSettings(body = {}) {
       lastDailyBackupAt: String((body.backup?.lastDailyBackupAt ?? current.backup?.lastDailyBackupAt) || "").trim(),
       lastWeeklyBackupAt: String((body.backup?.lastWeeklyBackupAt ?? current.backup?.lastWeeklyBackupAt) || "").trim(),
       companyProfile: nextCompany
+    },
+    attendance: {
+      ...defaultAttendanceSettings(),
+      ...(current.attendance || {}),
+      ...(body.attendance || {}),
+      enabledWeekdays: Array.isArray(body.attendance?.enabledWeekdays)
+        ? body.attendance.enabledWeekdays.map((item) => Math.max(0, Math.min(6, Math.round(clampNumber(item, 1))))).filter((item, index, arr) => arr.indexOf(item) === index).sort((a, b) => a - b)
+        : current.attendance?.enabledWeekdays || defaultAttendanceSettings().enabledWeekdays,
+      checkInStart: String(body.attendance?.checkInStart || current.attendance?.checkInStart || defaultAttendanceSettings().checkInStart).trim(),
+      checkInEnd: String(body.attendance?.checkInEnd || current.attendance?.checkInEnd || defaultAttendanceSettings().checkInEnd).trim(),
+      checkOutStart: String(body.attendance?.checkOutStart || current.attendance?.checkOutStart || defaultAttendanceSettings().checkOutStart).trim(),
+      checkOutEnd: String(body.attendance?.checkOutEnd || current.attendance?.checkOutEnd || defaultAttendanceSettings().checkOutEnd).trim(),
+      requireLocation: body.attendance?.requireLocation == null
+        ? current.attendance?.requireLocation !== false
+        : Boolean(body.attendance.requireLocation)
     },
     company: nextCompany
   };
@@ -2549,6 +2619,12 @@ function getEmployeeStatusLabel(status) {
   return "在岗";
 }
 
+function looksCorruptedText(value) {
+  const text = String(value || "").trim();
+  if (!text) return false;
+  return /[?�]|鏈|鍛|閿|宸|绠|鍦|绂|璇|垎|鎬|荤粺|浣|澶|鎷|琛|褰|鐨|銆/.test(text);
+}
+
 function getDefaultPayrollConfig(role) {
   if (role === "sales") {
     return {
@@ -2641,26 +2717,32 @@ function normalizeEmployee(item = {}, index = 0) {
   const status = ["active", "training", "leave", "resigned"].includes(String(item.status || "").trim())
     ? String(item.status).trim()
     : "active";
+  const roleLabel = looksCorruptedText(item.roleLabel) ? getEmployeeRoleLabel(role) : String(item.roleLabel || getEmployeeRoleLabel(role)).trim();
+  const statusLabel = looksCorruptedText(item.statusLabel) ? getEmployeeStatusLabel(status) : String(item.statusLabel || getEmployeeStatusLabel(status)).trim();
+  const branch = looksCorruptedText(item.branch) ? "Port Vila 总部" : String(item.branch || "Port Vila 总部").trim();
+  const primaryLabel = looksCorruptedText(item.metrics?.primaryLabel) ? "绩效" : String(item.metrics?.primaryLabel || "绩效").trim();
+  const secondaryLabel = looksCorruptedText(item.metrics?.secondaryLabel) ? "任务量" : String(item.metrics?.secondaryLabel || "任务量").trim();
+  const ratingLabel = looksCorruptedText(item.metrics?.ratingLabel) ? "评分" : String(item.metrics?.ratingLabel || "评分").trim();
   return {
     id: toId(item.id || item.employeeNo || item.name || `employee-${index + 1}`, `employee-${index + 1}`),
     employeeNo: String(item.employeeNo || `VSLM-EMP-${String(index + 1).padStart(4, "0")}`).trim(),
     name: String(item.name || `员工 ${index + 1}`).trim(),
     role,
-    roleLabel: String(item.roleLabel || getEmployeeRoleLabel(role)).trim(),
-    branch: String(item.branch || "Port Vila 总部").trim(),
+    roleLabel,
+    branch,
     status,
-    statusLabel: String(item.statusLabel || getEmployeeStatusLabel(status)).trim(),
+    statusLabel,
     phone: String(item.phone || "").trim(),
     email: String(item.email || "").trim(),
     hireDate: String(item.hireDate || "").trim(),
     resignedAt: String(item.resignedAt || "").trim(),
     skills: (Array.isArray(item.skills) ? item.skills : []).map((skill) => String(skill || "").trim()).filter(Boolean),
     metrics: {
-      primaryLabel: String(item.metrics?.primaryLabel || "绩效").trim(),
+      primaryLabel,
       primaryValue: String(item.metrics?.primaryValue || "0").trim(),
-      secondaryLabel: String(item.metrics?.secondaryLabel || "任务量").trim(),
+      secondaryLabel,
       secondaryValue: String(item.metrics?.secondaryValue || "0").trim(),
-      ratingLabel: String(item.metrics?.ratingLabel || "评分").trim(),
+      ratingLabel,
       ratingValue: String(item.metrics?.ratingValue || "0").trim()
     },
     payroll: {
@@ -2669,7 +2751,12 @@ function normalizeEmployee(item = {}, index = 0) {
       baseSalary: Math.round(clampNumber(item.payroll?.baseSalary, getDefaultPayrollConfig(role).baseSalary)),
       performanceSalary: Math.round(clampNumber(item.payroll?.performanceSalary, getDefaultPayrollConfig(role).performanceSalary)),
       commissionRate: Number(clampNumber(item.payroll?.commissionRate, getDefaultPayrollConfig(role).commissionRate).toFixed(4))
-    }
+    },
+    pin: String(item.pin || "0000").trim(),
+    baseDailyRate: Math.round(clampNumber(item.baseDailyRate, 0)),
+    advanceBalance: Math.round(clampNumber(item.advanceBalance, 0)),
+    debtBalance: Math.round(clampNumber(item.debtBalance, 0)),
+    vnpfRate: Number(clampNumber(item.vnpfRate, 4).toFixed(2))
   };
 }
 
@@ -2740,7 +2827,10 @@ function normalizeCustomerOrder(item = {}, index = 0) {
     id: String(item.id || `ORD-${index + 1}`).trim(),
     name: String(item.name || `订单 ${index + 1}`).trim(),
     status: String(item.status || "处理中").trim(),
-    date: String(item.date || "").trim()
+    date: String(item.date || "").trim(),
+    archived: Boolean(item.archived || item.archivedAt),
+    archivedAt: String(item.archivedAt || "").trim(),
+    archiveReason: String(item.archiveReason || "").trim()
   };
 }
 
@@ -2749,7 +2839,10 @@ function normalizeCustomerDevice(item = {}, index = 0) {
     id: String(item.id || `customer-device-${index + 1}`).trim(),
     type: String(item.type || "设备").trim(),
     name: String(item.name || `设备 ${index + 1}`).trim(),
-    sn: String(item.sn || "").trim()
+    sn: String(item.sn || "").trim(),
+    archived: Boolean(item.archived || item.archivedAt),
+    archivedAt: String(item.archivedAt || "").trim(),
+    archiveReason: String(item.archiveReason || "").trim()
   };
 }
 
@@ -2812,15 +2905,23 @@ function normalizeCustomerRecord(item = {}, index = 0) {
     devices: (Array.isArray(item.devices) ? item.devices : []).map(normalizeCustomerDevice),
     photos: (Array.isArray(item.photos) ? item.photos : []).map(normalizeCustomerPhoto),
     warrantyHistory: (Array.isArray(item.warrantyHistory) ? item.warrantyHistory : []).map(normalizeCustomerWarranty),
-    warrantyEndsAt: String(item.warrantyEndsAt || "").trim()
+    warrantyEndsAt: String(item.warrantyEndsAt || "").trim(),
+    archived: Boolean(item.archived || item.archivedAt),
+    archivedAt: String(item.archivedAt || "").trim(),
+    archiveReason: String(item.archiveReason || "").trim()
   };
 }
 
+function getActiveCustomers(items = []) {
+  return items.filter((item) => !item.archived && !item.archivedAt);
+}
+
 function buildCustomerSummary(items = []) {
-  const total = items.length;
-  const totalPaid = items.reduce((sum, item) => sum + item.payment.paidAmount, 0);
-  const totalBalance = items.reduce((sum, item) => sum + item.payment.balanceAmount, 0);
-  const activeWarranty = items.filter((item) => item.warrantyEndsAt && new Date(item.warrantyEndsAt).getTime() >= Date.now()).length;
+  const activeItems = getActiveCustomers(items);
+  const total = activeItems.length;
+  const totalPaid = activeItems.reduce((sum, item) => sum + item.payment.paidAmount, 0);
+  const totalBalance = activeItems.reduce((sum, item) => sum + item.payment.balanceAmount, 0);
+  const activeWarranty = activeItems.filter((item) => item.warrantyEndsAt && new Date(item.warrantyEndsAt).getTime() >= Date.now()).length;
   return {
     total,
     totalPaid,
@@ -2975,6 +3076,7 @@ function getCustomerDetail(id) {
     .filter((item) => (customerPhone && item.customerPhone === customerPhone) || (customerName && item.customerName.toLowerCase() === customerName));
   return {
     ...customer,
+    orders: (Array.isArray(customer.orders) ? customer.orders : []).filter((item) => !item.archived && !item.archivedAt),
     relatedQuotes,
     relatedRepairs
   };
@@ -3993,6 +4095,254 @@ function getSecurityData() {
   };
 }
 
+function getAccessProfile(userId) {
+  const employee = getEmployeesData().items.find((item) => item.id === String(userId || "").trim()) || null;
+  if (!employee) return null;
+  const security = getSecurityData();
+  const access = security.employeeAccess.find((item) => item.employeeId === employee.id) || null;
+  const role = access?.roleOverride || employee.role || "sales";
+  const accessEnabled = security.emergencyLocked ? role === "admin" : access?.accessEnabled !== false;
+  return {
+    employee,
+    access,
+    role,
+    accessEnabled,
+    securityLevel: Number(access?.securityLevel || 1),
+    security
+  };
+}
+
+function getRoleLandingPage(role) {
+  switch (String(role || "").trim()) {
+    case "admin":
+    case "sales_manager":
+      return "/dashboard.html";
+    case "engineer":
+      return "/field-app.html";
+    case "sales":
+    default:
+      return "/mobile-app.html";
+  }
+}
+
+function getRoleAllowedPages(role) {
+  const salesPages = [
+    "/dashboard.html",
+    "/index.html",
+    "/customer.html",
+    "/invoices.html",
+    "/repair-list.html",
+    "/repair.html",
+    "/field-app.html",
+    "/mobile-app.html",
+    "/mobile-quote.html",
+    "/mobile-saved-quotes.html",
+    "/mobile-quote-detail.html",
+    "/mobile-customer-detail.html",
+    "/mobile-invoices.html",
+    "/mobile-repair.html",
+    "/mobile-attendance.html",
+    "/mobile-attendance-detail.html",
+    "/mobile-payroll.html"
+  ];
+  const managerExtras = [
+    "/performance.html",
+    "/reports.html",
+    "/field-admin.html",
+    "/finance.html",
+    "/commission.html"
+  ];
+  const engineerPages = [
+    "/field-app.html",
+    "/repair-list.html",
+    "/repair.html",
+    "/mobile-repair.html",
+    "/mobile-app.html"
+  ];
+  const adminOnly = [
+    "/employee.html",
+    "/employee-detail.html",
+    "/security.html",
+    "/settings.html",
+    "/vendors.html",
+    "/inventory.html",
+    "/product-config.html",
+    "/expense-control.html",
+    "/installment.html",
+    "/wholesale.html",
+    "/survey.html",
+    "/finance.html",
+    "/commission.html",
+    "/field-admin.html",
+    "/reports.html",
+    "/performance.html"
+  ];
+  if (role === "admin") {
+    return null;
+  }
+  if (role === "sales_manager") {
+    return new Set([...salesPages, ...managerExtras]);
+  }
+  if (role === "engineer") {
+    return new Set(engineerPages);
+  }
+  return new Set(salesPages);
+}
+
+function isPageAllowedForRole(role, pathname) {
+  const allowed = getRoleAllowedPages(role);
+  if (!allowed) return true;
+  return allowed.has(pathname);
+}
+
+function isApiAllowedForRole(role, pathname) {
+  if (role === "admin") return true;
+  const adminOnlyPrefixes = [
+    "/api/security",
+    "/api/system-settings",
+    "/api/settings",
+    "/api/backups",
+    "/api/company-profile",
+    "/api/product-config/package",
+    "/api/vendors",
+    "/api/inventory",
+    "/api/product-config",
+    "/api/expense-control",
+    "/api/installments",
+    "/api/commission",
+    "/api/employees"
+  ];
+  if (adminOnlyPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
+    return role === "sales_manager" && (pathname.startsWith("/api/employees") || pathname.startsWith("/api/commission")) ? true : false;
+  }
+  if (role === "engineer") {
+    const engineerPrefixes = [
+      "/api/repair-order",
+      "/api/repair-orders",
+      "/api/field-",
+      "/api/attendance-overview",
+      "/api/field-payroll"
+    ];
+    return engineerPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
+  }
+  return true;
+}
+
+function isProtectedHtmlPath(pathname) {
+  if (!String(pathname || "").toLowerCase().endsWith(".html")) return false;
+  return pathname !== "/login.html" && pathname !== "/field-app.html";
+}
+
+function nameMatchesEmployee(value, employee) {
+  const itemName = String(value || "").trim().toLowerCase();
+  const employeeName = String(employee?.name || "").trim().toLowerCase();
+  return Boolean(itemName && employeeName && itemName === employeeName);
+}
+
+function branchMatchesEmployee(value, employee) {
+  const itemBranch = String(value || "").trim().toLowerCase();
+  const employeeBranch = String(employee?.branch || "").trim().toLowerCase();
+  return Boolean(itemBranch && employeeBranch && itemBranch === employeeBranch);
+}
+
+function isSelfOrBranch(role, itemEmployeeId, itemEmployeeName, itemBranch, employee) {
+  if (!employee) return false;
+  if (role === "admin") return true;
+  if (role === "sales_manager") {
+    return branchMatchesEmployee(itemBranch, employee)
+      || String(itemEmployeeId || "").trim() === employee.id
+      || nameMatchesEmployee(itemEmployeeName, employee);
+  }
+  return String(itemEmployeeId || "").trim() === employee.id || nameMatchesEmployee(itemEmployeeName, employee);
+}
+
+function canAccessCustomer(profile, customer) {
+  if (!profile || !customer) return false;
+  const role = profile.role;
+  if (role === "admin") return true;
+  if (role === "engineer") return true;
+  return isSelfOrBranch(
+    role,
+    customer.salesPersonId,
+    customer.salesPersonName,
+    customer.branch || customer.location || customer.province,
+    profile.employee
+  );
+}
+
+function canAccessSavedQuote(profile, quote) {
+  if (!profile || !quote) return false;
+  const role = profile.role;
+  if (role === "admin") return true;
+  if (role === "engineer") return false;
+  return isSelfOrBranch(
+    role,
+    quote.salesPersonId || quote.payload?.salesPerson?.id,
+    quote.salesPersonName || quote.payload?.salesPersonName || quote.payload?.salesPerson?.name,
+    quote.branch || quote.payload?.branch || quote.location,
+    profile.employee
+  );
+}
+
+function canAccessInvoice(profile, invoice) {
+  if (!profile || !invoice) return false;
+  const role = profile.role;
+  if (role === "admin") return true;
+  if (role === "engineer") return false;
+  return isSelfOrBranch(
+    role,
+    invoice.salesPersonId || invoice.payload?.salesPerson?.id,
+    invoice.salesPersonName || invoice.payload?.salesPersonName || invoice.payload?.salesPerson?.name,
+    invoice.branch || invoice.payload?.branch || invoice.payload?.location,
+    profile.employee
+  );
+}
+
+function canAccessRepairOrder(profile, order) {
+  if (!profile || !order) return false;
+  if (profile.role === "admin" || profile.role === "sales_manager") return true;
+  if (profile.role === "engineer") {
+    return String(order.assignedEngineer?.id || "").trim() === profile.employee.id
+      || nameMatchesEmployee(order.assignedEngineer?.name, profile.employee);
+  }
+  const customer = order.customer || {};
+  const customerRecord = getCustomersData().items.find((item) => {
+    const samePhone = customer.phone && item.phone && String(item.phone).trim() === String(customer.phone).trim();
+    const sameName = customer.name && item.name && String(item.name).trim().toLowerCase() === String(customer.name).trim().toLowerCase();
+    return samePhone || sameName;
+  });
+  return canAccessCustomer(profile, customerRecord);
+}
+
+function filterCustomersForProfile(profile, items) {
+  if (!profile || profile.role === "admin" || profile.role === "engineer") return items;
+  return (Array.isArray(items) ? items : []).filter((item) => canAccessCustomer(profile, item));
+}
+
+function filterSavedQuotesForProfile(profile, items) {
+  if (!profile || profile.role === "admin") return items;
+  return (Array.isArray(items) ? items : []).filter((item) => canAccessSavedQuote(profile, item));
+}
+
+function filterInvoicesForProfile(profile, items) {
+  if (!profile || profile.role === "admin") return items;
+  return (Array.isArray(items) ? items : []).filter((item) => canAccessInvoice(profile, item));
+}
+
+function filterRepairOrdersForProfile(profile, items) {
+  if (!profile || profile.role === "admin") return items;
+  return (Array.isArray(items) ? items : []).filter((item) => canAccessRepairOrder(profile, item));
+}
+
+function ensureAuthedProfile(req, res) {
+  const session = getLoginSession(req);
+  if (!session) {
+    sendJson(res, 401, { ok: false, error: "请先登录" });
+    return null;
+  }
+  return session.profile;
+}
+
 function saveSecurityData(data) {
   writeJson(RBAC_FILE, {
     employeeAccess: (Array.isArray(data.employeeAccess) ? data.employeeAccess : []).map(normalizeRbacAccess),
@@ -4486,9 +4836,17 @@ function calculateSizing(devices, locationName = "Port Vila", customer = {}, sel
   };
 }
 
-function sendJson(res, statusCode, payload) {
-  res.writeHead(statusCode, { "Content-Type": "application/json; charset=utf-8" });
+function sendJson(res, statusCode, payload, extraHeaders = {}) {
+  res.writeHead(statusCode, {
+    "Content-Type": "application/json; charset=utf-8",
+    ...extraHeaders
+  });
   res.end(JSON.stringify(payload));
+}
+
+function sendRedirect(res, location) {
+  res.writeHead(302, { Location: location });
+  res.end();
 }
 
 function sendDownload(res, statusCode, contentType, filename, content) {
@@ -4627,10 +4985,360 @@ function parseBody(req) {
   });
 }
 
+function issueFieldToken(userId) {
+  const token = `field_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
+  ACTIVE_TOKENS.set(token, {
+    userId,
+    issuedAt: Date.now()
+  });
+  return token;
+}
+
+function getFieldAuth(req) {
+  const header = String(req.headers.authorization || "").trim();
+  if (!header.toLowerCase().startsWith("bearer ")) return null;
+  const token = header.slice(7).trim();
+  if (!token) return null;
+  const session = ACTIVE_TOKENS.get(token);
+  if (!session) return null;
+  return { token, ...session };
+}
+
+function getCheckinAuth(req, userId = "") {
+  const normalizedUserId = String(userId || "").trim();
+  const fieldAuth = getFieldAuth(req);
+  if (fieldAuth && fieldAuth.userId === normalizedUserId) {
+    return { mode: "field", userId: fieldAuth.userId };
+  }
+
+  const loginSession = getLoginSession(req);
+  if (loginSession?.profile?.employee?.id && String(loginSession.profile.employee.id).trim() === normalizedUserId) {
+    return { mode: "login", userId: normalizedUserId };
+  }
+
+  return null;
+}
+
+function getFieldOrLoginAuth(req) {
+  const fieldAuth = getFieldAuth(req);
+  if (fieldAuth) return { mode: "field", userId: fieldAuth.userId };
+
+  const loginSession = getLoginSession(req);
+  if (loginSession?.profile?.employee?.id) {
+    return { mode: "login", userId: String(loginSession.profile.employee.id).trim() };
+  }
+
+  return null;
+}
+
+function getFieldEmployeeById(userId) {
+  return getEmployeesData().items.find((item) => item.id === String(userId || "").trim()) || null;
+}
+
+function parseCookies(req) {
+  const header = String(req.headers.cookie || "").trim();
+  if (!header) return {};
+  return header.split(";").reduce((acc, item) => {
+    const [rawKey, ...rawValue] = item.split("=");
+    const key = String(rawKey || "").trim();
+    if (!key) return acc;
+    acc[key] = decodeURIComponent(rawValue.join("=").trim());
+    return acc;
+  }, {});
+}
+
+function issueLoginSession(userId) {
+  const profile = getAccessProfile(userId);
+  if (!profile) return null;
+  const token = `auth_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
+  const session = {
+    token,
+    userId: profile.employee.id,
+    role: profile.role,
+    issuedAt: Date.now()
+  };
+  ACTIVE_LOGIN_SESSIONS.set(token, session);
+  return session;
+}
+
+function getLoginSession(req) {
+  const cookies = parseCookies(req);
+  const token = String(cookies.smart_auth || "").trim();
+  if (!token) return null;
+  const session = ACTIVE_LOGIN_SESSIONS.get(token);
+  if (!session) return null;
+  const profile = getAccessProfile(session.userId);
+  if (!profile || !profile.accessEnabled) return null;
+  return {
+    ...session,
+    profile
+  };
+}
+
+function clearLoginSession(req) {
+  const cookies = parseCookies(req);
+  const token = String(cookies.smart_auth || "").trim();
+  if (token) {
+    ACTIVE_LOGIN_SESSIONS.delete(token);
+  }
+}
+
+function buildAuthCookie(token = "") {
+  if (!token) {
+    return "smart_auth=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax";
+  }
+  return `smart_auth=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax`;
+}
+
+function getFieldDailyRate(employee) {
+  if (!employee) return 0;
+  const storedRate = Math.round(clampNumber(employee.baseDailyRate, 0));
+  if (storedRate > 0) return storedRate;
+  const hourlyRate = Math.round(clampNumber(employee.payroll?.hourlyRate, 0));
+  const baseSalary = Math.round(clampNumber(employee.payroll?.baseSalary, 0));
+  if (hourlyRate > 0) return hourlyRate * 8;
+  if (baseSalary > 0) return Math.round(baseSalary / 26);
+  return 0;
+}
+
+function parseTimeToMinutes(value, fallbackMinutes) {
+  const text = String(value || "").trim();
+  const match = text.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return fallbackMinutes;
+  const hours = Math.max(0, Math.min(23, Number(match[1])));
+  const minutes = Math.max(0, Math.min(59, Number(match[2])));
+  return hours * 60 + minutes;
+}
+
+function getAttendanceValidation(action, ts = new Date()) {
+  const settings = getSettings().attendance || defaultAttendanceSettings();
+  const weekday = ts.getDay();
+  const enabledWeekdays = Array.isArray(settings.enabledWeekdays) ? settings.enabledWeekdays : defaultAttendanceSettings().enabledWeekdays;
+  if (!enabledWeekdays.includes(weekday)) {
+    return { ok: false, error: "今天不是允许打卡的工作日" };
+  }
+  const currentMinutes = ts.getHours() * 60 + ts.getMinutes();
+  const checkInStart = parseTimeToMinutes(settings.checkInStart, 8 * 60 + 30);
+  const checkInEnd = parseTimeToMinutes(settings.checkInEnd, 10 * 60);
+  const checkOutStart = parseTimeToMinutes(settings.checkOutStart, 17 * 60);
+  const checkOutEnd = parseTimeToMinutes(settings.checkOutEnd, 21 * 60);
+  if (action === "in" && (currentMinutes < checkInStart || currentMinutes > checkInEnd)) {
+    return { ok: false, error: `上班打卡时间为 ${settings.checkInStart} - ${settings.checkInEnd}` };
+  }
+  if (action === "out" && (currentMinutes < checkOutStart || currentMinutes > checkOutEnd)) {
+    return { ok: false, error: `下班打卡时间为 ${settings.checkOutStart} - ${settings.checkOutEnd}` };
+  }
+  return { ok: true };
+}
+
+function getFieldPayrollSummary(userId, dateKey) {
+  const employee = getFieldEmployeeById(userId);
+  if (!employee) return null;
+  const targetDate = String(dateKey || new Date().toISOString().slice(0, 10)).trim();
+  const checkins = readJson(FIELD_CHECKINS_FILE, []).filter((item) => item.userId === employee.id && item.date === targetDate);
+  const visits = readJson(FIELD_VISITS_FILE, []).filter((item) => item.userId === employee.id && String(item.recordedAt || "").startsWith(targetDate));
+  const tracks = readJson(FIELD_TRACKS_FILE, []).filter((item) => item.userId === employee.id && item.date === targetDate);
+  const sortedCheckins = checkins.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
+  const firstCheckIn = sortedCheckins.find((item) => item.action === "in") || null;
+  const lastCheckOut = [...sortedCheckins].reverse().find((item) => item.action === "out") || null;
+  const startTs = firstCheckIn ? new Date(firstCheckIn.ts).getTime() : 0;
+  const endTs = lastCheckOut ? new Date(lastCheckOut.ts).getTime() : 0;
+  const workedMs = startTs && endTs && endTs > startTs ? endTs - startTs : 0;
+  const workedHours = workedMs > 0 ? Number((workedMs / 3600000).toFixed(2)) : 0;
+  const dailyRate = getFieldDailyRate(employee);
+  const attendanceStatus = firstCheckIn ? (lastCheckOut ? "已完成打卡" : "在岗中") : "未出勤";
+  const grossPay = firstCheckIn ? dailyRate : 0;
+  const vnpfRate = Number(clampNumber(employee.vnpfRate, 4).toFixed(2));
+  const vnpfDeduction = Math.round(grossPay * (vnpfRate / 100));
+  const advanceDeduction = Math.max(0, Math.round(clampNumber(employee.advanceBalance, 0)));
+  const debtDeduction = Math.max(0, Math.round(clampNumber(employee.debtBalance, 0)));
+  const attendancePay = Math.max(0, grossPay - vnpfDeduction - advanceDeduction - debtDeduction);
+  const trackPointCount = tracks.reduce((sum, item) => sum + (Array.isArray(item.points) ? item.points.length : 0), 0);
+  return {
+    employeeId: employee.id,
+    employeeName: employee.name,
+    role: employee.role,
+    roleLabel: employee.roleLabel,
+    date: targetDate,
+    dailyRate,
+    grossPay,
+    attendancePay,
+    attendanceStatus,
+    vnpfRate,
+    vnpfDeduction,
+    advanceDeduction,
+    debtDeduction,
+    visitCount: visits.length,
+    trackPointCount,
+    checkinCount: checkins.length,
+    workHours: workedHours,
+    workHoursLabel: workedHours > 0 ? `${workedHours} 小时` : "0 小时",
+    firstCheckInLabel: firstCheckIn ? new Date(firstCheckIn.ts).toLocaleTimeString("en-US") : "-",
+    lastCheckOutLabel: lastCheckOut ? new Date(lastCheckOut.ts).toLocaleTimeString("en-US") : "-"
+  };
+}
+
+function getCompanyAttendanceOverview(dateKey = "") {
+  const targetDate = String(dateKey || new Date().toISOString().slice(0, 10)).trim();
+  const employees = getEmployeesData().items.filter((item) => item.status !== "resigned");
+  const items = employees.map((employee) => getFieldPayrollSummary(employee.id, targetDate)).filter(Boolean);
+  const presentCount = items.filter((item) => item.checkinCount > 0).length;
+  const onDutyCount = items.filter((item) => item.attendanceStatus === "在岗中").length;
+  const completedCount = items.filter((item) => item.attendanceStatus === "已完成打卡").length;
+  const absentCount = items.length - presentCount;
+  const totalAttendancePay = items.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.attendancePay, 0))), 0);
+  const totalVisits = items.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.visitCount, 0))), 0);
+
+  return {
+    date: targetDate,
+    summary: {
+      totalEmployees: items.length,
+      presentCount,
+      onDutyCount,
+      completedCount,
+      absentCount,
+      totalAttendancePay,
+      totalVisits
+    },
+    items: items
+      .slice()
+      .sort((a, b) => {
+        const score = (entry) => (entry.attendanceStatus === "在岗中" ? 2 : entry.attendanceStatus === "已完成打卡" ? 1 : 0);
+        return score(b) - score(a) || String(a.employeeName || "").localeCompare(String(b.employeeName || ""));
+      })
+  };
+}
+
 function handleApi(req, res, url) {
   if (req.method === "GET" && url.pathname === "/api/health") {
     sendJson(res, 200, { ok: true, service: "smart_sizing", time: new Date().toISOString() });
     return true;
+  }
+
+  if (req.method === "GET" && (url.pathname === "/api/auth/options" || url.pathname === "/api/auth/options/")) {
+    const employees = getEmployeesData().items
+      .map((employee) => {
+        const profile = getAccessProfile(employee.id);
+        return {
+          id: employee.id,
+          name: employee.name,
+          email: employee.email,
+          branch: employee.branch,
+          status: employee.status,
+          role: profile?.role || employee.role || "sales",
+          roleLabel: employee.roleLabel || employee.role || "",
+          accessEnabled: profile?.accessEnabled !== false,
+          securityLevel: Number(profile?.securityLevel || 1),
+          landingPage: getRoleLandingPage(profile?.role || employee.role || "sales")
+        };
+      })
+      .filter((item) => item.status !== "resigned");
+    sendJson(res, 200, { ok: true, items: employees, defaultPin: "0000" });
+    return true;
+  }
+
+  if (req.method === "POST" && (url.pathname === "/api/auth/login" || url.pathname === "/api/auth/login/")) {
+    parseBody(req)
+      .then((body) => {
+        const employeeId = String(body.employeeId || body.userId || "").trim();
+        const pin = String(body.pin || "").trim();
+        const employee = getFieldEmployeeById(employeeId);
+        if (!employee) {
+          sendJson(res, 404, { ok: false, error: "账号不存在" });
+          return;
+        }
+        const profile = getAccessProfile(employee.id);
+        if (!profile?.accessEnabled) {
+          sendJson(res, 403, { ok: false, error: "该账号未启用后台访问权限" });
+          return;
+        }
+        if (employee.status === "resigned") {
+          sendJson(res, 403, { ok: false, error: "该账号已停用" });
+          return;
+        }
+        if (pin !== String(employee.pin || "").trim()) {
+          sendJson(res, 401, { ok: false, error: "PIN 不正确" });
+          return;
+        }
+        const session = issueLoginSession(employee.id);
+        sendJson(
+          res,
+          200,
+          {
+            ok: true,
+            landingPage: getRoleLandingPage(profile.role),
+            user: {
+              id: employee.id,
+              name: employee.name,
+              email: employee.email,
+              branch: employee.branch,
+              role: profile.role,
+              securityLevel: profile.securityLevel,
+              accessEnabled: profile.accessEnabled
+            }
+          },
+          { "Set-Cookie": buildAuthCookie(session.token) }
+        );
+      })
+      .catch(() => sendJson(res, 400, { ok: false, error: "Invalid JSON body" }));
+    return true;
+  }
+
+  if (req.method === "GET" && (url.pathname === "/api/auth/me" || url.pathname === "/api/auth/me/")) {
+    const session = getLoginSession(req);
+    if (!session) {
+      sendJson(res, 401, { ok: false, authenticated: false });
+      return true;
+    }
+    const { employee, role, securityLevel, accessEnabled } = session.profile;
+    sendJson(res, 200, {
+      ok: true,
+      authenticated: true,
+      landingPage: getRoleLandingPage(role),
+      user: {
+        id: employee.id,
+        name: employee.name,
+        email: employee.email,
+        branch: employee.branch,
+        role,
+        securityLevel,
+        accessEnabled
+      }
+    });
+    return true;
+  }
+
+  if (req.method === "POST" && (url.pathname === "/api/auth/logout" || url.pathname === "/api/auth/logout/")) {
+    clearLoginSession(req);
+    sendJson(res, 200, { ok: true }, { "Set-Cookie": buildAuthCookie("") });
+    return true;
+  }
+
+  const restrictedApiPrefixes = [
+    "/api/security",
+    "/api/system-settings",
+    "/api/settings",
+    "/api/backups",
+    "/api/company-profile",
+    "/api/product-config/package",
+    "/api/vendors",
+    "/api/inventory",
+    "/api/product-config",
+    "/api/expense-control",
+    "/api/installments",
+    "/api/commission",
+    "/api/employees"
+  ];
+  if (restrictedApiPrefixes.some((prefix) => url.pathname === prefix || url.pathname.startsWith(`${prefix}/`))) {
+    const session = getLoginSession(req);
+    if (!session) {
+      sendJson(res, 401, { ok: false, error: "请先登录" });
+      return true;
+    }
+    if (!isApiAllowedForRole(session.profile.role, url.pathname)) {
+      sendJson(res, 403, { ok: false, error: "当前账号无权限访问此接口" });
+      return true;
+    }
   }
 
   if (req.method === "GET" && url.pathname.startsWith("/api/system-settings")) {
@@ -4833,7 +5541,9 @@ function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && (url.pathname === "/api/repair-orders" || url.pathname === "/api/repair-orders/")) {
-    sendJson(res, 200, { ok: true, items: getRepairOrders().map((item) => ({
+    const profile = ensureAuthedProfile(req, res);
+    if (!profile) return true;
+    sendJson(res, 200, { ok: true, items: filterRepairOrdersForProfile(profile, getRepairOrders()).map((item) => ({
       id: item.id,
       title: item.title,
       status: item.status,
@@ -4862,6 +5572,111 @@ function handleApi(req, res, url) {
       monthlyTrend: employees.monthlyTrend,
       items,
       summary: buildEmployeeSummary(items)
+    });
+    return true;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/field-auth/login") {
+    parseBody(req)
+      .then((body) => {
+        const employeeId = String(body.employeeId || body.userId || "").trim();
+        const pin = String(body.pin || "").trim();
+        const employee = getFieldEmployeeById(employeeId);
+        if (!employee) {
+          sendJson(res, 404, { error: "员工不存在" });
+          return;
+        }
+        if (employee.status !== "active") {
+          sendJson(res, 403, { error: "当前员工无外勤登录权限" });
+          return;
+        }
+        if (!pin || pin !== String(employee.pin || "0000")) {
+          sendJson(res, 401, { error: "PIN 不正确" });
+          return;
+        }
+        const token = issueFieldToken(employee.id);
+        sendJson(res, 200, {
+          ok: true,
+          token,
+          user: {
+            id: employee.id,
+            name: employee.name,
+            role: employee.role,
+            roleLabel: employee.roleLabel,
+            dailyRate: getFieldDailyRate(employee)
+          }
+        });
+      })
+      .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
+    return true;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/field-auth/me") {
+    const auth = getFieldAuth(req);
+    if (!auth) {
+      sendJson(res, 401, { error: "未登录" });
+      return true;
+    }
+    const employee = getFieldEmployeeById(auth.userId);
+    if (!employee) {
+      sendJson(res, 404, { error: "员工不存在" });
+      return true;
+    }
+    sendJson(res, 200, {
+      ok: true,
+      user: {
+        id: employee.id,
+        name: employee.name,
+        role: employee.role,
+        roleLabel: employee.roleLabel,
+        dailyRate: getFieldDailyRate(employee)
+      }
+    });
+    return true;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/field-payroll") {
+    const profile = ensureAuthedProfile(req, res);
+    if (!profile) return true;
+    const requestedUserId = String(url.searchParams.get("user") || "").trim();
+    const userId = profile.role === "admin" || profile.role === "sales_manager" ? requestedUserId : (requestedUserId || profile.employee.id);
+    if (profile.role !== "admin" && profile.role !== "sales_manager" && userId !== profile.employee.id) {
+      sendJson(res, 403, { ok: false, error: "当前账号只能查看自己的工资结算" });
+      return true;
+    }
+    const dateKey = String(url.searchParams.get("date") || "").trim();
+    const summary = getFieldPayrollSummary(userId, dateKey);
+    if (!summary) {
+      sendJson(res, 404, { error: "未找到员工工资结算信息" });
+      return true;
+    }
+    sendJson(res, 200, summary);
+    return true;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/attendance-overview") {
+    const profile = ensureAuthedProfile(req, res);
+    if (!profile) return true;
+    const dateKey = String(url.searchParams.get("date") || "").trim();
+    const overview = getCompanyAttendanceOverview(dateKey);
+    if (profile.role === "admin" || profile.role === "sales_manager") {
+      sendJson(res, 200, overview);
+      return true;
+    }
+    const ownItem = (overview.items || []).filter((item) => String(item.employeeId || "").trim() === profile.employee.id);
+    sendJson(res, 200, {
+      ...overview,
+      summary: {
+        ...overview.summary,
+        totalEmployees: ownItem.length,
+        presentCount: ownItem.filter((item) => item.attendanceStatus !== "未出勤").length,
+        onDutyCount: ownItem.filter((item) => item.attendanceStatus === "在岗中").length,
+        completedCount: ownItem.filter((item) => item.attendanceStatus === "已完成打卡").length,
+        absentCount: ownItem.filter((item) => item.attendanceStatus === "未出勤").length,
+        totalAttendancePay: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.netPay, 0))), 0),
+        totalVisits: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.visitCount, 0))), 0)
+      },
+      items: ownItem
     });
     return true;
   }
@@ -5349,14 +6164,23 @@ function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && (url.pathname === "/api/customers" || url.pathname === "/api/customers/")) {
-    sendJson(res, 200, { ok: true, ...getCustomersData() });
+    const profile = ensureAuthedProfile(req, res);
+    if (!profile) return true;
+    const current = getCustomersData();
+    sendJson(res, 200, { ok: true, ...current, items: filterCustomersForProfile(profile, getActiveCustomers(current.items)) });
     return true;
   }
 
   if (req.method === "GET" && (url.pathname === "/api/customers/detail" || url.pathname === "/api/customers/detail/")) {
+    const profile = ensureAuthedProfile(req, res);
+    if (!profile) return true;
     const customer = getCustomerDetail(url.searchParams.get("id"));
     if (!customer) {
       sendJson(res, 404, { error: "Customer not found" });
+      return true;
+    }
+    if (!canAccessCustomer(profile, customer)) {
+      sendJson(res, 403, { ok: false, error: "当前账号无权限查看该客户" });
       return true;
     }
     sendJson(res, 200, { ok: true, customer });
@@ -5776,9 +6600,43 @@ function handleApi(req, res, url) {
           const saved = saveEmployeesData(current);
           sendJson(res, 200, { ok: true, item: saved.items[index], employees: saved });
         })
-        .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
-      return true;
-    }
+      .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
+    return true;
+  }
+
+  if (req.method === "POST" && (url.pathname === "/api/customers/order/archive" || url.pathname === "/api/customers/order/archive/")) {
+    parseBody(req)
+      .then((body) => {
+        const customerId = String(body.customerId || body.id || "").trim();
+        const orderId = String(body.orderId || "").trim();
+        const current = getCustomersData();
+        const customerIndex = current.items.findIndex((item) => item.id === customerId);
+        if (customerIndex < 0) {
+          sendJson(res, 404, { error: "Customer not found" });
+          return;
+        }
+        const orders = Array.isArray(current.items[customerIndex].orders) ? current.items[customerIndex].orders : [];
+        const orderIndex = orders.findIndex((item) => item.id === orderId);
+        if (orderIndex < 0) {
+          sendJson(res, 404, { error: "Order not found" });
+          return;
+        }
+        orders[orderIndex] = normalizeCustomerOrder({
+          ...orders[orderIndex],
+          archived: true,
+          archivedAt: new Date().toISOString(),
+          archiveReason: String(body.archiveReason || "manual_archive").trim()
+        }, orderIndex);
+        current.items[customerIndex] = normalizeCustomerRecord({
+          ...current.items[customerIndex],
+          orders
+        }, customerIndex);
+        const saved = saveCustomersData({ items: current.items });
+        sendJson(res, 200, { ok: true, archived: true, customer: saved.items[customerIndex] });
+      })
+      .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
+    return true;
+  }
 
   if (req.method === "POST" && (url.pathname === "/api/customers" || url.pathname === "/api/customers/")) {
     parseBody(req)
@@ -5825,11 +6683,19 @@ function handleApi(req, res, url) {
       .then((body) => {
         const id = String(body.id || "").trim();
         const current = getCustomersData();
-        const nextItems = current.items.filter((item) => item.id !== id);
-        const saved = saveCustomersData({
-          items: nextItems.length ? nextItems : defaultCustomersData().items
-        });
-        sendJson(res, 200, { ok: true, customers: saved });
+        const index = current.items.findIndex((item) => item.id === id);
+        if (index < 0) {
+          sendJson(res, 404, { error: "Customer not found" });
+          return;
+        }
+        current.items[index] = normalizeCustomerRecord({
+          ...current.items[index],
+          archived: true,
+          archivedAt: new Date().toISOString(),
+          archiveReason: String(body.archiveReason || "manual_archive").trim()
+        }, index);
+        const saved = saveCustomersData({ items: current.items });
+        sendJson(res, 200, { ok: true, archived: true, customer: saved.items[index], customers: saved });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
     return true;
@@ -6564,11 +7430,16 @@ function handleApi(req, res, url) {
     parseBody(req)
       .then((body) => {
         const userId = String(body.userId || "").trim();
+        const auth = getCheckinAuth(req, userId);
         const lat = Number(body.lat);
         const lng = Number(body.lng);
         const accuracy = Number(body.accuracy || 0);
         const ts = body.ts ? new Date(body.ts) : new Date();
-        if (!userId || Number.isNaN(lat) || Number.isNaN(lng)) {
+        if (!auth) {
+          sendJson(res, 401, { error: "请先登录当前账号" });
+          return;
+        }
+        if (!userId || (attendanceSettings.requireLocation && (Number.isNaN(lat) || Number.isNaN(lng)))) {
           sendJson(res, 400, { error: "缺少 userId 或坐标" });
           return;
         }
@@ -6592,7 +7463,12 @@ function handleApi(req, res, url) {
     parseBody(req)
       .then((body) => {
         const userId = String(body.userId || "").trim();
+        const auth = getCheckinAuth(req, userId);
         const dateKey = String(body.date || "").trim() || new Date().toISOString().slice(0, 10);
+        if (!auth) {
+          sendJson(res, 401, { error: "请先登录当前账号" });
+          return;
+        }
         if (!userId) {
           sendJson(res, 400, { error: "缺少 userId" });
           return;
@@ -6624,6 +7500,7 @@ function handleApi(req, res, url) {
     parseBody(req)
       .then((body) => {
         const userId = String(body.userId || "").trim();
+        const auth = getCheckinAuth(req, userId);
         const customer = String(body.customer || "").trim();
         const note = String(body.note || "").trim();
         const lat = Number(body.lat);
@@ -6631,6 +7508,13 @@ function handleApi(req, res, url) {
         const accuracy = Number(body.accuracy || 0);
         const audioUrl = String(body.audioUrl || "").trim();
         const address = String(body.address || "").trim();
+        const photoUrls = Array.isArray(body.photoUrls)
+          ? body.photoUrls.map((item) => String(item || "").trim()).filter(Boolean)
+          : [];
+        if (!auth) {
+          sendJson(res, 401, { error: "请先登录当前账号" });
+          return;
+        }
         if (!userId || !customer) {
           sendJson(res, 400, { error: "缺少 userId 或客户名称" });
           return;
@@ -6646,6 +7530,7 @@ function handleApi(req, res, url) {
           accuracy,
           address,
           audioUrl,
+          photoUrls,
           recordedAt: new Date().toISOString()
         };
         visits.unshift(item);
@@ -6670,11 +7555,20 @@ function handleApi(req, res, url) {
   if (req.method === "POST" && url.pathname === "/api/uploads/field-audio") {
     parseBody(req)
       .then((body) => {
+        const auth = getFieldOrLoginAuth(req);
+        if (!auth) {
+          sendJson(res, 401, { error: "请先登录当前账号" });
+          return;
+        }
         if (!body.dataUrl || typeof body.dataUrl !== "string" || !body.dataUrl.startsWith("data:audio")) {
           sendJson(res, 400, { error: "缺少音频 dataUrl" });
           return;
         }
-        const savedUrl = saveDataUrlImage(body.dataUrl, "field-audio"); // reuse image saver for base64
+        const savedUrl = saveDataUrlFile(body.dataUrl, "field-audio");
+        if (!savedUrl) {
+          sendJson(res, 400, { error: "音频保存失败" });
+          return;
+        }
         sendJson(res, 200, { ok: true, url: savedUrl });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
@@ -6685,6 +7579,11 @@ function handleApi(req, res, url) {
   if (req.method === "POST" && url.pathname === "/api/uploads/field-photo") {
     parseBody(req)
       .then((body) => {
+        const auth = getFieldOrLoginAuth(req);
+        if (!auth) {
+          sendJson(res, 401, { error: "请先登录当前账号" });
+          return;
+        }
         if (!body.dataUrl || typeof body.dataUrl !== "string" || !body.dataUrl.startsWith("data:image")) {
           sendJson(res, 400, { error: "缺少图片 dataUrl" });
           return;
@@ -6701,12 +7600,27 @@ function handleApi(req, res, url) {
     parseBody(req)
       .then((body) => {
         const userId = String(body.userId || "").trim();
+        const auth = getCheckinAuth(req, userId);
         const action = body.action === "out" ? "out" : "in";
         const lat = Number(body.lat);
         const lng = Number(body.lng);
         const accuracy = Number(body.accuracy || 0);
         const note = String(body.note || "").trim();
         const ts = body.ts ? new Date(body.ts) : new Date();
+        if (!auth) {
+          sendJson(res, 401, { error: "请先登录当前账号" });
+          return;
+        }
+        const attendanceRule = getAttendanceValidation(action, ts);
+        if (!attendanceRule.ok) {
+          sendJson(res, 400, { error: attendanceRule.error });
+          return;
+        }
+        const attendanceSettings = getSettings().attendance || defaultAttendanceSettings();
+        if (attendanceSettings.requireLocation && (Number.isNaN(lat) || Number.isNaN(lng))) {
+          sendJson(res, 400, { error: "打卡必须带定位坐标" });
+          return;
+        }
         if (!userId || Number.isNaN(lat) || Number.isNaN(lng)) {
           sendJson(res, 400, { error: "缺少 userId 或坐标" });
           return;
@@ -6726,7 +7640,12 @@ function handleApi(req, res, url) {
         };
         items.unshift(item);
         writeJson(FIELD_CHECKINS_FILE, items);
-        sendJson(res, 200, { ok: true, item });
+        sendJson(res, 200, {
+          ok: true,
+          item,
+          payroll: getFieldPayrollSummary(userId, dateKey),
+          companyAttendance: getCompanyAttendanceOverview(dateKey).summary
+        });
       })
       .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
     return true;
@@ -6748,8 +7667,22 @@ function requestHandler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   if (handleApi(req, res, url)) return;
 
-  const homepageFile = getSettings().homepage === "calculator" ? "/index.html" : "/dashboard.html";
-  const requestedPath = url.pathname === "/" ? homepageFile : url.pathname;
+  const requestedPath = url.pathname === "/" ? "/login.html" : url.pathname;
+  const session = getLoginSession(req);
+  if (requestedPath === "/login.html" && session) {
+    sendRedirect(res, getRoleLandingPage(session.profile.role));
+    return;
+  }
+  if (isProtectedHtmlPath(requestedPath)) {
+    if (!session) {
+      sendRedirect(res, `/login.html?next=${encodeURIComponent(requestedPath)}`);
+      return;
+    }
+    if (!isPageAllowedForRole(session.profile.role, requestedPath)) {
+      sendRedirect(res, getRoleLandingPage(session.profile.role));
+      return;
+    }
+  }
   const safePath = path.normalize(requestedPath).replace(/^(\.\.[/\\])+/, "");
   const filePath = path.join(PUBLIC_DIR, safePath);
 

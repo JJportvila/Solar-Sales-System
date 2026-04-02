@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solar Sales System 登录</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #edf2f7;
+        --panel: #ffffff;
+        --ink: #0f172a;
+        --muted: #475569;
+        --line: #d8e0ea;
+        --brand: #0f3d78;
+        --accent: #ffb703;
+        --good: #0f766e;
+        --warn: #b45309;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(255,183,3,0.18), transparent 32%),
+          linear-gradient(160deg, #eff4fb 0%, #e4edf8 48%, #edf2f7 100%);
+      }
+      .shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: minmax(320px, 440px) minmax(340px, 1fr);
+      }
+      .hero {
+        padding: 48px 40px;
+        background: linear-gradient(180deg, rgba(15,61,120,0.97), rgba(11,28,58,0.96));
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .brand-mark {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #ffcf5a, #ff9f1c);
+        color: #1e293b;
+        font: 800 22px/1 "Manrope", sans-serif;
+      }
+      .hero h1, .hero h2 {
+        font-family: "Manrope", sans-serif;
+        margin: 0;
+      }
+      .hero-copy {
+        max-width: 420px;
+      }
+      .hero-copy h1 {
+        font-size: 40px;
+        line-height: 1.08;
+        margin-top: 28px;
+      }
+      .hero-copy p {
+        margin-top: 14px;
+        color: rgba(255,255,255,0.78);
+        line-height: 1.7;
+      }
+      .hero-points {
+        display: grid;
+        gap: 14px;
+        margin-top: 32px;
+      }
+      .hero-point {
+        padding: 16px 18px;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 18px;
+        background: rgba(255,255,255,0.06);
+      }
+      .hero-point strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 15px;
+      }
+      .panel-wrap {
+        padding: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .panel {
+        width: min(760px, 100%);
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.85);
+        border-radius: 28px;
+        box-shadow: 0 28px 80px rgba(15,23,42,0.12);
+        padding: 32px;
+      }
+      .eyebrow {
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--warn);
+        font-weight: 700;
+      }
+      .panel h2 {
+        margin-top: 10px;
+        font: 800 34px/1.1 "Manrope", sans-serif;
+      }
+      .panel-subtitle {
+        margin-top: 10px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 18px;
+        margin-top: 28px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .field label {
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .field select,
+      .field input {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px 16px;
+        font-size: 15px;
+        background: #fff;
+        color: var(--ink);
+      }
+      .hint {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .account-card {
+        margin-top: 20px;
+        border-radius: 22px;
+        border: 1px solid #dbe5f0;
+        background: linear-gradient(180deg, #f9fbff, #f3f7fb);
+        padding: 20px;
+      }
+      .account-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      .account-head strong {
+        display: block;
+        font-size: 20px;
+        font-family: "Manrope", sans-serif;
+      }
+      .role-badge {
+        border-radius: 999px;
+        background: #e0ecff;
+        color: #0f3d78;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .account-meta {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .meta-card {
+        border-radius: 16px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        padding: 14px;
+      }
+      .meta-card span {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .meta-card strong {
+        font-size: 14px;
+      }
+      .account-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 22px;
+      }
+      .account-option {
+        border: 1px solid #d9e2ec;
+        border-radius: 18px;
+        padding: 14px 16px;
+        background: #fff;
+        cursor: pointer;
+        transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      }
+      .account-option:hover,
+      .account-option.active {
+        transform: translateY(-1px);
+        border-color: #93c5fd;
+        box-shadow: 0 14px 24px rgba(59,130,246,0.12);
+      }
+      .account-option strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+      .account-option small {
+        color: var(--muted);
+      }
+      .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-top: 24px;
+      }
+      .submit-btn {
+        appearance: none;
+        border: 0;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #0f3d78, #173f73);
+        color: #fff;
+        padding: 14px 22px;
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .status {
+        min-height: 22px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .status.error { color: #b91c1c; }
+      .status.success { color: var(--good); }
+      @media (max-width: 980px) {
+        .shell { grid-template-columns: 1fr; }
+        .hero { padding: 28px 24px; }
+        .panel-wrap { padding: 18px; }
+        .panel { padding: 22px; }
+        .form-grid,
+        .account-meta { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="hero">
+        <div>
+          <div class="brand">
+            <div class="brand-mark">SS</div>
+            <div>
+              <h2>Solar Sales System</h2>
+              <div style="margin-top:4px;color:rgba(255,255,255,0.72);font-size:13px;">统一登录与角色权限入口</div>
+            </div>
+          </div>
+          <div class="hero-copy">
+            <h1>从这里进入正式后台，账号权限自动生效。</h1>
+            <p>管理员登录后可查看全部经营与后台数据，销售与工程账号登录后只显示当前角色允许的页面与功能，后台权限仍可在权限控制页调整。</p>
+            <div class="hero-points">
+              <div class="hero-point">
+                <strong>默认测试账号已预设</strong>
+                <span>直接选择员工账号，默认 PIN 已预填为 0000，方便本地和局域网测试。</span>
+              </div>
+              <div class="hero-point">
+                <strong>服务端控制页面权限</strong>
+                <span>不是只隐藏按钮，未授权页面会自动拦回对应工作台或登录页。</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.62);">建议入口: 管理员使用电脑端后台，销售可直接进入手机工作台。</div>
+      </section>
+
+      <section class="panel-wrap">
+        <main class="panel">
+          <div class="eyebrow">Access Ready</div>
+          <h2>登录系统</h2>
+          <p class="panel-subtitle">选择一个测试账号即可进入。管理员默认进入后台总览，销售默认进入手机工作台，工程账号默认进入外勤维修页。</p>
+
+          <form id="login-form">
+            <div class="form-grid">
+              <div class="field">
+                <label for="employee-select">测试账号</label>
+                <select id="employee-select"></select>
+                <div class="hint">所有测试账号都已预设，切换后右侧会同步显示角色与可访问范围。</div>
+              </div>
+              <div class="field">
+                <label for="pin-input">PIN</label>
+                <input id="pin-input" type="password" inputmode="numeric" value="0000" maxlength="8" />
+                <div class="hint">当前默认测试 PIN: <strong id="default-pin-label">0000</strong></div>
+              </div>
+            </div>
+
+            <section class="account-card" id="account-preview">
+              <div class="account-head">
+                <div>
+                  <strong id="preview-name">加载中...</strong>
+                  <div id="preview-email" class="hint"></div>
+                </div>
+                <span class="role-badge" id="preview-role">角色</span>
+              </div>
+              <div class="account-meta">
+                <div class="meta-card">
+                  <span>所属分支</span>
+                  <strong id="preview-branch">-</strong>
+                </div>
+                <div class="meta-card">
+                  <span>安全等级</span>
+                  <strong id="preview-level">-</strong>
+                </div>
+                <div class="meta-card">
+                  <span>默认落地页</span>
+                  <strong id="preview-landing">-</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="account-list" id="quick-account-list"></section>
+
+            <div class="form-actions">
+              <div id="login-status" class="status"></div>
+              <button class="submit-btn" type="submit">进入系统</button>
+            </div>
+          </form>
+        </main>
+      </section>
+    </div>
+
+    <script src="/login.js?v=20260402-auth"></script>
+  </body>
+</html>

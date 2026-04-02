@@ -79,6 +79,14 @@ function collectPayload() {
     nzdToVuv: Number(document.getElementById("nzd-rate-input").value || 0),
     quoteDisplayMode: "tax_inclusive",
     homepage: document.getElementById("homepage-select").value,
+    attendance: {
+      enabledWeekdays: [0, 1, 2, 3, 4, 5, 6].filter((day) => document.getElementById(`attendance-day-${day}`)?.checked),
+      checkInStart: document.getElementById("attendance-checkin-start").value,
+      checkInEnd: document.getElementById("attendance-checkin-end").value,
+      checkOutStart: document.getElementById("attendance-checkout-start").value,
+      checkOutEnd: document.getElementById("attendance-checkout-end").value,
+      requireLocation: document.getElementById("attendance-require-location").checked
+    },
     backup: {
       autoDaily: document.getElementById("backup-auto-daily").checked,
       autoWeekly: document.getElementById("backup-auto-weekly").checked,
@@ -127,7 +135,7 @@ function renderBackupHistory() {
 }
 
 function renderSettings() {
-  const { backup, company } = state.settings;
+  const { backup, company, attendance } = state.settings;
   const locale = localStorage.getItem("smart_sizing_locale") || "zh-CN";
   const homepageLabels = { dashboard: "销售工作台", calculator: "销售报价" };
   const languageLabels = { "zh-CN": "中文", en: "English", bi: "Bislama" };
@@ -137,6 +145,15 @@ function renderSettings() {
   document.getElementById("aud-rate-input").value = state.settings.audToVuv;
   document.getElementById("nzd-rate-input").value = state.settings.nzdToVuv;
   document.getElementById("quote-display-mode").value = "tax_inclusive";
+  [0, 1, 2, 3, 4, 5, 6].forEach((day) => {
+    const input = document.getElementById(`attendance-day-${day}`);
+    if (input) input.checked = Array.isArray(attendance?.enabledWeekdays) ? attendance.enabledWeekdays.includes(day) : false;
+  });
+  document.getElementById("attendance-checkin-start").value = attendance?.checkInStart || "08:30";
+  document.getElementById("attendance-checkin-end").value = attendance?.checkInEnd || "10:00";
+  document.getElementById("attendance-checkout-start").value = attendance?.checkOutStart || "17:00";
+  document.getElementById("attendance-checkout-end").value = attendance?.checkOutEnd || "21:00";
+  document.getElementById("attendance-require-location").checked = attendance?.requireLocation !== false;
 
   document.getElementById("backup-auto-daily").checked = Boolean(backup.autoDaily);
   document.getElementById("backup-auto-weekly").checked = Boolean(backup.autoWeekly);

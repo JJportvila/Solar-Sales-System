@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -42,9 +42,9 @@
             <p id="customer-page-subtitle" class="mt-3 max-w-3xl text-sm text-slate-600">统一查看客户基础资料、付款进度、订单、设备 SN 绑定和保修记录。</p>
           </div>
           <div class="flex flex-wrap gap-3">
-            <button id="customer-delete-btn" class="rounded-xl bg-red-50 px-5 py-3 text-sm font-bold text-red-700 flex items-center gap-2">
-              <span class="material-symbols-outlined">delete</span>
-              <span>删除客户</span>
+            <button id="customer-delete-btn" class="rounded-xl bg-amber-50 px-5 py-3 text-sm font-bold text-amber-700 flex items-center gap-2">
+              <span class="material-symbols-outlined">archive</span>
+              <span>归档客户</span>
             </button>
             <button id="customer-edit-btn" class="rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary border border-outline-variant/20 flex items-center gap-2">
               <span class="material-symbols-outlined">edit</span>
@@ -96,6 +96,13 @@
                 <span>订单历史</span>
               </h2>
               <div id="customer-orders" class="mt-5 space-y-3"></div>
+              <details class="mt-5 rounded-[1.5rem] border border-outline-variant/15 bg-surface-container-low px-5 py-4">
+                <summary class="cursor-pointer list-none flex items-center justify-between gap-4 text-sm font-bold text-primary">
+                  <span>已归档订单历史</span>
+                  <span id="customer-archived-order-count" class="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600">0</span>
+                </summary>
+                <div id="customer-archived-orders" class="mt-4 space-y-3"></div>
+              </details>
               <div class="mt-6 border-t border-outline-variant/15 pt-5">
                 <h3 class="text-sm font-extrabold text-primary">关联报价单</h3>
                 <div id="customer-related-quotes" class="mt-3 space-y-3"></div>
@@ -120,23 +127,23 @@
                 <button id="customer-payment-add-btn" class="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white">登记收款</button>
                 <div class="text-right">
                   <div id="customer-payment-percent" class="text-3xl font-black text-primary">0%</div>
-                  <div id="customer-payment-weeks" class="text-sm text-slate-500">0 / 0 周</div>
+                  <div id="customer-payment-weeks" class="text-sm text-slate-500">0 / 0 期</div>
                 </div>
               </div>
               <div class="mt-5 h-4 overflow-hidden rounded-full bg-slate-100">
                 <div id="customer-payment-bar" class="h-full rounded-full bg-gradient-to-r from-primary to-secondary" style="width:0%"></div>
               </div>
-              <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div class="mt-5 grid grid-cols-1 gap-4">
                 <div class="rounded-2xl bg-surface-container-low px-5 py-4">
-                  <div class="text-xs text-slate-500">已付款</div>
+                  <div class="text-xs text-slate-500">累计已收</div>
                   <div id="customer-paid-amount" class="mt-2 text-2xl font-black text-primary">VT 0</div>
                 </div>
                 <div class="rounded-2xl bg-surface-container-low px-5 py-4 border-l-4 border-secondary">
-                  <div class="text-xs text-slate-500">待付款</div>
+                  <div class="text-xs text-slate-500">未收余额</div>
                   <div id="customer-balance-amount" class="mt-2 text-2xl font-black text-primary">VT 0</div>
                 </div>
                 <div class="rounded-2xl bg-surface-container-low px-5 py-4">
-                  <div class="text-xs text-slate-500">下次扣款</div>
+                  <div class="text-xs text-slate-500">下次收款</div>
                   <div id="customer-next-due" class="mt-2 text-2xl font-black text-red-600">-</div>
                 </div>
               </div>
@@ -156,7 +163,20 @@
                 <span class="material-symbols-outlined">account_tree</span>
                 <span>设备 SN 绑定关系</span>
               </h2>
+              <div class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+                <input id="customer-device-type-input" class="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/60" type="text" placeholder="设备类型" />
+                <input id="customer-device-name-input" class="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/60" type="text" placeholder="设备名称" />
+                <input id="customer-device-sn-input" class="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/60" type="text" placeholder="设备序列号 SN" />
+                <button id="customer-device-add-btn" class="rounded-xl bg-white px-4 py-3 text-sm font-bold text-primary">保存绑定</button>
+              </div>
               <div id="customer-devices" class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"></div>
+              <details class="mt-6 rounded-[1.5rem] border border-white/12 bg-white/10 px-5 py-4">
+                <summary class="cursor-pointer list-none flex items-center justify-between gap-4 text-sm font-bold text-white">
+                  <span>已归档设备历史</span>
+                  <span id="customer-archived-device-count" class="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white/90">0</span>
+                </summary>
+                <div id="customer-archived-devices" class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2"></div>
+              </details>
             </div>
           </div>
         </section>
@@ -196,7 +216,9 @@
               <input id="customer-warranty-title-input" class="w-full rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="text" placeholder="保修标题" />
               <input id="customer-warranty-serial-input" class="w-full rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="text" placeholder="关联设备序列号（可选）" />
               <input id="customer-warranty-date-input" class="w-full rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="date" />
+              <input id="customer-warranty-ends-input" class="w-full rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" type="date" />
               <textarea id="customer-warranty-detail-input" class="w-full rounded-2xl border border-outline-variant/20 bg-white px-4 py-3 text-sm" rows="3" placeholder="保修详情"></textarea>
+              <button id="customer-warranty-ends-save-btn" class="rounded-xl bg-white px-4 py-3 text-sm font-bold text-primary border border-outline-variant/20">保存到期日</button>
             </div>
             <div class="mt-8 rounded-2xl bg-amber-50 px-5 py-4">
               <div class="text-xs font-bold text-secondary">保修到期日</div>
@@ -292,7 +314,7 @@
               <input id="form-customer-total-weeks" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="number" min="1" />
             </label>
             <label class="block">
-              <span class="mb-2 block text-sm font-semibold text-slate-700">下次扣款</span>
+              <span class="mb-2 block text-sm font-semibold text-slate-700">下次收款</span>
               <input id="form-customer-next-due" class="w-full rounded-2xl border border-outline-variant/25 px-4 py-3 text-sm" type="text" />
             </label>
           </div>
@@ -315,3 +337,4 @@
     <script src="/customer.js"></script>
   </body>
 </html>
+

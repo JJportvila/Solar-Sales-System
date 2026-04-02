@@ -4,10 +4,10 @@
   "quoteDisplayMode": "tax_inclusive",
   "homepage": "dashboard",
   "backup": {
-    "autoDaily": true,
-    "autoWeekly": true,
-    "googleDriveEnabled": true,
-    "googleDriveFolderId": "1E2UzfgJ4GJowOpHYI1l009vkLp8eb9jj",
+    "autoDaily": false,
+    "autoWeekly": false,
+    "googleDriveEnabled": false,
+    "googleDriveFolderId": "",
     "googleDriveAccessToken": "",
     "lastDailyBackupAt": "2026-04-02T00:37:08.338Z",
     "lastWeeklyBackupAt": "2026-03-30T03:16:37.364Z",
@@ -22,6 +22,20 @@
       "email": "",
       "logoUrl": "/uploads/company-logo-1774856298149.png"
     }
+  },
+  "attendance": {
+    "enabledWeekdays": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "checkInStart": "08:30",
+    "checkInEnd": "10:00",
+    "checkOutStart": "17:00",
+    "checkOutEnd": "21:00",
+    "requireLocation": true
   },
   "company": {
     "name": "Solar Sales System",

@@ -1,0 +1,717 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f3b66" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Solar Sales Mobile" />
+    <title>Solar Sales 手机工作台</title>
+    <link rel="manifest" href="/mobile.webmanifest?v=20260402" />
+    <link rel="icon" href="/mobile-icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #edf3f8;
+        --card: rgba(255, 255, 255, 0.94);
+        --line: rgba(15, 59, 102, 0.12);
+        --text: #0f172a;
+        --muted: #64748b;
+        --primary: #0f3b66;
+        --primary-2: #17558c;
+        --accent: #15803d;
+        --accent-soft: #dcfce7;
+        --warning-soft: #fef3c7;
+        --info-soft: #dbeafe;
+        --shadow: 0 18px 50px rgba(15, 59, 102, 0.12);
+        --radius-xl: 28px;
+        --radius-lg: 22px;
+        --radius-md: 16px;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top right, rgba(59,130,246,.16), transparent 28%),
+          radial-gradient(circle at top left, rgba(34,197,94,.1), transparent 24%),
+          linear-gradient(180deg,#edf4fb 0%,var(--bg) 38%,#e8eef4 100%);
+        font-family: "Noto Sans SC", sans-serif;
+      }
+      h1, h2, h3, h4 { margin: 0; font-family: "Manrope", "Noto Sans SC", sans-serif; }
+      a { color: inherit; text-decoration: none; }
+      button, input, textarea, select { font: inherit; }
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+        line-height: 1;
+      }
+
+      .app-shell {
+        max-width: 480px;
+        margin: 0 auto;
+        min-height: 100vh;
+        padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 96px);
+      }
+      .hero {
+        position: static;
+        margin: 0 0 16px;
+        padding: 0;
+        backdrop-filter: none;
+        background: none;
+      }
+      .hero-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        position: relative;
+        overflow: visible;
+        color: var(--text);
+        border-radius: 0;
+        padding: 0;
+        background: none;
+        box-shadow: none;
+      }
+      .hero-card::after {
+        content: "";
+        display: none;
+      }
+      .hero-meta { color: rgba(255,255,255,.78); }
+      .hero-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .hero-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        color: rgba(255,255,255,.92);
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.14);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .hero-mark .material-symbols-outlined { font-size: 16px; }
+      .hero-date {
+        padding-top: 0;
+        color: var(--muted);
+        font-size: 12px;
+        text-align: right;
+      }
+      .hero-title {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.2;
+        letter-spacing: -.02em;
+      }
+      .hero-subtitle {
+        margin-top: 10px;
+        max-width: 280px;
+        color: rgba(255,255,255,.8);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .hero-status-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .hero-status-box {
+        padding: 12px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,.14);
+        background: rgba(255,255,255,.1);
+      }
+      .hero-status-box label {
+        display: block;
+        margin-bottom: 6px;
+        color: rgba(255,255,255,.72);
+        font-size: 11px;
+      }
+      .hero-status-box strong {
+        display: block;
+        font-size: 15px;
+        color: #fff;
+      }
+
+      .section { display: none; animation: fade-in 220ms ease; }
+      .section.active { display: block; }
+
+      .card {
+        margin-bottom: 14px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        box-shadow: 0 10px 28px rgba(15,59,102,.06);
+      }
+      .card.tight { padding: 14px; }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .section-title h2 { font-size: 18px; }
+      .section-title span, .list-meta, .subtle, .status-bar, .field-mini {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .stack, .list, .btn-row, .kpi-grid, .shortcut-grid, .module-grid, .link-chips, .mini-grid, .task-grid {
+        display: grid;
+        gap: 12px;
+      }
+      .stack { gap: 10px; }
+      .btn-row, .kpi-grid, .shortcut-grid, .module-grid, .mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .link-chips { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 14px; }
+
+      .chip, .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .chip {
+        min-height: 38px;
+        padding: 0 10px;
+        color: #fff;
+        background: rgba(255,255,255,.14);
+        border: 1px solid rgba(255,255,255,.16);
+      }
+      .pill { min-height: 30px; padding: 0 12px; }
+      .pill.primary { color: #fff; background: rgba(255,255,255,.16); }
+      .pill.success { color: #166534; background: var(--accent-soft); }
+      .pill.warning { color: #92400e; background: var(--warning-soft); }
+      .pill.info { color: #1d4ed8; background: var(--info-soft); }
+
+      .kpi-card, .shortcut, .metric, .list-item, .module-link, .task-card, .mini-card, .session-card {
+        border: 1px solid rgba(15,59,102,.08);
+        border-radius: var(--radius-md);
+        background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+      }
+      .kpi-card, .shortcut, .module-link, .task-card, .mini-card, .session-card { padding: 14px; }
+      .kpi-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 132px;
+        padding: 15px;
+        background:
+          radial-gradient(circle at top right, rgba(15,59,102,.08), transparent 34%),
+          linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
+        box-shadow: 0 12px 28px rgba(15,59,102,.08);
+      }
+      .kpi-card::after {
+        content: "";
+        position: absolute;
+        right: -18px;
+        bottom: -24px;
+        width: 86px;
+        height: 86px;
+        border-radius: 999px;
+        background: rgba(15,59,102,.05);
+      }
+      .kpi-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .kpi-label {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .kpi-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 0 10px;
+        border-radius: 999px;
+        color: var(--primary);
+        background: rgba(15,59,102,.08);
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .kpi-value { margin-top: 18px; font-size: 28px; font-weight: 800; letter-spacing: -.04em; }
+      .kpi-sub { margin-top: 8px; font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+      .task-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .task-card {
+        position: relative;
+        overflow: hidden;
+        display: block;
+        min-height: 168px;
+        padding: 15px;
+        text-align: left;
+        box-shadow: 0 12px 28px rgba(15,59,102,.08);
+      }
+      .task-card::after {
+        content: "";
+        position: absolute;
+        right: -20px;
+        top: -16px;
+        width: 92px;
+        height: 92px;
+        border-radius: 999px;
+        background: rgba(15,59,102,.05);
+      }
+      .task-label {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 0 10px;
+        border-radius: 999px;
+        color: var(--primary);
+        background: rgba(15,59,102,.08);
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .task-title { margin-top: 12px; font-size: 16px; font-weight: 800; }
+      .task-count { margin-top: 10px; font-size: 30px; font-weight: 800; letter-spacing: -.03em; }
+      .task-desc { margin-top: 8px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+      .task-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 12px;
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .session-card.hidden { display: none; }
+      .session-card {
+        margin-top: 12px;
+        border-color: rgba(21,128,61,.18);
+        background: linear-gradient(180deg, #f3fff6 0%, #ecfdf3 100%);
+      }
+      .session-title { font-size: 14px; font-weight: 800; color: #166534; }
+      .session-meta { margin-top: 6px; color: #166534; font-size: 12px; line-height: 1.6; }
+      .attendance-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .attendance-box {
+        padding: 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(15,59,102,.08);
+        background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+      }
+      .attendance-box label { display: block; margin-bottom: 4px; font-size: 11px; color: var(--muted); }
+      .attendance-box strong { font-size: 14px; }
+
+      .field-ops-card.locked { opacity: .58; transition: opacity 180ms ease; }
+      .field-ops-card.ready {
+        opacity: 1;
+        border-color: rgba(21,128,61,.22);
+        box-shadow: 0 10px 28px rgba(21,128,61,.08);
+      }
+
+      .btn, .module-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 46px;
+        padding: 0 16px;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .btn.primary { color: #fff; background: var(--primary); }
+      .btn.secondary { color: var(--primary); background: #e8eef5; }
+      .btn.accent { color: #fff; background: var(--accent); }
+      .btn.full { width: 100%; }
+
+      .shortcut strong, .module-link strong { display: block; margin-bottom: 4px; font-size: 15px; }
+      .shortcut span, .module-link span { color: var(--muted); font-size: 12px; }
+      .shortcut {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        text-align: left;
+      }
+
+      .input, .select, .textarea {
+        width: 100%;
+        min-height: 46px;
+        padding: 12px 14px;
+        color: var(--text);
+        background: rgba(255,255,255,.92);
+        border: 1px solid rgba(15,59,102,.12);
+        border-radius: 16px;
+      }
+      .textarea { min-height: 88px; resize: vertical; }
+
+      .list-item { padding: 14px; }
+      .list-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .list-title { font-size: 16px; font-weight: 800; }
+      .list-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .metric { padding: 10px; }
+      .metric label { display: block; margin-bottom: 4px; font-size: 11px; color: var(--muted); }
+      .metric strong { font-size: 13px; }
+      .status-bar { min-height: 18px; margin-top: 10px; }
+      .empty {
+        padding: 18px;
+        font-size: 13px;
+        text-align: center;
+        color: var(--muted);
+        border: 1px dashed rgba(15,59,102,.14);
+        border-radius: 16px;
+        background: rgba(255,255,255,.7);
+      }
+      .gallery { display: flex; flex-wrap: wrap; gap: 8px; }
+      .gallery img {
+        width: 68px;
+        height: 68px;
+        object-fit: cover;
+        border-radius: 14px;
+        border: 1px solid rgba(15,59,102,.12);
+      }
+      .hidden { display: none !important; }
+
+      .bottom-nav {
+        position: fixed;
+        left: 50%;
+        bottom: 0;
+        z-index: 20;
+        width: min(480px, 100%);
+        transform: translateX(-50%);
+        padding: 12px 16px calc(env(safe-area-inset-bottom) + 12px);
+        background: linear-gradient(180deg, rgba(237,243,248,0) 0%, rgba(237,243,248,.95) 28%, rgba(237,243,248,1) 100%);
+      }
+      .bottom-nav-inner {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+        padding: 10px;
+        border-radius: 24px;
+        background: rgba(15,23,42,.92);
+        box-shadow: 0 18px 38px rgba(15,23,42,.18);
+      }
+      .tab-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 8px 6px 7px;
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(255,255,255,.62);
+        background: transparent;
+        border: none;
+        border-radius: 18px;
+        cursor: pointer;
+        gap: 4px;
+      }
+      .tab-btn.active { color: #fff; background: rgba(255,255,255,.16); }
+      .tab-btn .material-symbols-outlined { font-size: 18px; }
+      .tab-btn.active .material-symbols-outlined { font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 24; }
+
+      .overview-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: rgba(15,23,42,.42);
+        backdrop-filter: blur(8px);
+      }
+      .overview-modal.open { display: flex; }
+      .overview-panel {
+        width: min(420px, 100%);
+        max-height: 86vh;
+        overflow: auto;
+        border-radius: 24px;
+        background: #fff;
+        box-shadow: 0 24px 60px rgba(15,23,42,.18);
+      }
+      .overview-panel .card {
+        margin: 0;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+      }
+      .overview-panel .kpi-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+      }
+      .overview-panel .kpi-card {
+        min-height: 104px;
+        padding: 12px;
+        border-radius: 14px;
+      }
+      .overview-panel .kpi-card::after {
+        right: -22px;
+        bottom: -28px;
+        width: 70px;
+        height: 70px;
+      }
+      .overview-panel .kpi-top { gap: 6px; }
+      .overview-panel .kpi-label { font-size: 11px; }
+      .overview-panel .kpi-badge {
+        min-height: 22px;
+        padding: 0 8px;
+        font-size: 10px;
+      }
+      .overview-panel .kpi-value {
+        margin-top: 12px;
+        font-size: 24px;
+      }
+      .overview-panel .kpi-sub {
+        margin-top: 6px;
+        font-size: 10px;
+        line-height: 1.45;
+      }
+      .overview-dismiss {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .overview-dismiss input {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
+
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <section id="section-home" class="section active">
+        <div class="card">
+          <div class="section-title"><h2>核心功能</h2><span>第一屏只留 4 个</span></div>
+          <div class="shortcut-grid">
+            <a class="shortcut" href="/mobile-quote.html?v=20260402"><strong>新建报价</strong><span>直接进入方案配置和报价计算</span></a>
+            <button class="shortcut" type="button" data-tab-target="customers"><strong>客户跟进</strong><span>打开客户列表和手机详情</span></button>
+            <a class="shortcut" href="/mobile-invoices.html"><strong>发票收款</strong><span>查看待收款发票和开票记录</span></a>
+            <a class="shortcut" href="/mobile-repair.html"><strong>维修工单</strong><span>更新工单状态和查看时间线</span></a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title"><h2>快捷打卡</h2><span>首页直达</span></div>
+          <div class="btn-row">
+            <button id="home-checkin-in" class="btn primary" type="button">上班打卡</button>
+            <button id="home-checkin-out" class="btn secondary" type="button">下班打卡</button>
+          </div>
+          <div id="home-checkin-status" class="status-bar" style="margin-top:12px;">登录当前账号后可直接在首页打卡</div>
+        </div>
+
+        <div class="card">
+          <div class="section-title"><h2>更多常用</h2><span>其他入口下移</span></div>
+          <div class="shortcut-grid">
+            <button class="shortcut" type="button" data-tab-target="field"><strong>现场工作</strong><span>打卡、轨迹和拜访记录</span></button>
+            <a class="shortcut" href="/mobile-saved-quotes.html?v=20260402"><strong>已保存报价</strong><span>查看草稿、状态和最近保存记录</span></a>
+            <a class="shortcut" href="/mobile-attendance.html?v=20260402"><strong>全员考勤</strong><span>查看全公司出勤和个人打卡</span></a>
+            <a class="shortcut" href="/mobile-payroll.html?v=20260402"><strong>工资结算</strong><span>查看个人结算和全员工资汇总</span></a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title"><h2>今日待办</h2><span>真实业务数据</span></div>
+          <div id="home-task-cards" class="task-grid"></div>
+        </div>
+
+        <div class="card">
+          <div class="section-title"><h2>最近报价</h2><span>移动快看</span></div>
+          <div id="home-recent-quotes" class="list"></div>
+        </div>
+      </section>
+
+      <section id="section-quotes" class="section">
+        <div class="card">
+          <div class="section-title"><h2>报价中心</h2><span id="quotes-count">0 条</span></div>
+          <div class="stack">
+            <input id="quotes-search" class="input" type="search" placeholder="搜索客户、套装、地区、电话" />
+            <select id="quotes-status-filter" class="select">
+              <option value="all">全部状态</option>
+              <option value="draft">草稿</option>
+              <option value="in_progress">进行中</option>
+              <option value="sent">已发送</option>
+              <option value="paid">已付款</option>
+            </select>
+          </div>
+        </div>
+        <div id="quotes-list" class="list"></div>
+      </section>
+
+      <section id="section-customers" class="section">
+        <div class="card">
+          <div class="section-title"><h2>客户中心</h2><span id="customers-count">0 位</span></div>
+          <input id="customers-search" class="input" type="search" placeholder="搜索客户、电话、位置、销售" />
+        </div>
+        <div id="customers-list" class="list"></div>
+      </section>
+
+      <section id="section-field" class="section">
+        <div class="card">
+          <div class="section-title"><h2>现场工作</h2><span id="field-user-badge">未登录</span></div>
+          <div id="field-login-status" class="status-bar">当前账号可直接使用打卡、轨迹和拜访功能</div>
+          <div id="field-session-card" class="session-card hidden">
+            <div class="session-title">当前身份已就绪</div>
+            <div id="field-session-meta" class="session-meta">当前账号已可打卡、记录轨迹和保存拜访。</div>
+          </div>
+        </div>
+
+        <div id="field-ops-card" class="card field-ops-card locked">
+          <div class="section-title"><h2>打卡与轨迹</h2><span id="field-track-state">待命</span></div>
+          <div class="btn-row">
+            <button id="field-checkin-in" class="btn primary" type="button">上班打卡</button>
+            <button id="field-checkin-out" class="btn secondary" type="button">下班打卡</button>
+            <button id="field-trip-start" class="btn accent" type="button">开始轨迹</button>
+            <button id="field-trip-stop" class="btn secondary" type="button">结束轨迹</button>
+          </div>
+          <div id="field-checkin-status" class="status-bar">尚未打卡</div>
+        </div>
+
+        <div id="field-visit-card" class="card field-ops-card locked">
+          <div class="section-title"><h2>拜访记录</h2><span>支持拍照和录音</span></div>
+          <div class="stack">
+            <input id="field-visit-customer" class="input" type="text" placeholder="客户名称" />
+            <input id="field-visit-address" class="input" type="text" placeholder="拜访地址" />
+            <textarea id="field-visit-note" class="textarea" placeholder="拜访备注"></textarea>
+            <input id="field-visit-photos" class="input" type="file" accept="image/*" multiple capture="environment" />
+            <div id="field-photo-preview" class="gallery"></div>
+            <div class="btn-row">
+              <button id="field-record-start" class="btn primary" type="button">开始录音</button>
+              <button id="field-record-stop" class="btn secondary" type="button">结束录音</button>
+            </div>
+            <audio id="field-audio-preview" class="hidden" controls style="width:100%;"></audio>
+            <button id="field-save-visit" class="btn accent full" type="button">保存拜访</button>
+            <div id="field-visit-status" class="status-bar">登录后可上传照片和录音</div>
+          </div>
+        </div>
+
+        <div class="card tight">
+          <div class="section-title"><h2>今日现场记录</h2><span id="field-visit-count">0 条</span></div>
+          <div id="field-visit-list" class="list"></div>
+        </div>
+      </section>
+
+      <section id="section-more" class="section">
+        <div class="card">
+          <div class="section-title"><h2>常用模块</h2><span>优先推荐</span></div>
+          <div class="module-grid">
+            <a class="module-link card tight" href="/mobile-customer-detail.html?id=crm-1774850670190"><strong>手机客户详情</strong><span>收款、保修、照片上传</span></a>
+            <a class="module-link card tight" href="/mobile-invoices.html"><strong>手机发票页</strong><span>发票、收款与搜索</span></a>
+            <a class="module-link card tight" href="/mobile-repair.html"><strong>手机维修页</strong><span>工单、状态与维修历史</span></a>
+            <a class="module-link card tight" href="/mobile-quote.html?v=20260402"><strong>报价计算</strong><span>完整方案与报价单</span></a>
+            <a class="module-link card tight" href="/mobile-saved-quotes.html?v=20260402"><strong>已保存报价</strong><span>报价草稿、状态与跟进</span></a>
+            <a class="module-link card tight" href="/mobile-attendance.html?v=20260402"><strong>全员考勤</strong><span>全公司出勤和打卡记录</span></a>
+            <a class="module-link card tight" href="/mobile-payroll.html?v=20260402"><strong>工资结算</strong><span>个人结算和全员工资汇总</span></a>
+            <a class="module-link card tight" href="/dashboard.html"><strong>销售工作台</strong><span>回到平板后台总览</span></a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title"><h2>后台与管理</h2><span>低频入口</span></div>
+          <div class="module-grid">
+            <a class="module-link card tight" href="/customer.html"><strong>后台客户页</strong><span>CRM 与分期管理</span></a>
+            <a class="module-link card tight" href="/field-app.html"><strong>旧版现场页</strong><span>保留兼容入口</span></a>
+            <a class="module-link card tight" href="/installment.html"><strong>分期管理</strong><span>定金与每期计划</span></a>
+            <a class="module-link card tight" href="/inventory.html"><strong>库存采购</strong><span>产品与库存</span></a>
+            <a class="module-link card tight" href="/vendors.html"><strong>供应商</strong><span>采购与供货商资料</span></a>
+            <a class="module-link card tight" href="/reports.html"><strong>报表中心</strong><span>统计与导出</span></a>
+            <a class="module-link card tight" href="/settings.html"><strong>系统设置</strong><span>首页、汇率、考勤配置</span></a>
+            <a class="module-link card tight" href="/invoices.html"><strong>后台发票页</strong><span>完整编辑与打印</span></a>
+            <a class="module-link card tight" href="/repair-list.html"><strong>后台维修页</strong><span>派工和完整售后处理</span></a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="bottom-nav-inner">
+        <button class="tab-btn active" type="button" data-tab="home"><span class="material-symbols-outlined">home</span><span>首页</span></button>
+        <button class="tab-btn" type="button" data-tab="quotes"><span class="material-symbols-outlined">calculate</span><span>报价</span></button>
+        <button class="tab-btn" type="button" data-tab="customers"><span class="material-symbols-outlined">groups</span><span>客户</span></button>
+        <button class="tab-btn" type="button" data-tab="field"><span class="material-symbols-outlined">near_me</span><span>现场</span></button>
+        <button class="tab-btn" type="button" data-tab="more"><span class="material-symbols-outlined">apps</span><span>全部</span></button>
+      </div>
+    </div>
+
+    <div id="overview-modal" class="overview-modal">
+      <div class="overview-panel">
+        <div class="card">
+          <div class="section-title">
+            <h2>今日概览</h2>
+            <button id="overview-modal-close" class="btn secondary" type="button" style="min-height:36px;padding:0 12px;background:#eef4fb;color:#0f3b66;border:1px solid rgba(15,59,102,.12);">关闭</button>
+          </div>
+          <div id="home-updated-at" class="status-bar" style="margin-bottom:12px;">载入中</div>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-top"><div class="kpi-label">总销售额</div><div class="kpi-badge">销售</div></div>
+              <div id="kpi-total-sales" class="kpi-value">0</div>
+              <div class="kpi-sub">直连当前业务数据，快速查看销售盘面。</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-top"><div class="kpi-label">活跃报价</div><div class="kpi-badge">报价</div></div>
+              <div id="kpi-active-quotes" class="kpi-value">0</div>
+              <div class="kpi-sub">草稿、进行中、已发送报价都会计入这里。</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-top"><div class="kpi-label">客户数量</div><div class="kpi-badge">客户</div></div>
+              <div id="kpi-customers" class="kpi-value">0</div>
+              <div class="kpi-sub">客户详情与手机跟进页已经全部打通。</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-top"><div class="kpi-label">销售团队</div><div class="kpi-badge">团队</div></div>
+              <div id="kpi-sales-team" class="kpi-value">0</div>
+              <div class="kpi-sub">统计销售和销售经理，方便看当前在岗团队规模。</div>
+            </div>
+          </div>
+          <label class="overview-dismiss" for="overview-dismiss-today">
+            <input id="overview-dismiss-today" type="checkbox" />
+            <span>今天之内不要再弹窗了</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <script src="/mobile-app.js?v=20260402"></script>
+  </body>
+</html>

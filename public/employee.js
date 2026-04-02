@@ -179,6 +179,10 @@ function renderEmployeeList() {
                 <div>基本工资：${formatMoney(payroll.baseSalary)}</div>
                 <div>绩效工资：${formatMoney(payroll.performanceSalary)}</div>
                 <div>销售提成：${commissionRate.toFixed(commissionRate % 1 ? 1 : 0)}%</div>
+                <div>出勤日薪：${formatMoney(item.baseDailyRate || 0)}</div>
+                <div>预支工资：${formatMoney(item.advanceBalance || 0)}</div>
+                <div>欠款：${formatMoney(item.debtBalance || 0)}</div>
+                <div>VNPF：${Number(item.vnpfRate || 0).toFixed(2)}%</div>
               </div>
               <div class="mt-4 text-[11px] uppercase tracking-widest text-slate-400">技能标签</div>
               <div class="mt-2 flex flex-wrap gap-2">${skills || '<span class="text-sm text-slate-400">暂无技能标签</span>'}</div>
@@ -259,6 +263,11 @@ function openModal(employee) {
   document.getElementById("employee-base-salary").value = payroll.baseSalary;
   document.getElementById("employee-performance-salary").value = payroll.performanceSalary;
   document.getElementById("employee-commission-rate").value = payroll.commissionRate;
+  document.getElementById("employee-pin").value = item?.pin || "0000";
+  document.getElementById("employee-base-daily-rate").value = item?.baseDailyRate || 0;
+  document.getElementById("employee-advance-balance").value = item?.advanceBalance || 0;
+  document.getElementById("employee-debt-balance").value = item?.debtBalance || 0;
+  document.getElementById("employee-vnpf-rate").value = item?.vnpfRate || 4;
 
   ["employee-hourly-rate", "employee-work-hours", "employee-base-salary", "employee-performance-salary", "employee-commission-rate"].forEach((id) => {
     const input = document.getElementById(id);
@@ -299,6 +308,11 @@ function collectFormPayload() {
       performanceSalary: Number(document.getElementById("employee-performance-salary").value || 0),
       commissionRate: Number(document.getElementById("employee-commission-rate").value || 0) / 100
     },
+    pin: document.getElementById("employee-pin").value.trim() || "0000",
+    baseDailyRate: Number(document.getElementById("employee-base-daily-rate").value || 0),
+    advanceBalance: Number(document.getElementById("employee-advance-balance").value || 0),
+    debtBalance: Number(document.getElementById("employee-debt-balance").value || 0),
+    vnpfRate: Number(document.getElementById("employee-vnpf-rate").value || 0),
     metrics: {
       primaryLabel: document.getElementById("employee-primary-label").value.trim(),
       primaryValue: document.getElementById("employee-primary-value").value.trim(),

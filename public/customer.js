@@ -1,4 +1,4 @@
-const customerState = {
+﻿const customerState = {
   items: [],
   currentDetail: null,
   summary: {
@@ -22,6 +22,10 @@ function escapeHtml(value) {
 
 function formatMoney(value) {
   return `VT ${Math.max(0, Number(value || 0)).toLocaleString("en-US")}`;
+}
+
+function todayValue() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function getCustomerUserType(customer) {
@@ -97,10 +101,10 @@ function renderBasicInfo(customer) {
   const rows = [
     ["主要联系人", customer.contactName || "-"],
     ["电话", customer.phone || "-"],
-    ["邮箱", customer.email || "-"],
-    ["客户类型", customer.customerTypeLabel || "-"],
+    ["閭", customer.email || "-"],
+    ["瀹㈡埛绫诲瀷", customer.customerTypeLabel || "-"],
     ["用电类型", customer.usageType || "-"],
-    ["安装日期", customer.installDate || "-"],
+    ["瀹夎鏃ユ湡", customer.installDate || "-"],
     ["所属销售", customer.salesPersonName || "-"],
     ["地址", customer.address || "-"]
   ];
@@ -122,16 +126,43 @@ function renderBasicInfo(customer) {
 
 function renderOrders(customer) {
   const wrap = document.getElementById("customer-orders");
-  const rows = Array.isArray(customer.orders) ? customer.orders : [];
+  const archivedWrap = document.getElementById("customer-archived-orders");
+  const archivedCount = document.getElementById("customer-archived-order-count");
+  const allRows = Array.isArray(customer.orders) ? customer.orders : [];
+  const rows = allRows.filter((item) => !item.archived && !item.archivedAt);
+  const archivedRows = allRows.filter((item) => item.archived || item.archivedAt);
   wrap.innerHTML = rows.length ? rows.map((item) => `
     <div class="rounded-2xl bg-surface-container-low px-4 py-4 flex items-center justify-between gap-4">
       <div>
         <div class="font-bold text-primary">${escapeHtml(item.name)}</div>
         <div class="mt-1 text-xs text-slate-500">#${escapeHtml(item.id)}${item.date ? ` / ${escapeHtml(item.date)}` : ""}</div>
       </div>
-      <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600">${escapeHtml(item.status || "-")}</span>
+      <div class="flex items-center gap-3">
+        <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600">${escapeHtml(item.status || "-")}</span>
+        <button
+          type="button"
+          class="rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700"
+          data-archive-order="${escapeHtml(item.id)}"
+          data-order-name="${escapeHtml(item.name)}"
+        >归档订单</button>
+      </div>
     </div>
   `).join("") : `<div class="rounded-2xl bg-surface-container-low px-4 py-4 text-sm text-slate-500">暂无订单记录</div>`;
+  if (archivedCount) {
+    archivedCount.textContent = String(archivedRows.length);
+  }
+  if (archivedWrap) {
+    archivedWrap.innerHTML = archivedRows.length ? archivedRows.map((item) => `
+      <div class="rounded-2xl bg-white px-4 py-4 border border-outline-variant/10 flex items-center justify-between gap-4">
+        <div>
+          <div class="font-bold text-primary">${escapeHtml(item.name || "-")}</div>
+          <div class="mt-1 text-xs text-slate-500">#${escapeHtml(item.id || "-")}${item.date ? ` / ${escapeHtml(item.date)}` : ""}</div>
+          <div class="mt-2 text-xs text-slate-400">归档时间：${escapeHtml(item.archivedAt || "-")}</div>
+        </div>
+        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">已归档</span>
+      </div>
+    `).join("") : `<div class="rounded-2xl bg-white px-4 py-4 text-sm text-slate-500 border border-outline-variant/10">暂无归档订单历史</div>`;
+  }
 }
 
 function renderRelatedQuotes(customer) {
@@ -173,7 +204,7 @@ function renderPayment(customer) {
   const percent = Math.max(0, Math.min(100, payment.totalWeeks ? Math.round((payment.completedWeeks / payment.totalWeeks) * 100) : 0));
   document.getElementById("customer-payment-cycle").textContent = payment.cycleLabel || "-";
   document.getElementById("customer-payment-percent").textContent = `${percent}%`;
-  document.getElementById("customer-payment-weeks").textContent = `${payment.completedWeeks || 0} / ${payment.totalWeeks || 0} 周`;
+  document.getElementById("customer-payment-weeks").textContent = `${payment.completedWeeks || 0} / ${payment.totalWeeks || 0} 期`;
   document.getElementById("customer-payment-bar").style.width = `${percent}%`;
   document.getElementById("customer-paid-amount").textContent = formatMoney(payment.paidAmount || 0);
   document.getElementById("customer-balance-amount").textContent = formatMoney(payment.balanceAmount || 0);
@@ -204,8 +235,12 @@ function iconForDevice(type = "") {
 }
 
 function renderDevices(customer) {
+  const allDevices = Array.isArray(customer.devices) ? customer.devices : [];
   const wrap = document.getElementById("customer-devices");
-  const rows = Array.isArray(customer.devices) ? customer.devices : [];
+  const archivedWrap = document.getElementById("customer-archived-devices");
+  const archivedCount = document.getElementById("customer-archived-device-count");
+  const rows = allDevices.filter((item) => !item.archived && !item.archivedAt);
+  const archivedRows = allDevices.filter((item) => item.archived || item.archivedAt);
   wrap.innerHTML = rows.length ? rows.map((item) => `
     <div class="rounded-[1.5rem] border border-white/10 bg-white/10 px-4 py-5">
       <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
@@ -214,8 +249,39 @@ function renderDevices(customer) {
       <div class="mt-4 text-sm font-bold">${escapeHtml(item.name)}</div>
       <div class="mt-1 text-xs text-blue-100">${escapeHtml(item.type)}</div>
       <div class="mt-3 text-[11px] uppercase tracking-widest text-blue-200">SN: ${escapeHtml(item.sn || "-")}</div>
+      <div class="mt-4 flex gap-2">
+        <button
+          type="button"
+          class="rounded-xl bg-white/90 px-3 py-2 text-xs font-bold text-primary"
+          data-unbind-device="${escapeHtml(item.id)}"
+        >解绑设备</button>
+        <button
+          type="button"
+          class="rounded-xl bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800"
+          data-archive-device="${escapeHtml(item.id)}"
+        >归档设备</button>
+      </div>
     </div>
   `).join("") : `<div class="rounded-2xl bg-white/10 px-4 py-4 text-sm text-white/70 md:col-span-2 xl:col-span-4">暂无设备 SN 绑定信息</div>`;
+  if (archivedCount) {
+    archivedCount.textContent = String(archivedRows.length);
+  }
+  if (archivedWrap) {
+    archivedWrap.innerHTML = archivedRows.length ? archivedRows.map((item) => `
+      <div class="rounded-2xl border border-white/10 bg-slate-950/10 px-4 py-4">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-sm font-bold text-white">${escapeHtml(item.name || "-")}</div>
+            <div class="mt-1 text-xs text-blue-100">${escapeHtml(item.type || "-")}</div>
+          </div>
+          <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">已归档</span>
+        </div>
+        <div class="mt-3 text-[11px] uppercase tracking-widest text-blue-200">SN: ${escapeHtml(item.sn || "-")}</div>
+        <div class="mt-2 text-xs text-white/70">归档时间：${escapeHtml(item.archivedAt || "-")}</div>
+        <div class="mt-1 text-xs text-white/60">归档原因：${escapeHtml(item.archiveReason || "manual_archive")}</div>
+      </div>
+    `).join("") : `<div class="rounded-2xl bg-white/5 px-4 py-4 text-sm text-white/60">暂无归档设备历史</div>`;
+  }
 }
 
 function renderPhotos(customer) {
@@ -246,13 +312,16 @@ function renderWarranty(customer) {
     </div>
   `).join("") : `<div class="rounded-2xl bg-surface-container-low px-4 py-6 text-sm text-slate-500">暂无保修记录</div>`;
   document.getElementById("customer-warranty-ends").textContent = customer.warrantyEndsAt || "-";
+  if (document.getElementById("customer-warranty-ends-input")) {
+    document.getElementById("customer-warranty-ends-input").value = customer.warrantyEndsAt || "";
+  }
 }
 
 function renderWarrantySearchResults(items = []) {
   const wrap = document.getElementById("customer-warranty-search-results");
   if (!wrap) return;
   wrap.innerHTML = items.length ? items.map((item) => `
-    <div class="rounded-2xl bg-white px-4 py-4 border border-outline-variant/10">
+    <button class="w-full rounded-2xl bg-white px-4 py-4 border border-outline-variant/10 text-left" type="button" data-serial-no="${escapeHtml(item.serialNo || "")}" data-device-name="${escapeHtml(item.deviceName || "")}" data-warranty-ends="${escapeHtml(item.warrantyEndsAt || "")}">
       <div class="flex items-start justify-between gap-4">
         <div>
           <div class="font-bold text-primary">${escapeHtml(item.customerName || "-")}</div>
@@ -270,8 +339,29 @@ function renderWarrantySearchResults(items = []) {
           </div>
         `).join("")}
       </div>
-    </div>
+    </button>
   `).join("") : `<div class="rounded-2xl bg-white px-4 py-4 text-sm text-slate-500 border border-outline-variant/10">输入序列号后可查询保修记录</div>`;
+}
+
+function ensureCustomerActionDefaults(customer = null) {
+  const paymentDate = document.getElementById("customer-payment-date-input");
+  if (paymentDate && !paymentDate.value) paymentDate.value = todayValue();
+
+  const warrantyDate = document.getElementById("customer-warranty-date-input");
+  if (warrantyDate && !warrantyDate.value) warrantyDate.value = todayValue();
+
+  const warrantyEnds = document.getElementById("customer-warranty-ends-input");
+  if (warrantyEnds && !warrantyEnds.value && customer?.warrantyEndsAt) {
+    warrantyEnds.value = customer.warrantyEndsAt;
+  }
+
+  const collector = document.getElementById("customer-payment-collector-select");
+  if (collector && !collector.value && collector.options.length > 1) {
+    const preferred = customerState.salesPeople.find((item) => item.role === "admin")
+      || customerState.salesPeople.find((item) => item.role === "sales_manager")
+      || customerState.salesPeople[0];
+    collector.value = preferred?.name || collector.options[1]?.value || "";
+  }
 }
 
 function renderCustomerDetail() {
@@ -288,6 +378,7 @@ function renderCustomerDetail() {
   renderPhotos(customer);
   renderWarranty(customer);
   renderWarrantySearchResults([]);
+  ensureCustomerActionDefaults(customer);
 }
 
 function fillSalesOptions() {
@@ -301,6 +392,7 @@ function fillSalesOptions() {
     .filter((item) => ["sales", "sales_manager", "admin"].includes(item.role))
     .map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)} / ${escapeHtml(item.roleLabel || "")}</option>`)
     .join("");
+  ensureCustomerActionDefaults(getSelectedCustomer());
 }
 
 function openModal(customer) {
@@ -389,6 +481,103 @@ async function loadCustomerDetail(id) {
   renderCustomerDetail();
 }
 
+async function saveCustomerDevices() {
+  const customer = getSelectedCustomer();
+  if (!customer) return;
+  const type = document.getElementById("customer-device-type-input").value.trim();
+  const name = document.getElementById("customer-device-name-input").value.trim();
+  const sn = document.getElementById("customer-device-sn-input").value.trim();
+  if (!type || !name || !sn) {
+    window.alert("请填写设备类型、设备名称和序列号");
+    return;
+  }
+  const currentDevices = Array.isArray(customer.devices) ? customer.devices : [];
+  const nextDevices = [
+    {
+      id: `customer-device-${Date.now()}`,
+      type,
+      name,
+      sn
+    },
+    ...currentDevices.filter((item) => String(item.sn || "").trim() !== sn)
+  ];
+  const result = await postJson("/api/customers/update", {
+    id: customer.id,
+    customer: {
+      devices: nextDevices,
+      warrantyEndsAt: document.getElementById("customer-warranty-ends-input").value || customer.warrantyEndsAt || ""
+    }
+  });
+  if (!result.ok) {
+    window.alert(result.error || "保存设备绑定失败");
+    return;
+  }
+  document.getElementById("customer-device-type-input").value = "";
+  document.getElementById("customer-device-name-input").value = "";
+  document.getElementById("customer-device-sn-input").value = "";
+  await loadCustomers();
+}
+
+async function updateCustomerDevices(nextDevices, errorText) {
+  const customer = getSelectedCustomer();
+  if (!customer) return;
+  const result = await postJson("/api/customers/update", {
+    id: customer.id,
+    customer: {
+      devices: nextDevices
+    }
+  });
+  if (!result.ok) {
+    window.alert(result.error || errorText);
+    return;
+  }
+  await loadCustomers();
+}
+
+async function unbindCustomerDevice(deviceId) {
+  const customer = getSelectedCustomer();
+  if (!customer) return;
+  const currentDevices = Array.isArray(customer.devices) ? customer.devices : [];
+  const device = currentDevices.find((item) => item.id === deviceId);
+  if (!device) return;
+  if (!window.confirm(`确认解绑设备 ${device.name} 吗？`)) return;
+  const nextDevices = currentDevices.filter((item) => item.id !== deviceId);
+  await updateCustomerDevices(nextDevices, "解绑设备失败");
+}
+
+async function archiveCustomerDevice(deviceId) {
+  const customer = getSelectedCustomer();
+  if (!customer) return;
+  const currentDevices = Array.isArray(customer.devices) ? customer.devices : [];
+  const device = currentDevices.find((item) => item.id === deviceId);
+  if (!device) return;
+  if (!window.confirm(`确认归档设备 ${device.name} 吗？归档后默认不再显示。`)) return;
+  const nextDevices = currentDevices.map((item) => item.id === deviceId ? {
+    ...item,
+    archived: true,
+    archivedAt: new Date().toISOString(),
+    archiveReason: "manual_archive"
+  } : item);
+  await updateCustomerDevices(nextDevices, "归档设备失败");
+}
+
+async function saveWarrantyEndsAt() {
+  const customer = getSelectedCustomer();
+  if (!customer) return;
+  const warrantyEndsAt = document.getElementById("customer-warranty-ends-input").value || "";
+  const result = await postJson("/api/customers/update", {
+    id: customer.id,
+    customer: {
+      warrantyEndsAt
+    }
+  });
+  if (!result.ok) {
+    window.alert(result.error || "保存保修到期日失败");
+    return;
+  }
+  await loadCustomers();
+}
+
 async function loadCustomers() {
   const response = await fetch("/api/customers");
   const result = await response.json();
@@ -422,6 +611,26 @@ function bindEvents() {
     loadCustomerDetail(customerState.currentId).catch(console.error);
   });
 
+  document.getElementById("customer-orders").addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-archive-order]");
+    if (!button) return;
+    const customer = getSelectedCustomer();
+    if (!customer) return;
+    const orderId = button.getAttribute("data-archive-order") || "";
+    const orderName = button.getAttribute("data-order-name") || orderId;
+    if (!orderId) return;
+    if (!window.confirm(`确认归档订单 ${orderName} 吗？归档后将不会显示在默认订单列表中。`)) return;
+    const result = await postJson("/api/customers/order/archive", {
+      customerId: customer.id,
+      orderId
+    });
+    if (!result.ok) {
+      window.alert(result.error || "归档订单失败");
+      return;
+    }
+    await loadCustomers();
+  });
+
   document.getElementById("customer-add-btn").addEventListener("click", () => openModal());
   document.getElementById("customer-edit-btn").addEventListener("click", () => {
     const customer = getSelectedCustomer();
@@ -431,10 +640,10 @@ function bindEvents() {
   document.getElementById("customer-delete-btn").addEventListener("click", async () => {
     const customer = getSelectedCustomer();
     if (!customer) return;
-    if (!window.confirm(`确认删除客户 ${customer.name} 吗？`)) return;
+    if (!window.confirm(`确认归档客户 ${customer.name} 吗？归档后不会出现在默认列表中。`)) return;
     const result = await postJson("/api/customers/delete", { id: customer.id });
     if (!result.ok) {
-      window.alert(result.error || "删除失败");
+      window.alert(result.error || "归档失败");
       return;
     }
     customerState.currentId = "";
@@ -457,10 +666,23 @@ function bindEvents() {
       return;
     }
     document.getElementById("customer-payment-amount-input").value = "";
-    document.getElementById("customer-payment-date-input").value = "";
-    document.getElementById("customer-payment-collector-select").value = "";
+    document.getElementById("customer-payment-date-input").value = todayValue();
     document.getElementById("customer-payment-note-input").value = "";
     await loadCustomers();
+  });
+
+  document.getElementById("customer-device-add-btn").addEventListener("click", saveCustomerDevices);
+  document.getElementById("customer-warranty-ends-save-btn").addEventListener("click", saveWarrantyEndsAt);
+  document.getElementById("customer-devices").addEventListener("click", async (event) => {
+    const unbindButton = event.target.closest("[data-unbind-device]");
+    if (unbindButton) {
+      await unbindCustomerDevice(unbindButton.getAttribute("data-unbind-device") || "");
+      return;
+    }
+    const archiveButton = event.target.closest("[data-archive-device]");
+    if (archiveButton) {
+      await archiveCustomerDevice(archiveButton.getAttribute("data-archive-device") || "");
+    }
   });
 
   document.getElementById("customer-warranty-add-btn").addEventListener("click", async () => {
@@ -472,7 +694,7 @@ function bindEvents() {
       title: document.getElementById("customer-warranty-title-input").value.trim(),
       date: document.getElementById("customer-warranty-date-input").value || "",
       detail: document.getElementById("customer-warranty-detail-input").value.trim(),
-      warrantyEndsAt: customer.warrantyEndsAt || ""
+      warrantyEndsAt: document.getElementById("customer-warranty-ends-input").value || customer.warrantyEndsAt || ""
     });
     if (!result.ok) {
       window.alert(result.error || "新增保修失败");
@@ -480,7 +702,7 @@ function bindEvents() {
     }
     document.getElementById("customer-warranty-serial-input").value = "";
     document.getElementById("customer-warranty-title-input").value = "";
-    document.getElementById("customer-warranty-date-input").value = "";
+    document.getElementById("customer-warranty-date-input").value = todayValue();
     document.getElementById("customer-warranty-detail-input").value = "";
     await loadCustomers();
   });
@@ -498,6 +720,21 @@ function bindEvents() {
       return;
     }
     renderWarrantySearchResults(Array.isArray(result.items) ? result.items : []);
+  });
+
+  document.getElementById("customer-warranty-search-results").addEventListener("click", (event) => {
+    const card = event.target.closest("[data-serial-no]");
+    if (!card) return;
+    const serialNo = card.getAttribute("data-serial-no") || "";
+    const deviceName = card.getAttribute("data-device-name") || "";
+    const warrantyEndsAt = card.getAttribute("data-warranty-ends") || "";
+    document.getElementById("customer-warranty-serial-input").value = serialNo;
+    if (!document.getElementById("customer-warranty-title-input").value.trim()) {
+      document.getElementById("customer-warranty-title-input").value = deviceName ? `${deviceName} 保修` : "设备保修";
+    }
+    if (warrantyEndsAt) {
+      document.getElementById("customer-warranty-ends-input").value = warrantyEndsAt;
+    }
   });
 
   document.getElementById("customer-photo-add-btn").addEventListener("click", () => {
@@ -539,7 +776,7 @@ function bindEvents() {
     event.preventDefault();
     const payload = collectFormPayload();
     if (!payload.name || !payload.archiveNo) {
-      window.alert("请先填写客户名称和档案编号。");
+      window.alert("请先填写客户名称和档案编号");
       return;
     }
     const isEdit = Boolean(payload.id);
@@ -563,3 +800,4 @@ Promise.all([loadSalesPeople(), loadCustomers()]).catch((error) => {
   console.error(error);
   document.getElementById("customer-basic-info").innerHTML = `<div class="rounded-2xl bg-red-50 px-4 py-4 text-sm text-red-700">客户数据加载失败。</div>`;
 });
+

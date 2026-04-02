@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f3b66" />
+    <title>手机发票中心</title>
+    <link rel="icon" href="/mobile-icon.svg" type="image/svg+xml" />
+    <style>
+      :root { --bg:#eff5fa; --card:#fff; --line:rgba(15,59,102,.1); --text:#0f172a; --muted:#64748b; --primary:#0f3b66; --accent:#16a34a; }
+      * { box-sizing:border-box; }
+      body { margin:0; background:linear-gradient(180deg,#eef5fb 0%,#f8fbfd 100%); color:var(--text); font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+      a { color:inherit; text-decoration:none; }
+      .shell { max-width:480px; margin:0 auto; min-height:100vh; padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 28px); }
+      .hero { display:flex; align-items:center; gap:12px; margin-bottom:12px; color:var(--text); padding:0; background:none; border-radius:0; box-shadow:none; }
+      .hero h1 { margin:0; font-size:20px; line-height:1.2; color:var(--text); }
+      .hero .btn { background:#eef4fb; color:var(--primary); border:1px solid rgba(15,59,102,.12); }
+      .grid, .list { display:grid; gap:10px; }
+      .btn { display:inline-flex; align-items:center; justify-content:center; min-height:44px; border-radius:16px; padding:0 14px; font-weight:700; border:none; cursor:pointer; }
+      .btn.primary { background:#fff; color:var(--primary); }
+      .btn.secondary { background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.18); }
+      .section { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:16px; margin-top:14px; box-shadow:0 10px 24px rgba(15,59,102,.05); }
+      .section h2 { margin:0 0 12px; font-size:18px; }
+      .grid.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .metric, .item { border-radius:18px; background:#fbfdff; border:1px solid rgba(15,59,102,.08); padding:13px; }
+      .metric label, .muted, .item-meta { color:var(--muted); font-size:12px; }
+      .metric strong, .item-title { display:block; margin-top:5px; font-size:15px; font-weight:800; }
+      .input, .select { width:100%; min-height:44px; border-radius:14px; border:1px solid rgba(15,59,102,.12); padding:12px 14px; background:#fff; }
+      .tag { display:inline-flex; align-items:center; justify-content:center; min-height:28px; padding:0 10px; border-radius:999px; font-size:12px; font-weight:700; }
+      .tag.draft { background:#e2e8f0; color:#475569; }
+      .tag.issued { background:#dbeafe; color:#1d4ed8; }
+      .tag.paid { background:#dcfce7; color:#166534; }
+      .tag.cancelled { background:#fee2e2; color:#b91c1c; }
+      .empty { padding:16px; text-align:center; border:1px dashed rgba(15,59,102,.16); border-radius:16px; color:var(--muted); font-size:13px; }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <a class="btn secondary" href="/mobile-app.html" style="min-height:34px;padding:0 12px;flex:0 0 auto;">返回</a>
+        <h1>手机发票中心</h1>
+      </section>
+
+      <section class="section">
+        <h2>筛选</h2>
+        <div class="grid">
+          <input id="invoice-search" class="input" type="search" placeholder="搜索发票号 / 客户 / 电话 / 套装" />
+          <select id="invoice-status" class="select">
+            <option value="all">全部状态</option>
+            <option value="draft">草稿</option>
+            <option value="issued">已开票</option>
+            <option value="paid">已付款</option>
+            <option value="cancelled">已取消</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>发票列表</h2>
+        <div id="invoice-list" class="list"></div>
+      </section>
+    </main>
+    <script src="/mobile-invoices.js"></script>
+  </body>
+</html>

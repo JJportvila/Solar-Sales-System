@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f3b66" />
+    <title>工资结算</title>
+    <link rel="icon" href="/mobile-icon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        --bg: #edf3f8;
+        --card: rgba(255, 255, 255, 0.96);
+        --line: rgba(15, 59, 102, 0.12);
+        --text: #0f172a;
+        --muted: #64748b;
+        --primary: #0f3b66;
+        --primary-2: #17558c;
+        --radius-xl: 28px;
+        --radius-lg: 22px;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 28%),
+          linear-gradient(180deg, #edf4fb 0%, var(--bg) 38%, #e8eef4 100%);
+        font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+      a { color: inherit; text-decoration: none; }
+      button, input, select { font: inherit; }
+      .shell {
+        max-width: 480px;
+        margin: 0 auto;
+        min-height: 100vh;
+        padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 28px);
+      }
+      .hero {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        color: var(--text);
+        padding: 0;
+        background: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .hero h1 { margin: 0; font-size: 20px; line-height: 1.2; color: var(--text); }
+      .hero .btn { background: #eef4fb; color: var(--primary); border: 1px solid rgba(15,59,102,.12); }
+      .hero p { margin: 8px 0 0; font-size: 13px; color: rgba(255,255,255,.82); line-height: 1.6; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: rgba(220,252,231,.95);
+        color: #166534;
+      }
+      .btn-row, .grid, .list { display: grid; gap: 10px; }
+      .btn-row { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 14px; }
+      .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 14px;
+        border: none;
+        border-radius: 16px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn.secondary { color: var(--primary); background: #e8eef5; }
+      .btn.ghost { color: #fff; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.18); }
+      .section {
+        margin-top: 14px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        box-shadow: 0 10px 24px rgba(15,59,102,.05);
+      }
+      .section h2 { margin: 0 0 12px; font-size: 18px; }
+      .input, .select {
+        width: 100%;
+        min-height: 44px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(15,59,102,.12);
+        background: #fff;
+      }
+      .metric, .employee-card {
+        padding: 13px;
+        border-radius: 18px;
+        border: 1px solid rgba(15,59,102,.08);
+        background: #fbfdff;
+      }
+      .metric label, .muted { color: var(--muted); font-size: 12px; }
+      .metric strong { display: block; margin-top: 5px; font-size: 15px; font-weight: 800; }
+      .employee-title { font-size: 15px; font-weight: 800; }
+      .employee-meta { margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+      .status { min-height: 18px; margin-top: 10px; color: var(--muted); font-size: 12px; }
+      .empty {
+        padding: 16px;
+        text-align: center;
+        border: 1px dashed rgba(15,59,102,.16);
+        border-radius: 16px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <a class="btn ghost" href="/mobile-app.html?v=20260402" style="min-height:34px;padding:0 12px;flex:0 0 auto;">返回</a>
+        <h1>工资结算</h1>
+      </section>
+
+      <section class="section">
+        <h2>筛选条件</h2>
+        <div class="grid">
+          <input id="payroll-date" class="input" type="date" />
+          <select id="payroll-user" class="select"></select>
+        </div>
+        <div id="payroll-status-text" class="status"></div>
+      </section>
+
+      <section class="section">
+        <h2>个人工资结算</h2>
+        <div class="grid two">
+          <div class="metric"><label>考勤状态</label><strong id="payroll-status">未出勤</strong></div>
+          <div class="metric"><label>净工资</label><strong id="payroll-total">VT 0</strong></div>
+          <div class="metric"><label>首卡</label><strong id="payroll-first">-</strong></div>
+          <div class="metric"><label>末卡</label><strong id="payroll-last">-</strong></div>
+          <div class="metric"><label>工时</label><strong id="payroll-hours">0 小时</strong></div>
+          <div class="metric"><label>拜访数</label><strong id="payroll-visits">0</strong></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>全员工资汇总</h2>
+        <div class="grid two">
+          <div class="metric"><label>出勤人数</label><strong id="payroll-present">0</strong></div>
+          <div class="metric"><label>在岗人数</label><strong id="payroll-onduty">0</strong></div>
+          <div class="metric"><label>未出勤</label><strong id="payroll-absent">0</strong></div>
+          <div class="metric"><label>总净工资</label><strong id="payroll-company-total">VT 0</strong></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>员工工资列表</h2>
+        <div id="payroll-list" class="list"></div>
+      </section>
+    </main>
+
+    <script src="/mobile-payroll.js?v=20260402"></script>
+  </body>
+</html>

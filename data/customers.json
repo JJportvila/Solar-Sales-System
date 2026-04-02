@@ -20,23 +20,60 @@
         "cycleLabel": "1星期一期 / 共6期",
         "completedWeeks": 0,
         "totalWeeks": 6,
-        "paidAmount": 20000,
-        "balanceAmount": 35000,
+        "paidAmount": 26000,
+        "balanceAmount": 29000,
         "nextDueLabel": "1周后"
       },
-      "paymentHistory": [],
+      "paymentHistory": [
+        {
+          "id": "CPAY-1775125687440",
+          "amount": 6000,
+          "paidAt": "2026-04-02",
+          "collectorName": "Lina Vatoko",
+          "note": "",
+          "receiptNo": "CPAY-1775125687440"
+        }
+      ],
       "orders": [
         {
           "id": "1774850670188",
           "name": "M-BOX300",
           "status": "分期中",
-          "date": "2026-03-30"
+          "date": "2026-03-30",
+          "archived": false,
+          "archivedAt": "",
+          "archiveReason": ""
         }
       ],
-      "devices": [],
-      "photos": [],
-      "warrantyHistory": [],
-      "warrantyEndsAt": ""
+      "devices": [
+        {
+          "id": "device-crm-1774850670190-01",
+          "type": "Inverter",
+          "name": "M-BOX300 Inverter",
+          "sn": "MBOX300-SN-20260330-01"
+        }
+      ],
+      "photos": [
+        {
+          "id": "photo-1775122267427",
+          "title": "安装现场照片",
+          "takenAt": "2026/4/2 20:31:09",
+          "imageUrl": "/uploads/customer-crm-1774850670190-1775122267427.jpg"
+        }
+      ],
+      "warrantyHistory": [
+        {
+          "id": "war-1775125301141",
+          "title": "Inverter Warranty",
+          "detail": "Warranty registered for inverter unit and basic installation issues.",
+          "date": "2026-04-02",
+          "serialNo": "MBOX300-SN-20260330-01"
+        }
+      ],
+      "warrantyEndsAt": "2027-04-02",
+      "archived": false,
+      "archivedAt": "",
+      "archiveReason": ""
     },
     {
       "id": "merchant-1774839750237",
@@ -68,13 +105,19 @@
           "id": "WHO-20260330-0304",
           "name": "M-BOX300 x 5",
           "status": "部分收款",
-          "date": "2026-03-30"
+          "date": "2026-03-30",
+          "archived": false,
+          "archivedAt": "",
+          "archiveReason": ""
         }
       ],
       "devices": [],
       "photos": [],
       "warrantyHistory": [],
-      "warrantyEndsAt": ""
+      "warrantyEndsAt": "",
+      "archived": false,
+      "archivedAt": "",
+      "archiveReason": ""
     },
     {
       "id": "merchant-port-vila-solar-mart",
@@ -106,13 +149,19 @@
           "id": "WHO-20260330-5988",
           "name": "M-BOX300 x 1",
           "status": "待付款",
-          "date": "2026-03-30"
+          "date": "2026-03-30",
+          "archived": false,
+          "archivedAt": "",
+          "archiveReason": ""
         }
       ],
       "devices": [],
       "photos": [],
       "warrantyHistory": [],
-      "warrantyEndsAt": ""
+      "warrantyEndsAt": "",
+      "archived": false,
+      "archivedAt": "",
+      "archiveReason": ""
     },
     {
       "id": "merchant-santo-energy-shop",
@@ -143,7 +192,10 @@
       "devices": [],
       "photos": [],
       "warrantyHistory": [],
-      "warrantyEndsAt": ""
+      "warrantyEndsAt": "",
+      "archived": false,
+      "archivedAt": "",
+      "archiveReason": ""
     },
     {
       "id": "crm-1774832891816",
@@ -175,13 +227,19 @@
           "id": "1774832891813",
           "name": "M-BOX1200",
           "status": "分期中",
-          "date": "2026-03-30"
+          "date": "2026-03-30",
+          "archived": false,
+          "archivedAt": "",
+          "archiveReason": ""
         }
       ],
       "devices": [],
       "photos": [],
       "warrantyHistory": [],
-      "warrantyEndsAt": ""
+      "warrantyEndsAt": "",
+      "archived": false,
+      "archivedAt": "",
+      "archiveReason": ""
     },
     {
       "id": "vslm-crm-test-001",
@@ -212,7 +270,10 @@
       "devices": [],
       "photos": [],
       "warrantyHistory": [],
-      "warrantyEndsAt": ""
+      "warrantyEndsAt": "",
+      "archived": false,
+      "archivedAt": "",
+      "archiveReason": ""
     },
     {
       "id": "crm-emae-village-center",
@@ -253,13 +314,19 @@
           "id": "ORD-99201",
           "name": "Helios 5kW 套装",
           "status": "已完成",
-          "date": "2024-01-15"
+          "date": "2024-01-15",
+          "archived": false,
+          "archivedAt": "",
+          "archiveReason": ""
         },
         {
           "id": "ORD-88122",
           "name": "备用储能电池单元",
           "status": "退款记录",
-          "date": "2024-03-02"
+          "date": "2024-03-02",
+          "archived": false,
+          "archivedAt": "",
+          "archiveReason": ""
         }
       ],
       "devices": [
@@ -338,7 +405,10 @@
           "serialNo": ""
         }
       ],
-      "warrantyEndsAt": "2026-01-15"
+      "warrantyEndsAt": "2026-01-15",
+      "archived": false,
+      "archivedAt": "",
+      "archiveReason": ""
     },
     {
       "id": "crm-malo-solar-coop",
@@ -370,13 +440,19 @@
           "id": "ORD-10551",
           "name": "M-BOX1500 x 12",
           "status": "履约中",
-          "date": "2024-05-09"
+          "date": "2024-05-09",
+          "archived": false,
+          "archivedAt": "",
+          "archiveReason": ""
         },
         {
           "id": "ORD-10628",
           "name": "屋顶支架补充件",
           "status": "已完成",
-          "date": "2024-06-11"
+          "date": "2024-06-11",
+          "archived": false,
+          "archivedAt": "",
+          "archiveReason": ""
         }
       ],
       "devices": [
@@ -416,7 +492,10 @@
           "serialNo": ""
         }
       ],
-      "warrantyEndsAt": "2027-05-09"
+      "warrantyEndsAt": "2027-05-09",
+      "archived": false,
+      "archivedAt": "",
+      "archiveReason": ""
     },
     {
       "id": "crm-tanna-heights-lodge",
@@ -448,7 +527,10 @@
           "id": "ORD-12018",
           "name": "LS6.2K + 10kWh 套装",
           "status": "已完成",
-          "date": "2025-01-08"
+          "date": "2025-01-08",
+          "archived": false,
+          "archivedAt": "",
+          "archiveReason": ""
         }
       ],
       "devices": [
@@ -482,7 +564,10 @@
           "serialNo": ""
         }
       ],
-      "warrantyEndsAt": "2028-01-08"
+      "warrantyEndsAt": "2028-01-08",
+      "archived": false,
+      "archivedAt": "",
+      "archiveReason": ""
     }
   ]
 }

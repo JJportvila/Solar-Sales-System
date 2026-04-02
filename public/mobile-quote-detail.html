@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f3b66" />
+    <title>报价详情</title>
+    <link rel="icon" href="/mobile-icon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        --bg: #edf3f8;
+        --card: rgba(255, 255, 255, 0.96);
+        --line: rgba(15, 59, 102, 0.12);
+        --text: #0f172a;
+        --muted: #64748b;
+        --primary: #0f3b66;
+        --primary-2: #17558c;
+        --radius-xl: 28px;
+        --radius-lg: 22px;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top right, rgba(59,130,246,.16), transparent 28%),
+          linear-gradient(180deg,#edf4fb 0%,var(--bg) 38%,#e8eef4 100%);
+        font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+      a { color: inherit; text-decoration: none; }
+      .shell {
+        max-width: 480px;
+        margin: 0 auto;
+        min-height: 100vh;
+        padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 28px);
+      }
+      .hero {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        color: var(--text);
+        border-radius: 0;
+        padding: 0;
+        background: none;
+        box-shadow: none;
+      }
+      .hero h1 { margin: 0; font-size: 20px; line-height: 1.2; color: var(--text); }
+      .hero .btn { background: #eef4fb; color: var(--primary); border: 1px solid rgba(15,59,102,.12); }
+      .hero p { margin: 8px 0 0; font-size: 13px; color: rgba(255,255,255,.82); line-height: 1.6; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: rgba(220,252,231,.95);
+        color: #166534;
+      }
+      .btn-row, .grid, .list { display: grid; gap: 10px; }
+      .btn-row { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 14px; }
+      .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 14px;
+        border: none;
+        border-radius: 16px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn.secondary { color: var(--primary); background: #e8eef5; }
+      .btn.ghost { color: #fff; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.18); }
+      .section {
+        margin-top: 14px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        box-shadow: 0 10px 24px rgba(15,59,102,.05);
+      }
+      .section h2 { margin: 0 0 12px; font-size: 18px; }
+      .metric, .card {
+        padding: 13px;
+        border-radius: 18px;
+        border: 1px solid rgba(15,59,102,.08);
+        background: #fbfdff;
+      }
+      .metric label, .muted { color: var(--muted); font-size: 12px; }
+      .metric strong { display: block; margin-top: 5px; font-size: 15px; font-weight: 800; }
+      .row-title { font-size: 15px; font-weight: 800; }
+      .row-meta { margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+      .status {
+        min-height: 18px;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .empty {
+        padding: 16px;
+        text-align: center;
+        border: 1px dashed rgba(15,59,102,.16);
+        border-radius: 16px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <a class="btn ghost" href="/mobile-saved-quotes.html?v=20260402" style="min-height:34px;padding:0 12px;flex:0 0 auto;">返回</a>
+        <h1 id="quote-detail-title">报价详情</h1>
+      </section>
+
+      <section class="section">
+        <h2>客户信息</h2>
+        <div class="grid two">
+          <div class="metric"><label>客户</label><strong id="detail-customer-name">-</strong></div>
+          <div class="metric"><label>电话</label><strong id="detail-customer-phone">-</strong></div>
+          <div class="metric"><label>邮箱</label><strong id="detail-customer-email">-</strong></div>
+          <div class="metric"><label>地区</label><strong id="detail-location">-</strong></div>
+        </div>
+        <div id="detail-customer-address" class="row-meta" style="margin-top:10px;">-</div>
+      </section>
+
+      <section class="section">
+        <h2>报价摘要</h2>
+        <div class="grid two">
+          <div class="metric"><label>套餐</label><strong id="detail-package-name">-</strong></div>
+          <div class="metric"><label>状态</label><strong id="detail-status-label">-</strong></div>
+          <div class="metric"><label>总报价</label><strong id="detail-total-price">VT 0</strong></div>
+          <div class="metric"><label>日耗电</label><strong id="detail-daily-wh">0 Wh</strong></div>
+          <div class="metric"><label>销售</label><strong id="detail-sales-person">-</strong></div>
+          <div class="metric"><label>创建时间</label><strong id="detail-created-at">-</strong></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>金额拆分</h2>
+        <div class="grid two">
+          <div class="metric"><label>设备费</label><strong id="detail-equipment-price">VT 0</strong></div>
+          <div class="metric"><label>安装费</label><strong id="detail-install-fee">VT 0</strong></div>
+          <div class="metric"><label>物流费</label><strong id="detail-logistics-fee">VT 0</strong></div>
+          <div class="metric"><label>税费</label><strong id="detail-vat-price">VT 0</strong></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>套餐明细</h2>
+        <div id="detail-package-card" class="card"></div>
+      </section>
+
+      <section class="section">
+        <h2>设备清单</h2>
+        <div id="detail-devices-list" class="list"></div>
+      </section>
+    </main>
+
+    <script src="/mobile-quote-detail.js?v=20260402"></script>
+  </body>
+</html>
