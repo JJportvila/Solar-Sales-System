@@ -1,6 +1,19 @@
 {
   "items": [
     {
+      "id": "backup-1775090228348",
+      "filename": "backup-daily-2026-04-02T00-37-08-340Z.json",
+      "createdAt": "2026-04-02T00:37:08.340Z",
+      "trigger": "daily",
+      "scope": "system",
+      "status": "ready",
+      "sizeBytes": 115285,
+      "googleDriveStatus": "missing_token",
+      "googleDriveFileId": "",
+      "googleDriveError": "Missing Google Drive access token",
+      "notes": "每日自动备份"
+    },
+    {
       "id": "backup-1774908419938",
       "filename": "backup-daily-2026-03-30T22-06-59-821Z.json",
       "createdAt": "2026-03-30T22:06:59.840Z",

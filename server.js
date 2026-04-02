@@ -6554,6 +6554,128 @@ function handleApi(req, res, url) {
     return true;
   }
 
+  // Field tracking: append point
+  if (req.method === "POST" && url.pathname === "/api/field-tracks/point") {
+    parseBody(req)
+      .then((body) => {
+        const userId = String(body.userId || "").trim();
+        const lat = Number(body.lat);
+        const lng = Number(body.lng);
+        const accuracy = Number(body.accuracy || 0);
+        const ts = body.ts ? new Date(body.ts) : new Date();
+        if (!userId || Number.isNaN(lat) || Number.isNaN(lng)) {
+          sendJson(res, 400, { error: "缺少 userId 或坐标" });
+          return;
+        }
+        const dateKey = ts.toISOString().slice(0, 10);
+        const tracks = readJson(FIELD_TRACKS_FILE, []);
+        let track = tracks.find((t) => t.userId === userId && t.date === dateKey);
+        if (!track) {
+          track = { id: `trk-${Date.now()}`, userId, date: dateKey, startedAt: ts.toISOString(), endedAt: "", points: [] };
+          tracks.push(track);
+        }
+        track.points.push({ lat, lng, accuracy, ts: ts.toISOString() });
+        writeJson(FIELD_TRACKS_FILE, tracks);
+        sendJson(res, 200, { ok: true, track });
+      })
+      .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
+    return true;
+  }
+
+  // Field tracking: close session
+  if (req.method === "POST" && url.pathname === "/api/field-tracks/close") {
+    parseBody(req)
+      .then((body) => {
+        const userId = String(body.userId || "").trim();
+        const dateKey = String(body.date || "").trim() || new Date().toISOString().slice(0, 10);
+        if (!userId) {
+          sendJson(res, 400, { error: "缺少 userId" });
+          return;
+        }
+        const tracks = readJson(FIELD_TRACKS_FILE, []);
+        const track = tracks.find((t) => t.userId === userId && t.date === dateKey);
+        if (track) {
+          track.endedAt = new Date().toISOString();
+          writeJson(FIELD_TRACKS_FILE, tracks);
+        }
+        sendJson(res, 200, { ok: true, track });
+      })
+      .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
+    return true;
+  }
+
+  // Field tracking: query
+  if (req.method === "GET" && url.pathname === "/api/field-tracks") {
+    const userId = String(url.searchParams.get("user") || "").trim();
+    const dateKey = String(url.searchParams.get("date") || "").trim();
+    const tracks = readJson(FIELD_TRACKS_FILE, []);
+    const filtered = tracks.filter((t) => (!userId || t.userId === userId) && (!dateKey || t.date === dateKey));
+    sendJson(res, 200, { items: filtered });
+    return true;
+  }
+
+  // Field visit: add
+  if (req.method === "POST" && url.pathname === "/api/field-visits") {
+    parseBody(req)
+      .then((body) => {
+        const userId = String(body.userId || "").trim();
+        const customer = String(body.customer || "").trim();
+        const note = String(body.note || "").trim();
+        const lat = Number(body.lat);
+        const lng = Number(body.lng);
+        const accuracy = Number(body.accuracy || 0);
+        const audioUrl = String(body.audioUrl || "").trim();
+        const address = String(body.address || "").trim();
+        if (!userId || !customer) {
+          sendJson(res, 400, { error: "缺少 userId 或客户名称" });
+          return;
+        }
+        const visits = readJson(FIELD_VISITS_FILE, []);
+        const item = {
+          id: `visit-${Date.now()}`,
+          userId,
+          customer,
+          note,
+          lat: Number.isNaN(lat) ? null : lat,
+          lng: Number.isNaN(lng) ? null : lng,
+          accuracy,
+          address,
+          audioUrl,
+          recordedAt: new Date().toISOString()
+        };
+        visits.unshift(item);
+        writeJson(FIELD_VISITS_FILE, visits);
+        sendJson(res, 200, { ok: true, item });
+      })
+      .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
+    return true;
+  }
+
+  // Field visit: query
+  if (req.method === "GET" && url.pathname === "/api/field-visits") {
+    const userId = String(url.searchParams.get("user") || "").trim();
+    const dateKey = String(url.searchParams.get("date") || "").trim();
+    const visits = readJson(FIELD_VISITS_FILE, []);
+    const filtered = visits.filter((v) => (!userId || v.userId === userId) && (!dateKey || (v.recordedAt || "").startsWith(dateKey)));
+    sendJson(res, 200, { items: filtered });
+    return true;
+  }
+
+  // Field audio upload (dataURL)
+  if (req.method === "POST" && url.pathname === "/api/uploads/field-audio") {
+    parseBody(req)
+      .then((body) => {
+        if (!body.dataUrl || typeof body.dataUrl !== "string" || !body.dataUrl.startsWith("data:audio")) {
+          sendJson(res, 400, { error: "缺少音频 dataUrl" });
+          return;
+        }
+        const savedUrl = saveDataUrlImage(body.dataUrl, "field-audio"); // reuse image saver for base64
+        sendJson(res, 200, { ok: true, url: savedUrl });
+      })
+      .catch(() => sendJson(res, 400, { error: "Invalid JSON body" }));
+    return true;
+  }
+
   return false;
 }
 
