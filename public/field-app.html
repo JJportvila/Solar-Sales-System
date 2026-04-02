@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>销售外勤助手</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#001d44",
+              secondary: "#f59e0b",
+              "surface": "#f8fafc",
+              "surface-strong": "#ffffff",
+              "outline-variant": "#d7dce4"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; vertical-align: middle; }
+      body { font-family: "Inter", "Manrope", sans-serif; }
+    </style>
+  </head>
+  <body class="bg-surface text-slate-900 min-h-screen">
+    <main class="mx-auto w-full max-w-4xl px-4 py-6 space-y-5">
+      <header class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.32em] text-secondary">销售外勤</p>
+          <h1 class="text-2xl font-extrabold text-primary mt-1">销售员外勤助手</h1>
+          <p class="text-sm text-slate-600">开始/结束行程、打卡、拜访记录、录音上传，自动采集足迹。</p>
+        </div>
+        <button id="logout-btn" class="hidden rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-primary">退出</button>
+      </header>
+
+      <section class="rounded-2xl bg-surface-strong shadow-sm border border-outline-variant/50 p-4 space-y-3">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary">badge</span>
+          <div class="flex-1">
+            <p class="text-xs text-slate-500">当前身份</p>
+            <p id="current-user" class="text-lg font-bold text-primary">未登录</p>
+          </div>
+          <button id="login-btn" class="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white">登录</button>
+        </div>
+        <div id="login-form" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input id="login-name" type="text" class="rounded-xl border border-outline-variant/60 bg-slate-50 px-3 py-2 text-sm" placeholder="姓名（必填）" />
+          <select id="login-role" class="rounded-xl border border-outline-variant/60 bg-slate-50 px-3 py-2 text-sm">
+            <option value="sales">销售</option>
+            <option value="sales_manager">销售经理</option>
+            <option value="admin">管理员</option>
+          </select>
+          <button id="login-submit" class="rounded-xl bg-secondary px-4 py-2 text-sm font-bold text-primary">确认登录</button>
+        </div>
+      </section>
+
+      <section class="rounded-2xl bg-surface-strong shadow-sm border border-outline-variant/50 p-4 space-y-3">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs text-slate-500">打卡</p>
+            <p class="text-lg font-bold text-primary">上班 / 下班</p>
+          </div>
+          <div class="flex gap-2">
+            <button id="checkin-btn" class="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white">上班打卡</button>
+            <button id="checkout-btn" class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-bold text-primary">下班打卡</button>
+          </div>
+        </div>
+        <div class="text-xs text-slate-500" id="checkin-status">尚未打卡</div>
+      </section>
+
+      <section class="rounded-2xl bg-surface-strong shadow-sm border border-outline-variant/50 p-4 space-y-3">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs text-slate-500">行程</p>
+            <p class="text-lg font-bold text-primary">开始 / 结束采点</p>
+          </div>
+          <div class="flex gap-2">
+            <button id="start-trip-btn" class="rounded-xl bg-secondary px-4 py-2 text-sm font-bold text-primary">开始行程</button>
+            <button id="stop-trip-btn" class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-bold text-primary" disabled>结束行程</button>
+          </div>
+        </div>
+        <div class="text-xs text-slate-500" id="trip-status">未开始</div>
+      </section>
+
+      <section class="rounded-2xl bg-surface-strong shadow-sm border border-outline-variant/50 p-4 space-y-3">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs text-slate-500">拜访记录</p>
+            <p class="text-lg font-bold text-primary">新增拜访与录音</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-3">
+          <input id="visit-customer" type="text" class="rounded-xl border border-outline-variant/60 bg-slate-50 px-3 py-2 text-sm" placeholder="客户名称（必填）" />
+          <input id="visit-address" type="text" class="rounded-xl border border-outline-variant/60 bg-slate-50 px-3 py-2 text-sm" placeholder="地址" />
+          <textarea id="visit-note" class="rounded-xl border border-outline-variant/60 bg-slate-50 px-3 py-2 text-sm min-h-[80px]" placeholder="拜访备注"></textarea>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="record-btn" class="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white">开始录音</button>
+            <button id="stop-record-btn" class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-bold text-primary" disabled>结束录音</button>
+            <span id="record-status" class="text-xs text-slate-500">未录音</span>
+          </div>
+          <button id="visit-save-btn" class="rounded-xl bg-secondary px-4 py-2 text-sm font-bold text-primary">保存拜访</button>
+        </div>
+        <div class="text-xs text-slate-500" id="visit-status">尚未提交</div>
+      </section>
+
+      <section class="rounded-2xl bg-surface-strong shadow-sm border border-outline-variant/50 p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <p class="text-lg font-bold text-primary">今日轨迹 / 足迹</p>
+          <select id="track-date" class="rounded-lg border border-outline-variant/60 bg-slate-50 px-3 py-2 text-sm"></select>
+        </div>
+        <div id="track-list" class="space-y-2 text-sm text-slate-700">暂无轨迹</div>
+      </section>
+
+      <section class="rounded-2xl bg-surface-strong shadow-sm border border-outline-variant/50 p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <p class="text-lg font-bold text-primary">拜访列表</p>
+          <select id="visit-date" class="rounded-lg border border-outline-variant/60 bg-slate-50 px-3 py-2 text-sm"></select>
+        </div>
+        <div id="visit-list" class="space-y-2 text-sm text-slate-700">暂无拜访</div>
+      </section>
+    </main>
+
+    <script src="/field-app.js"></script>
+  </body>
+</html>

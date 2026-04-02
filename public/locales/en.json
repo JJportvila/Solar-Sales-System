@@ -141,6 +141,7 @@
   "nav.dashboard": "Sales Dashboard",
   "nav.inventory": "Inventory",
   "nav.repair": "Repair Orders",
+  "nav.field": "Field App",
   "settings.backToHome": "Back to Home",
   "settings.homepageTitle": "Default Homepage",
   "settings.homepageHelp": "Choose whether the system opens on the sales dashboard or the load calculator.",

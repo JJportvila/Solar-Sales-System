@@ -141,6 +141,7 @@
   "nav.dashboard": "销售工作台",
   "nav.inventory": "库存采购",
   "nav.repair": "维修工单",
+  "nav.field": "外勤助手",
   "settings.backToHome": "返回首页",
   "settings.homepageTitle": "默认首页",
   "settings.homepageHelp": "可设置系统打开时默认进入销售工作台或销售报价。",

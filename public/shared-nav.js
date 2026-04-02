@@ -38,6 +38,7 @@ function getSidebarGroups() {
       items: [
         { key: "finance", href: "/finance.html", icon: "query_stats", label: "财务收支" },
       { key: "invoices", href: "/invoices.html", icon: "receipt_long", label: "发票管理" },
+      { key: "field", href: "/field-app.html", icon: "near_me", label: "外勤助手" },
         { key: "expense-control", href: "/expense-control.html", icon: "payments", label: "费用管理" },
         { key: "installment", href: "/installment.html", icon: "calendar_month", label: "分期管理" },
         { key: "commission", href: "/commission.html", icon: "savings", label: "佣金管理" },
