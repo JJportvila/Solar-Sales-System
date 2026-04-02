@@ -8,6 +8,8 @@ const state = {
   audioRecorder: null,
   audioChunks: [],
   audioUrl: "",
+  audioBlobUrl: "",
+  recordStartTs: 0,
   visits: [],
   tracks: [],
   checkins: [],
@@ -143,6 +145,7 @@ async function saveVisit() {
   try {
     const coords = await getPosition();
     lat = coords.latitude; lng = coords.longitude; accuracy = coords.accuracy;
+    $("visit-location").textContent = `当前位置：${lat.toFixed(5)}, ${lng.toFixed(5)} (±${Math.round(accuracy)}m)`;
   } catch {}
   const res = await fetch("/api/field-visits", {
     method: "POST",
@@ -165,6 +168,10 @@ async function saveVisit() {
     $("visit-address").value = "";
     $("visit-note").value = "";
     state.audioUrl = "";
+    state.audioBlobUrl = "";
+    $("record-audio").classList.add("hidden");
+    $("record-audio").src = "";
+    $("record-progress").style.width = "0%";
     state.photoUrls = [];
     $("visit-photo-preview").textContent = "未选择照片";
     $("record-status").textContent = "未录音";
@@ -185,6 +192,9 @@ function startRecording() {
     state.audioRecorder.ondataavailable = (e) => state.audioChunks.push(e.data);
     state.audioRecorder.onstop = async () => {
       const blob = new Blob(state.audioChunks, { type: "audio/webm" });
+      state.audioBlobUrl = URL.createObjectURL(blob);
+      $("record-audio").classList.remove("hidden");
+      $("record-audio").src = state.audioBlobUrl;
       const reader = new FileReader();
       reader.onloadend = async () => {
         const dataUrl = reader.result;
@@ -204,9 +214,18 @@ function startRecording() {
       reader.readAsDataURL(blob);
     };
     state.audioRecorder.start();
+    state.recordStartTs = Date.now();
     $("record-status").textContent = "录音中...";
     $("record-btn").setAttribute("disabled", "true");
     $("stop-record-btn").removeAttribute("disabled");
+    const timer = setInterval(() => {
+      if (!state.audioRecorder || state.audioRecorder.state !== "recording") {
+        clearInterval(timer);
+        return;
+      }
+      const dur = Math.min(120, (Date.now() - state.recordStartTs) / 1000);
+      $("record-progress").style.width = `${(dur / 120) * 100}%`;
+    }, 500);
   }).catch(() => {
     $("record-status").textContent = "无法获取麦克风权限";
   });
