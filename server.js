@@ -968,7 +968,62 @@ function defaultEmployeesData() {
           secondaryValue: "VT 24.0M",
           ratingLabel: "客户评分",
           ratingValue: "5.0"
-        }
+        },
+        payroll: {
+          hourlyRate: 850,
+          workHours: 176,
+          baseSalary: 0,
+          performanceSalary: 0,
+          commissionRate: 0.045
+        },
+        baseDailyRate: 9500,
+        advanceBalance: 5000,
+        debtBalance: 1500,
+        vnpfRate: 4,
+        advanceRecords: [
+          {
+            id: "adv-sales-001-20260321",
+            type: "advance",
+            amount: 4000,
+            date: "2026-03-21",
+            note: "门店路演餐补和交通预支",
+            approvedBy: "Ruth Moli",
+            status: "approved"
+          },
+          {
+            id: "adv-sales-001-20260327",
+            type: "advance",
+            amount: 2500,
+            date: "2026-03-27",
+            note: "客户拜访船票与通信费预支",
+            approvedBy: "Mele Tari",
+            status: "approved"
+          },
+          {
+            id: "adv-sales-001-20260403",
+            type: "repayment",
+            amount: 1500,
+            date: "2026-04-03",
+            note: "工资结算回扣第一笔预支",
+            approvedBy: "Ruth Moli",
+            status: "approved"
+          }
+        ],
+        payrollSettlements: [
+          {
+            id: "settlement-sales-001-20260316-20260331",
+            startDate: "2026-03-16",
+            endDate: "2026-03-31",
+            grossPay: 114000,
+            vnpfDeduction: 4560,
+            advanceDeduction: 0,
+            debtDeduction: 0,
+            netPay: 109440,
+            status: "paid",
+            paidAt: "2026-04-01T17:30:00+11:00",
+            note: "三月下半月已发放"
+          }
+        ]
       },
       {
         id: "emp-sales-mgr-001",
@@ -3126,6 +3181,66 @@ function buildEmployeePayroll(employee, quoteItems = [], repairOrders = []) {
   };
 }
 
+function getRecordDateKey(value = "", fallback = "") {
+  const text = String(value || "").trim();
+  if (!text) return String(fallback || "").trim();
+  return text.slice(0, 10);
+}
+
+function normalizeAdvanceRecord(item = {}, index = 0) {
+  const type = ["advance", "repayment", "adjustment"].includes(String(item.type || "").trim())
+    ? String(item.type).trim()
+    : "advance";
+  const status = ["draft", "approved", "paid", "cancelled"].includes(String(item.status || "").trim())
+    ? String(item.status).trim()
+    : "approved";
+  const date = getRecordDateKey(item.date || item.createdAt || item.workDate, new Date().toISOString().slice(0, 10));
+  return {
+    id: String(item.id || `advance-${Date.now()}-${index + 1}`).trim(),
+    type,
+    amount: Math.max(0, Math.round(clampNumber(item.amount, 0))),
+    date,
+    createdAt: String(item.createdAt || `${date}T12:00:00+11:00`).trim(),
+    workDate: getRecordDateKey(item.workDate || date, date),
+    note: String(item.note || "").trim(),
+    approvedBy: String(item.approvedBy || "").trim(),
+    status
+  };
+}
+
+function normalizePayrollSettlementRecord(item = {}, index = 0) {
+  const startDate = getRecordDateKey(item.startDate || item.date, new Date().toISOString().slice(0, 10));
+  const endDate = getRecordDateKey(item.endDate || startDate, startDate);
+  const grossPay = Math.max(0, Math.round(clampNumber(item.grossPay, 0)));
+  const vnpfDeduction = Math.max(0, Math.round(clampNumber(item.vnpfDeduction, 0)));
+  const advanceDeduction = Math.max(0, Math.round(clampNumber(item.advanceDeduction, 0)));
+  const debtDeduction = Math.max(0, Math.round(clampNumber(item.debtDeduction, 0)));
+  const netPay = Math.max(0, Math.round(clampNumber(item.netPay, grossPay - vnpfDeduction - advanceDeduction - debtDeduction)));
+  return {
+    id: String(item.id || `settlement-${Date.now()}-${index + 1}`).trim(),
+    startDate,
+    endDate,
+    grossPay,
+    vnpfDeduction,
+    advanceDeduction,
+    debtDeduction,
+    netPay,
+    status: ["draft", "paid", "pending"].includes(String(item.status || "").trim()) ? String(item.status).trim() : "paid",
+    paidAt: String(item.paidAt || "").trim(),
+    note: String(item.note || "").trim()
+  };
+}
+
+function getAdvanceOutstanding(records = [], fallbackBalance = 0) {
+  const outstanding = (Array.isArray(records) ? records : []).reduce((sum, item) => {
+    if (item.status === "cancelled") return sum;
+    if (item.type === "repayment") return sum - item.amount;
+    if (item.type === "advance") return sum + item.amount;
+    return sum;
+  }, 0);
+  return Math.max(0, Math.round(clampNumber(outstanding, fallbackBalance)));
+}
+
 function normalizeEmployee(item = {}, index = 0) {
   const role = ["engineer", "sales", "sales_manager", "admin"].includes(String(item.role || "").trim())
     ? String(item.role).trim()
@@ -3170,7 +3285,11 @@ function normalizeEmployee(item = {}, index = 0) {
     },
     pin: String(item.pin || "0000").trim(),
     baseDailyRate: Math.round(clampNumber(item.baseDailyRate, 0)),
-    advanceBalance: Math.round(clampNumber(item.advanceBalance, 0)),
+    advanceRecords: (Array.isArray(item.advanceRecords) ? item.advanceRecords : []).map(normalizeAdvanceRecord)
+      .sort((a, b) => new Date(b.date || b.createdAt || 0).getTime() - new Date(a.date || a.createdAt || 0).getTime()),
+    payrollSettlements: (Array.isArray(item.payrollSettlements) ? item.payrollSettlements : []).map(normalizePayrollSettlementRecord)
+      .sort((a, b) => new Date(b.endDate || 0).getTime() - new Date(a.endDate || 0).getTime()),
+    advanceBalance: getAdvanceOutstanding(Array.isArray(item.advanceRecords) ? item.advanceRecords : [], Math.round(clampNumber(item.advanceBalance, 0))),
     debtBalance: Math.round(clampNumber(item.debtBalance, 0)),
     vnpfRate: Number(clampNumber(item.vnpfRate, 4).toFixed(2))
   };
@@ -5705,6 +5824,197 @@ function getFieldDailyRate(employee) {
   return 0;
 }
 
+function offsetDateKey(dateKey = "", offsetDays = 0) {
+  const [year, month, day] = String(dateKey || "").split("-").map((value) => Number(value));
+  if (!year || !month || !day) return String(dateKey || "").trim();
+  const utcDate = new Date(Date.UTC(year, month - 1, day));
+  utcDate.setUTCDate(utcDate.getUTCDate() + offsetDays);
+  return utcDate.toISOString().slice(0, 10);
+}
+
+function listDateKeysBetween(startDate = "", endDate = "") {
+  const start = String(startDate || "").trim();
+  const end = String(endDate || "").trim();
+  if (!start || !end || start > end) return [];
+  const items = [];
+  let current = start;
+  while (current && current <= end) {
+    items.push(current);
+    const next = offsetDateKey(current, 1);
+    if (next === current) break;
+    current = next;
+  }
+  return items;
+}
+
+function resolvePayrollWindow({ dateKey = "", startDate = "", endDate = "", period = "" } = {}) {
+  const anchorDate = String(dateKey || getBusinessTimeParts(new Date()).dateKey).trim();
+  const requestedPeriod = String(period || "").trim() || "day";
+  if (startDate || endDate) {
+    const safeStart = String(startDate || anchorDate).trim();
+    const safeEnd = String(endDate || anchorDate).trim();
+    return {
+      period: "custom",
+      startDate: safeStart <= safeEnd ? safeStart : safeEnd,
+      endDate: safeStart <= safeEnd ? safeEnd : safeStart
+    };
+  }
+  if (requestedPeriod === "half_month") {
+    return {
+      period: requestedPeriod,
+      startDate: offsetDateKey(anchorDate, -14),
+      endDate: anchorDate
+    };
+  }
+  if (requestedPeriod === "month") {
+    return {
+      period: requestedPeriod,
+      startDate: `${anchorDate.slice(0, 8)}01`,
+      endDate: anchorDate
+    };
+  }
+  return {
+    period: "day",
+    startDate: anchorDate,
+    endDate: anchorDate
+  };
+}
+
+function buildPayrollWindowLabel(window = {}) {
+  if (!window?.startDate || !window?.endDate) return "工资结算";
+  if (window.startDate === window.endDate) return `${window.startDate} 日结算`;
+  if (window.period === "half_month") return `${window.startDate} 至 ${window.endDate} 最近15天结算`;
+  if (window.period === "month") return `${window.startDate} 至 ${window.endDate} 本月结算`;
+  return `${window.startDate} 至 ${window.endDate} 区间结算`;
+}
+
+function buildFieldDailyAttendanceSummary(employee, dateKey, checkins = [], visits = [], tracks = [], options = {}) {
+  const sortedCheckins = (Array.isArray(checkins) ? checkins : []).slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
+  const firstCheckIn = sortedCheckins.find((item) => item.action === "in") || null;
+  const lastCheckOut = [...sortedCheckins].reverse().find((item) => item.action === "out") || null;
+  const startTs = firstCheckIn ? new Date(firstCheckIn.ts).getTime() : 0;
+  const endTs = lastCheckOut ? new Date(lastCheckOut.ts).getTime() : 0;
+  const workedMs = startTs && endTs && endTs > startTs ? endTs - startTs : 0;
+  const workedHours = workedMs > 0 ? Number((workedMs / 3600000).toFixed(2)) : 0;
+  const dailyRate = getFieldDailyRate(employee);
+  const attendanceStatus = firstCheckIn ? (lastCheckOut ? "已完成打卡" : "在岗中") : "未出勤";
+  const grossPay = firstCheckIn ? dailyRate : 0;
+  const vnpfRate = Number(clampNumber(employee?.vnpfRate, 4).toFixed(2));
+  const vnpfDeduction = Math.round(grossPay * (vnpfRate / 100));
+  const advanceDeduction = Math.max(0, Math.round(clampNumber(options.advanceDeduction, 0)));
+  const debtDeduction = Math.max(0, Math.round(clampNumber(options.debtDeduction, 0)));
+  const attendancePay = Math.max(0, grossPay - vnpfDeduction - advanceDeduction - debtDeduction);
+  const trackPointCount = (Array.isArray(tracks) ? tracks : []).reduce((sum, item) => sum + (Array.isArray(item.points) ? item.points.length : 0), 0);
+
+  return {
+    employeeId: employee.id,
+    employeeName: employee.name,
+    role: employee.role,
+    roleLabel: employee.roleLabel,
+    date: dateKey,
+    dailyRate,
+    grossPay,
+    attendancePay,
+    attendanceStatus,
+    vnpfRate,
+    vnpfDeduction,
+    advanceDeduction,
+    debtDeduction,
+    visitCount: Array.isArray(visits) ? visits.length : 0,
+    trackPointCount,
+    checkinCount: sortedCheckins.length,
+    workHours: workedHours,
+    workHoursLabel: workedHours > 0 ? `${workedHours} 小时` : "0 小时",
+    firstCheckInLabel: firstCheckIn ? new Date(firstCheckIn.ts).toLocaleTimeString("en-US") : "-",
+    lastCheckOutLabel: lastCheckOut ? new Date(lastCheckOut.ts).toLocaleTimeString("en-US") : "-"
+  };
+}
+
+async function getFieldPayrollSettlement(userId, options = {}) {
+  const employee = getFieldEmployeeById(userId);
+  if (!employee) return null;
+
+  const window = resolvePayrollWindow(options);
+  const [allCheckins, allVisits, allTracks] = await Promise.all([
+    getFieldCheckinsData({ userId: employee.id }),
+    getFieldVisitsData({ userId: employee.id }),
+    getFieldTracksData({ userId: employee.id })
+  ]);
+
+  const dateKeys = listDateKeysBetween(window.startDate, window.endDate);
+  const advances = Array.isArray(employee.advanceRecords) ? employee.advanceRecords : [];
+  const periodAdvances = advances.filter((item) => item.status !== "cancelled" && item.date >= window.startDate && item.date <= window.endDate);
+  const periodAdvanceDeductions = periodAdvances.filter((item) => item.type === "repayment");
+  const periodDebtDeduction = 0;
+
+  const dailyItems = dateKeys.map((date) => {
+    const dailyAdvanceDeduction = periodAdvanceDeductions
+      .filter((item) => item.date === date)
+      .reduce((sum, item) => sum + item.amount, 0);
+    return buildFieldDailyAttendanceSummary(
+      employee,
+      date,
+      (Array.isArray(allCheckins) ? allCheckins : []).filter((item) => item.date === date),
+      (Array.isArray(allVisits) ? allVisits : []).filter((item) => getRecordDateKey(item.recordedAt) === date),
+      (Array.isArray(allTracks) ? allTracks : []).filter((item) => item.date === date),
+      { advanceDeduction: dailyAdvanceDeduction, debtDeduction: 0 }
+    );
+  });
+
+  const workedDays = dailyItems.filter((item) => item.checkinCount > 0).length;
+  const grossPay = dailyItems.reduce((sum, item) => sum + item.grossPay, 0);
+  const vnpfRate = Number(clampNumber(employee.vnpfRate, 4).toFixed(2));
+  const vnpfDeduction = Math.round(grossPay * (vnpfRate / 100));
+  const advanceDeduction = periodAdvanceDeductions.reduce((sum, item) => sum + item.amount, 0);
+  const debtDeduction = Math.max(0, Math.round(clampNumber(periodDebtDeduction, 0)));
+  const netPay = Math.max(0, grossPay - vnpfDeduction - advanceDeduction - debtDeduction);
+  const advanceIssuedTotal = periodAdvances.filter((item) => item.type === "advance").reduce((sum, item) => sum + item.amount, 0);
+  const trackPointCount = dailyItems.reduce((sum, item) => sum + item.trackPointCount, 0);
+  const visitCount = dailyItems.reduce((sum, item) => sum + item.visitCount, 0);
+  const workHours = Number(dailyItems.reduce((sum, item) => sum + item.workHours, 0).toFixed(2));
+  const outstandingAdvance = getAdvanceOutstanding(advances, employee.advanceBalance);
+  const previousSettlements = (Array.isArray(employee.payrollSettlements) ? employee.payrollSettlements : [])
+    .filter((item) => item.endDate < window.startDate)
+    .slice(0, 3);
+
+  return {
+    employeeId: employee.id,
+    employeeName: employee.name,
+    role: employee.role,
+    roleLabel: employee.roleLabel,
+    date: String(options.dateKey || options.date || window.endDate || "").trim() || window.endDate,
+    startDate: window.startDate,
+    endDate: window.endDate,
+    period: window.period,
+    settlementLabel: buildPayrollWindowLabel(window),
+    daysInPeriod: dateKeys.length,
+    workedDays,
+    absentDays: Math.max(0, dateKeys.length - workedDays),
+    dailyRate: getFieldDailyRate(employee),
+    grossPay,
+    attendancePay: netPay,
+    netPay,
+    attendanceStatus: workedDays ? (dailyItems[dailyItems.length - 1]?.attendanceStatus || "已完成打卡") : "未出勤",
+    vnpfRate,
+    vnpfDeduction,
+    advanceDeduction,
+    debtDeduction,
+    advanceOutstanding: outstandingAdvance,
+    advanceIssuedTotal,
+    visitCount,
+    trackPointCount,
+    checkinCount: dailyItems.reduce((sum, item) => sum + item.checkinCount, 0),
+    workHours,
+    workHoursLabel: workHours > 0 ? `${workHours} 小时` : "0 小时",
+    firstCheckInLabel: dailyItems.find((item) => item.firstCheckInLabel && item.firstCheckInLabel !== "-")?.firstCheckInLabel || "-",
+    lastCheckOutLabel: [...dailyItems].reverse().find((item) => item.lastCheckOutLabel && item.lastCheckOutLabel !== "-")?.lastCheckOutLabel || "-",
+    dailyItems,
+    advanceRecords: periodAdvances,
+    settlementHistory: previousSettlements,
+    debtOutstanding: Math.max(0, Math.round(clampNumber(employee.debtBalance, 0)))
+  };
+}
+
 function parseTimeToMinutes(value, fallbackMinutes) {
   const text = String(value || "").trim();
   const match = text.match(/^(\d{1,2}):(\d{2})$/);
@@ -5763,67 +6073,42 @@ function getAttendanceValidation(action, ts = new Date()) {
 }
 
 async function getFieldPayrollSummary(userId, dateKey) {
-  const employee = getFieldEmployeeById(userId);
-  if (!employee) return null;
-  const targetDate = String(dateKey || getBusinessTimeParts(new Date()).dateKey).trim();
-  const [checkins, visits, tracks] = await Promise.all([
-    getFieldCheckinsData({ userId: employee.id, dateKey: targetDate }),
-    getFieldVisitsData({ userId: employee.id, dateKey: targetDate }),
-    getFieldTracksData({ userId: employee.id, dateKey: targetDate })
-  ]);
-  const sortedCheckins = checkins.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
-  const firstCheckIn = sortedCheckins.find((item) => item.action === "in") || null;
-  const lastCheckOut = [...sortedCheckins].reverse().find((item) => item.action === "out") || null;
-  const startTs = firstCheckIn ? new Date(firstCheckIn.ts).getTime() : 0;
-  const endTs = lastCheckOut ? new Date(lastCheckOut.ts).getTime() : 0;
-  const workedMs = startTs && endTs && endTs > startTs ? endTs - startTs : 0;
-  const workedHours = workedMs > 0 ? Number((workedMs / 3600000).toFixed(2)) : 0;
-  const dailyRate = getFieldDailyRate(employee);
-  const attendanceStatus = firstCheckIn ? (lastCheckOut ? "已完成打卡" : "在岗中") : "未出勤";
-  const grossPay = firstCheckIn ? dailyRate : 0;
-  const vnpfRate = Number(clampNumber(employee.vnpfRate, 4).toFixed(2));
-  const vnpfDeduction = Math.round(grossPay * (vnpfRate / 100));
-  const advanceDeduction = Math.max(0, Math.round(clampNumber(employee.advanceBalance, 0)));
-  const debtDeduction = Math.max(0, Math.round(clampNumber(employee.debtBalance, 0)));
-  const attendancePay = Math.max(0, grossPay - vnpfDeduction - advanceDeduction - debtDeduction);
-  const trackPointCount = tracks.reduce((sum, item) => sum + (Array.isArray(item.points) ? item.points.length : 0), 0);
-  return {
-    employeeId: employee.id,
-    employeeName: employee.name,
-    role: employee.role,
-    roleLabel: employee.roleLabel,
-    date: targetDate,
-    dailyRate,
-    grossPay,
-    attendancePay,
-    attendanceStatus,
-    vnpfRate,
-    vnpfDeduction,
-    advanceDeduction,
-    debtDeduction,
-    visitCount: visits.length,
-    trackPointCount,
-    checkinCount: checkins.length,
-    workHours: workedHours,
-    workHoursLabel: workedHours > 0 ? `${workedHours} 小时` : "0 小时",
-    firstCheckInLabel: firstCheckIn ? new Date(firstCheckIn.ts).toLocaleTimeString("en-US") : "-",
-    lastCheckOutLabel: lastCheckOut ? new Date(lastCheckOut.ts).toLocaleTimeString("en-US") : "-"
-  };
+  return getFieldPayrollSettlement(userId, { dateKey, period: "day" });
 }
 
-async function getCompanyAttendanceOverview(dateKey = "") {
+async function getCompanyAttendanceOverview(dateKey = "", options = {}) {
   const targetDate = String(dateKey || new Date().toISOString().slice(0, 10)).trim();
+  const period = String(options.period || "").trim();
   const employees = getEmployeesData().items.filter((item) => item.status !== "resigned");
-  const items = (await Promise.all(employees.map((employee) => getFieldPayrollSummary(employee.id, targetDate)))).filter(Boolean);
+  const items = (await Promise.all(employees.map((employee) => getFieldPayrollSettlement(employee.id, {
+    dateKey: targetDate,
+    period,
+    startDate: options.startDate,
+    endDate: options.endDate
+  })))).filter(Boolean);
   const presentCount = items.filter((item) => item.checkinCount > 0).length;
   const onDutyCount = items.filter((item) => item.attendanceStatus === "在岗中").length;
   const completedCount = items.filter((item) => item.attendanceStatus === "已完成打卡").length;
   const absentCount = items.length - presentCount;
   const totalAttendancePay = items.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.attendancePay, 0))), 0);
   const totalVisits = items.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.visitCount, 0))), 0);
+  const totalGrossPay = items.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.grossPay, 0))), 0);
+  const totalVnpfDeduction = items.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.vnpfDeduction, 0))), 0);
+  const totalAdvanceDeduction = items.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.advanceDeduction, 0))), 0);
+  const totalWorkedDays = items.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.workedDays, item.checkinCount > 0 ? 1 : 0))), 0);
+  const settlementWindow = resolvePayrollWindow({
+    dateKey: targetDate,
+    period,
+    startDate: options.startDate,
+    endDate: options.endDate
+  });
 
   return {
     date: targetDate,
+    startDate: settlementWindow.startDate,
+    endDate: settlementWindow.endDate,
+    period: settlementWindow.period,
+    settlementLabel: buildPayrollWindowLabel(settlementWindow),
     summary: {
       totalEmployees: items.length,
       presentCount,
@@ -5831,7 +6116,11 @@ async function getCompanyAttendanceOverview(dateKey = "") {
       completedCount,
       absentCount,
       totalAttendancePay,
-      totalVisits
+      totalVisits,
+      totalGrossPay,
+      totalVnpfDeduction,
+      totalAdvanceDeduction,
+      totalWorkedDays
     },
     items: items
       .slice()
@@ -6301,7 +6590,10 @@ async function handleApi(req, res, url) {
       return true;
     }
     const dateKey = String(url.searchParams.get("date") || "").trim();
-    Promise.resolve(getFieldPayrollSummary(userId, dateKey))
+    const period = String(url.searchParams.get("period") || "").trim();
+    const startDate = String(url.searchParams.get("start") || "").trim();
+    const endDate = String(url.searchParams.get("end") || "").trim();
+    Promise.resolve(getFieldPayrollSettlement(userId, { dateKey, period, startDate, endDate }))
       .then((summary) => {
         if (!summary) {
           sendJson(res, 404, { error: "未找到员工工资结算信息" });
@@ -6320,7 +6612,10 @@ async function handleApi(req, res, url) {
     const profile = ensureAuthedProfile(req, res);
     if (!profile) return true;
     const dateKey = String(url.searchParams.get("date") || "").trim();
-    Promise.resolve(getCompanyAttendanceOverview(dateKey))
+    const period = String(url.searchParams.get("period") || "").trim();
+    const startDate = String(url.searchParams.get("start") || "").trim();
+    const endDate = String(url.searchParams.get("end") || "").trim();
+    Promise.resolve(getCompanyAttendanceOverview(dateKey, { period, startDate, endDate }))
       .then((overview) => {
         if (profile.role === "admin" || profile.role === "sales_manager") {
           sendJson(res, 200, overview);
@@ -6337,7 +6632,11 @@ async function handleApi(req, res, url) {
             completedCount: ownItem.filter((item) => item.attendanceStatus === "已完成打卡").length,
             absentCount: ownItem.filter((item) => item.attendanceStatus === "未出勤").length,
             totalAttendancePay: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.netPay, 0))), 0),
-            totalVisits: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.visitCount, 0))), 0)
+            totalVisits: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.visitCount, 0))), 0),
+            totalGrossPay: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.grossPay, 0))), 0),
+            totalVnpfDeduction: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.vnpfDeduction, 0))), 0),
+            totalAdvanceDeduction: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.advanceDeduction, 0))), 0),
+            totalWorkedDays: ownItem.reduce((sum, item) => sum + Math.max(0, Math.round(clampNumber(item.workedDays, 0))), 0)
           },
           items: ownItem
         });

@@ -74,9 +74,53 @@
       },
       "pin": "0000",
       "baseDailyRate": 9500,
-      "advanceBalance": 2000,
+      "advanceBalance": 5000,
       "debtBalance": 1500,
-      "vnpfRate": 4
+      "vnpfRate": 4,
+      "advanceRecords": [
+        {
+          "id": "adv-sales-001-20260321",
+          "type": "advance",
+          "amount": 4000,
+          "date": "2026-03-21",
+          "note": "门店路演餐补和交通预支",
+          "approvedBy": "Ruth Moli",
+          "status": "approved"
+        },
+        {
+          "id": "adv-sales-001-20260327",
+          "type": "advance",
+          "amount": 2500,
+          "date": "2026-03-27",
+          "note": "客户拜访船票与通信费预支",
+          "approvedBy": "Mele Tari",
+          "status": "approved"
+        },
+        {
+          "id": "adv-sales-001-20260403",
+          "type": "repayment",
+          "amount": 1500,
+          "date": "2026-04-03",
+          "note": "工资结算回扣第一笔预支",
+          "approvedBy": "Ruth Moli",
+          "status": "approved"
+        }
+      ],
+      "payrollSettlements": [
+        {
+          "id": "settlement-sales-001-20260316-20260331",
+          "startDate": "2026-03-16",
+          "endDate": "2026-03-31",
+          "grossPay": 114000,
+          "vnpfDeduction": 4560,
+          "advanceDeduction": 0,
+          "debtDeduction": 0,
+          "netPay": 109440,
+          "status": "paid",
+          "paidAt": "2026-04-01T17:30:00+11:00",
+          "note": "三月下半月已发放"
+        }
+      ]
     },
     {
       "id": "emp-sales-mgr-001",

@@ -16,148 +16,220 @@ function buildIsoAtBusinessDate(dateKey = "", time = "09:00:00", offset = "+11:0
   return `${dateKey}T${time}${offset}`;
 }
 
-function buildDemoAttendanceData({ timeZone = "Pacific/Efate", dateKey, utcOffset = "+11:00" } = {}) {
-  const businessDate = String(dateKey || getBusinessDateKey(timeZone)).trim();
+function offsetDateKey(dateKey = "", offsetDays = 0) {
+  const [year, month, day] = String(dateKey || "").split("-").map((value) => Number(value));
+  if (!year || !month || !day) return String(dateKey || "").trim();
+  const utcDate = new Date(Date.UTC(year, month - 1, day));
+  utcDate.setUTCDate(utcDate.getUTCDate() + offsetDays);
+  return utcDate.toISOString().slice(0, 10);
+}
 
-  const checkins = [
-    {
-      id: `demo-chk-in-eng-001-${businessDate}`,
-      userId: "emp-eng-001",
-      action: "in",
-      lat: -17.74615,
-      lng: 168.3142,
-      accuracy: 9,
-      note: "总部仓库出发，开始今日外勤",
-      ts: buildIsoAtBusinessDate(businessDate, "08:34:00", utcOffset),
-      date: businessDate
-    },
-    {
-      id: `demo-chk-out-eng-001-${businessDate}`,
-      userId: "emp-eng-001",
-      action: "out",
-      lat: -17.72144,
-      lng: 168.32581,
-      accuracy: 12,
-      note: "完成维修后返回 Port Vila",
-      ts: buildIsoAtBusinessDate(businessDate, "17:48:00", utcOffset),
-      date: businessDate
-    },
-    {
-      id: `demo-chk-in-sales-001-${businessDate}`,
-      userId: "emp-sales-001",
-      action: "in",
-      lat: -17.73492,
-      lng: 168.31744,
-      accuracy: 7,
-      note: "上午门店巡访开始",
-      ts: buildIsoAtBusinessDate(businessDate, "08:52:00", utcOffset),
-      date: businessDate
-    },
-    {
-      id: `demo-chk-out-sales-001-${businessDate}`,
-      userId: "emp-sales-001",
-      action: "out",
-      lat: -17.74183,
-      lng: 168.32948,
-      accuracy: 10,
-      note: "提交客户跟进后签退",
-      ts: buildIsoAtBusinessDate(businessDate, "17:12:00", utcOffset),
-      date: businessDate
-    },
-    {
-      id: `demo-chk-in-mgr-001-${businessDate}`,
-      userId: "emp-sales-mgr-001",
-      action: "in",
-      lat: -17.73956,
-      lng: 168.32161,
-      accuracy: 8,
-      note: "总部晨会后开始现场巡检",
-      ts: buildIsoAtBusinessDate(businessDate, "08:41:00", utcOffset),
-      date: businessDate
-    }
-  ];
+function buildDailySeed(userId, dateKey, dayOffset, utcOffset) {
+  const salesStartMinute = 48 + (dayOffset % 4) * 2;
+  const salesEndMinute = 8 + (dayOffset % 5) * 3;
+  const engineerStartMinute = 30 + (dayOffset % 5) * 3;
+  const engineerEndMinute = 44 + (dayOffset % 4) * 2;
+  const managerStartMinute = 40 + (dayOffset % 3) * 4;
+  const salesLat = -17.736 + dayOffset * 0.00018;
+  const salesLng = 168.317 + dayOffset * 0.00021;
+  const engineerLat = -17.746 + dayOffset * 0.00015;
+  const engineerLng = 168.314 + dayOffset * 0.00018;
+  const managerLat = -17.739 + dayOffset * 0.00012;
+  const managerLng = 168.321 + dayOffset * 0.00014;
 
-  const visits = [
-    {
-      id: `demo-visit-emae-${businessDate}`,
-      userId: "emp-eng-001",
-      customer: "Emae Village Center",
-      note: "检查逆变器告警，确认电池线缆压接正常。",
-      lat: -17.73758,
-      lng: 168.32092,
-      accuracy: 11,
-      address: "Port Vila feeder depot, Efate",
-      audioUrl: "",
-      photoUrls: [],
-      recordedAt: buildIsoAtBusinessDate(businessDate, "10:12:00", utcOffset)
-    },
-    {
-      id: `demo-visit-wharf-${businessDate}`,
-      userId: "emp-sales-001",
-      customer: "Port Vila Solar Mart",
-      note: "和门店核对批发补货数量，已确认 2 套 M-BOX1200。",
-      lat: -17.73991,
-      lng: 168.32784,
-      accuracy: 8,
-      address: "Port Vila town center",
-      audioUrl: "",
-      photoUrls: [],
-      recordedAt: buildIsoAtBusinessDate(businessDate, "11:06:00", utcOffset)
-    },
-    {
-      id: `demo-visit-hq-${businessDate}`,
-      userId: "emp-sales-mgr-001",
-      customer: "Port Vila Headquarters",
-      note: "复盘签到纪律和外勤覆盖率，抽查 GPS 采点。",
-      lat: -17.73812,
-      lng: 168.31976,
-      accuracy: 6,
-      address: "Port Vila HQ",
-      audioUrl: "",
-      photoUrls: [],
-      recordedAt: buildIsoAtBusinessDate(businessDate, "14:18:00", utcOffset)
-    }
-  ];
-
-  const tracks = [
-    {
-      id: `demo-track-eng-001-${businessDate}`,
-      userId: "emp-eng-001",
-      date: businessDate,
-      startedAt: buildIsoAtBusinessDate(businessDate, "08:36:00", utcOffset),
-      endedAt: buildIsoAtBusinessDate(businessDate, "12:04:00", utcOffset),
-      points: [
-        { lat: -17.74615, lng: 168.3142, accuracy: 9, ts: buildIsoAtBusinessDate(businessDate, "08:36:00", utcOffset) },
-        { lat: -17.74482, lng: 168.31566, accuracy: 10, ts: buildIsoAtBusinessDate(businessDate, "08:52:00", utcOffset) },
-        { lat: -17.74295, lng: 168.31794, accuracy: 8, ts: buildIsoAtBusinessDate(businessDate, "09:11:00", utcOffset) },
-        { lat: -17.74034, lng: 168.31987, accuracy: 7, ts: buildIsoAtBusinessDate(businessDate, "09:33:00", utcOffset) },
-        { lat: -17.73758, lng: 168.32092, accuracy: 11, ts: buildIsoAtBusinessDate(businessDate, "10:12:00", utcOffset) },
-        { lat: -17.73491, lng: 168.32246, accuracy: 9, ts: buildIsoAtBusinessDate(businessDate, "10:48:00", utcOffset) },
-        { lat: -17.73077, lng: 168.32408, accuracy: 13, ts: buildIsoAtBusinessDate(businessDate, "11:19:00", utcOffset) },
-        { lat: -17.72634, lng: 168.32514, accuracy: 12, ts: buildIsoAtBusinessDate(businessDate, "11:46:00", utcOffset) }
+  if (userId === "emp-sales-001") {
+    return {
+      checkins: [
+        {
+          id: `demo-chk-in-sales-001-${dateKey}`,
+          userId,
+          action: "in",
+          lat: Number(salesLat.toFixed(5)),
+          lng: Number(salesLng.toFixed(5)),
+          accuracy: 6 + (dayOffset % 4),
+          note: "门店晨会后开始客户拜访",
+          ts: buildIsoAtBusinessDate(dateKey, `08:${String(salesStartMinute).padStart(2, "0")}:00`, utcOffset),
+          date: dateKey
+        },
+        {
+          id: `demo-chk-out-sales-001-${dateKey}`,
+          userId,
+          action: "out",
+          lat: Number((salesLat + 0.0064).toFixed(5)),
+          lng: Number((salesLng + 0.0106).toFixed(5)),
+          accuracy: 8 + (dayOffset % 3),
+          note: "完成客户跟进后返回门店",
+          ts: buildIsoAtBusinessDate(dateKey, `17:${String(salesEndMinute).padStart(2, "0")}:00`, utcOffset),
+          date: dateKey
+        }
+      ],
+      visits: [
+        {
+          id: `demo-visit-sales-001-${dateKey}`,
+          userId,
+          customer: dayOffset % 2 === 0 ? "Port Vila Solar Mart" : "Fresh Mart Corner Shop",
+          note: dayOffset % 2 === 0 ? "复盘陈列和补货需求，确认本周促销套餐。" : "核对小店收款与库存，补录当日门店销量。",
+          lat: Number((salesLat + 0.0035).toFixed(5)),
+          lng: Number((salesLng + 0.0061).toFixed(5)),
+          accuracy: 7 + (dayOffset % 3),
+          address: dayOffset % 2 === 0 ? "Port Vila town center" : "Fresh Mart roadside stop",
+          audioUrl: "",
+          photoUrls: [],
+          recordedAt: buildIsoAtBusinessDate(dateKey, "11:08:00", utcOffset)
+        }
+      ],
+      tracks: [
+        {
+          id: `demo-track-sales-001-${dateKey}`,
+          userId,
+          date: dateKey,
+          startedAt: buildIsoAtBusinessDate(dateKey, `08:${String(Math.max(0, salesStartMinute + 4)).padStart(2, "0")}:00`, utcOffset),
+          endedAt: buildIsoAtBusinessDate(dateKey, "15:22:00", utcOffset),
+          points: [
+            { lat: Number(salesLat.toFixed(5)), lng: Number(salesLng.toFixed(5)), accuracy: 6, ts: buildIsoAtBusinessDate(dateKey, "08:58:00", utcOffset) },
+            { lat: Number((salesLat + 0.0014).toFixed(5)), lng: Number((salesLng + 0.0023).toFixed(5)), accuracy: 7, ts: buildIsoAtBusinessDate(dateKey, "09:26:00", utcOffset) },
+            { lat: Number((salesLat + 0.0030).toFixed(5)), lng: Number((salesLng + 0.0049).toFixed(5)), accuracy: 8, ts: buildIsoAtBusinessDate(dateKey, "10:14:00", utcOffset) },
+            { lat: Number((salesLat + 0.0035).toFixed(5)), lng: Number((salesLng + 0.0061).toFixed(5)), accuracy: 7, ts: buildIsoAtBusinessDate(dateKey, "11:08:00", utcOffset) },
+            { lat: Number((salesLat + 0.0052).toFixed(5)), lng: Number((salesLng + 0.0084).toFixed(5)), accuracy: 8, ts: buildIsoAtBusinessDate(dateKey, "13:34:00", utcOffset) },
+            { lat: Number((salesLat + 0.0064).toFixed(5)), lng: Number((salesLng + 0.0106).toFixed(5)), accuracy: 9, ts: buildIsoAtBusinessDate(dateKey, "15:22:00", utcOffset) }
+          ]
+        }
       ]
-    },
-    {
-      id: `demo-track-sales-001-${businessDate}`,
-      userId: "emp-sales-001",
-      date: businessDate,
-      startedAt: buildIsoAtBusinessDate(businessDate, "08:58:00", utcOffset),
-      endedAt: buildIsoAtBusinessDate(businessDate, "11:38:00", utcOffset),
-      points: [
-        { lat: -17.73492, lng: 168.31744, accuracy: 7, ts: buildIsoAtBusinessDate(businessDate, "08:58:00", utcOffset) },
-        { lat: -17.73624, lng: 168.32016, accuracy: 6, ts: buildIsoAtBusinessDate(businessDate, "09:18:00", utcOffset) },
-        { lat: -17.73831, lng: 168.32354, accuracy: 8, ts: buildIsoAtBusinessDate(businessDate, "09:47:00", utcOffset) },
-        { lat: -17.73991, lng: 168.32784, accuracy: 8, ts: buildIsoAtBusinessDate(businessDate, "11:06:00", utcOffset) },
-        { lat: -17.74183, lng: 168.32948, accuracy: 10, ts: buildIsoAtBusinessDate(businessDate, "11:38:00", utcOffset) }
+    };
+  }
+
+  if (userId === "emp-eng-001") {
+    return {
+      checkins: [
+        {
+          id: `demo-chk-in-eng-001-${dateKey}`,
+          userId,
+          action: "in",
+          lat: Number(engineerLat.toFixed(5)),
+          lng: Number(engineerLng.toFixed(5)),
+          accuracy: 9,
+          note: "仓库领料后出发维护点位",
+          ts: buildIsoAtBusinessDate(dateKey, `08:${String(engineerStartMinute).padStart(2, "0")}:00`, utcOffset),
+          date: dateKey
+        },
+        {
+          id: `demo-chk-out-eng-001-${dateKey}`,
+          userId,
+          action: "out",
+          lat: Number((engineerLat + 0.021).toFixed(5)),
+          lng: Number((engineerLng + 0.012).toFixed(5)),
+          accuracy: 11,
+          note: "现场维修完成后回到 Port Vila",
+          ts: buildIsoAtBusinessDate(dateKey, `17:${String(engineerEndMinute).padStart(2, "0")}:00`, utcOffset),
+          date: dateKey
+        }
+      ],
+      visits: [
+        {
+          id: `demo-visit-eng-001-${dateKey}`,
+          userId,
+          customer: dayOffset % 2 === 0 ? "Emae Village Center" : "Teouma Battery Station",
+          note: dayOffset % 2 === 0 ? "检查逆变器告警并完成电池均衡。" : "更换接线端子并复测输出电压。",
+          lat: Number((engineerLat + 0.0092).toFixed(5)),
+          lng: Number((engineerLng + 0.0061).toFixed(5)),
+          accuracy: 11,
+          address: dayOffset % 2 === 0 ? "Port Vila feeder depot, Efate" : "Teouma roadside site",
+          audioUrl: "",
+          photoUrls: [],
+          recordedAt: buildIsoAtBusinessDate(dateKey, "10:16:00", utcOffset)
+        }
+      ],
+      tracks: [
+        {
+          id: `demo-track-eng-001-${dateKey}`,
+          userId,
+          date: dateKey,
+          startedAt: buildIsoAtBusinessDate(dateKey, "08:36:00", utcOffset),
+          endedAt: buildIsoAtBusinessDate(dateKey, "12:02:00", utcOffset),
+          points: [
+            { lat: Number(engineerLat.toFixed(5)), lng: Number(engineerLng.toFixed(5)), accuracy: 9, ts: buildIsoAtBusinessDate(dateKey, "08:36:00", utcOffset) },
+            { lat: Number((engineerLat + 0.0015).toFixed(5)), lng: Number((engineerLng + 0.0018).toFixed(5)), accuracy: 10, ts: buildIsoAtBusinessDate(dateKey, "08:56:00", utcOffset) },
+            { lat: Number((engineerLat + 0.0040).toFixed(5)), lng: Number((engineerLng + 0.0036).toFixed(5)), accuracy: 8, ts: buildIsoAtBusinessDate(dateKey, "09:30:00", utcOffset) },
+            { lat: Number((engineerLat + 0.0092).toFixed(5)), lng: Number((engineerLng + 0.0061).toFixed(5)), accuracy: 11, ts: buildIsoAtBusinessDate(dateKey, "10:16:00", utcOffset) },
+            { lat: Number((engineerLat + 0.0154).toFixed(5)), lng: Number((engineerLng + 0.0094).toFixed(5)), accuracy: 12, ts: buildIsoAtBusinessDate(dateKey, "11:08:00", utcOffset) },
+            { lat: Number((engineerLat + 0.021).toFixed(5)), lng: Number((engineerLng + 0.012).toFixed(5)), accuracy: 12, ts: buildIsoAtBusinessDate(dateKey, "12:02:00", utcOffset) }
+          ]
+        }
       ]
-    }
-  ];
+    };
+  }
 
   return {
-    dateKey: businessDate,
-    checkins,
-    visits,
-    tracks
+    checkins: [
+      {
+        id: `demo-chk-in-mgr-001-${dateKey}`,
+        userId,
+        action: "in",
+        lat: Number(managerLat.toFixed(5)),
+        lng: Number(managerLng.toFixed(5)),
+        accuracy: 7,
+        note: "总部晨会后开始门店巡检",
+        ts: buildIsoAtBusinessDate(dateKey, `08:${String(managerStartMinute).padStart(2, "0")}:00`, utcOffset),
+        date: dateKey
+      }
+    ],
+    visits: [
+      {
+        id: `demo-visit-mgr-001-${dateKey}`,
+        userId,
+        customer: "Port Vila Headquarters",
+        note: "复盘签到纪律与外勤覆盖率，抽检销售 GPS 采点。",
+        lat: Number((managerLat + 0.0024).toFixed(5)),
+        lng: Number((managerLng + 0.0019).toFixed(5)),
+        accuracy: 6,
+        address: "Port Vila HQ",
+        audioUrl: "",
+        photoUrls: [],
+        recordedAt: buildIsoAtBusinessDate(dateKey, "14:18:00", utcOffset)
+      }
+    ],
+    tracks: [
+      {
+        id: `demo-track-mgr-001-${dateKey}`,
+        userId,
+        date: dateKey,
+        startedAt: buildIsoAtBusinessDate(dateKey, "09:06:00", utcOffset),
+        endedAt: buildIsoAtBusinessDate(dateKey, "14:42:00", utcOffset),
+        points: [
+          { lat: Number(managerLat.toFixed(5)), lng: Number(managerLng.toFixed(5)), accuracy: 7, ts: buildIsoAtBusinessDate(dateKey, "09:06:00", utcOffset) },
+          { lat: Number((managerLat + 0.0011).toFixed(5)), lng: Number((managerLng + 0.0010).toFixed(5)), accuracy: 6, ts: buildIsoAtBusinessDate(dateKey, "10:20:00", utcOffset) },
+          { lat: Number((managerLat + 0.0024).toFixed(5)), lng: Number((managerLng + 0.0019).toFixed(5)), accuracy: 6, ts: buildIsoAtBusinessDate(dateKey, "14:18:00", utcOffset) },
+          { lat: Number((managerLat + 0.0033).toFixed(5)), lng: Number((managerLng + 0.0028).toFixed(5)), accuracy: 7, ts: buildIsoAtBusinessDate(dateKey, "14:42:00", utcOffset) }
+        ]
+      }
+    ]
+  };
+}
+
+function buildDemoAttendanceData({ timeZone = "Pacific/Efate", dateKey, utcOffset = "+11:00", days = 15 } = {}) {
+  const endDate = String(dateKey || getBusinessDateKey(timeZone)).trim();
+  const totalDays = Math.max(1, Math.round(Number(days) || 15));
+  const startDate = offsetDateKey(endDate, -(totalDays - 1));
+  const dates = Array.from({ length: totalDays }, (_, index) => offsetDateKey(startDate, index));
+  const users = ["emp-eng-001", "emp-sales-001", "emp-sales-mgr-001"];
+
+  const payload = dates.reduce((acc, currentDate, index) => {
+    users.forEach((userId) => {
+      const seed = buildDailySeed(userId, currentDate, index, utcOffset);
+      acc.checkins.push(...seed.checkins);
+      acc.visits.push(...seed.visits);
+      acc.tracks.push(...seed.tracks);
+    });
+    return acc;
+  }, { checkins: [], visits: [], tracks: [] });
+
+  return {
+    dateKey: endDate,
+    startDate,
+    endDate,
+    checkins: payload.checkins,
+    visits: payload.visits,
+    tracks: payload.tracks
   };
 }
 
