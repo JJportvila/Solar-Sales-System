@@ -23,6 +23,8 @@ const VENDORS_FILE = path.join(DATA_DIR, "vendors.json");
 const WHOLESALE_FILE = path.join(DATA_DIR, "wholesale_orders.json");
 const EXPENSE_CONTROL_FILE = path.join(DATA_DIR, "expense_control.json");
 const INVOICES_FILE = path.join(DATA_DIR, "invoices.json");
+const FIELD_TRACKS_FILE = path.join(DATA_DIR, "field_tracks.json");
+const FIELD_VISITS_FILE = path.join(DATA_DIR, "field_visits.json");
 const BACKUPS_DIR = path.join(DATA_DIR, "backups");
 const BACKUP_INDEX_FILE = path.join(BACKUPS_DIR, "index.json");
 
@@ -1646,6 +1648,12 @@ function ensureDataDir() {
   if (!fs.existsSync(EXPENSE_CONTROL_FILE)) {
     fs.writeFileSync(EXPENSE_CONTROL_FILE, JSON.stringify(defaultExpenseControlData(), null, 2), "utf8");
   }
+  if (!fs.existsSync(FIELD_TRACKS_FILE)) {
+    fs.writeFileSync(FIELD_TRACKS_FILE, "[]", "utf8");
+  }
+  if (!fs.existsSync(FIELD_VISITS_FILE)) {
+    fs.writeFileSync(FIELD_VISITS_FILE, "[]", "utf8");
+  }
   if (!fs.existsSync(BACKUP_INDEX_FILE)) {
     fs.writeFileSync(BACKUP_INDEX_FILE, JSON.stringify({ items: [] }, null, 2), "utf8");
   }
@@ -1723,7 +1731,9 @@ function buildBackupPayload(trigger = "manual", notes = "") {
       vendors: readJson(VENDORS_FILE, {}),
       wholesale: readJson(WHOLESALE_FILE, {}),
       expenseControl: readJson(EXPENSE_CONTROL_FILE, {}),
-      invoices: readJson(INVOICES_FILE, [])
+      invoices: readJson(INVOICES_FILE, []),
+      fieldTracks: readJson(FIELD_TRACKS_FILE, []),
+      fieldVisits: readJson(FIELD_VISITS_FILE, [])
     },
     assets: {
       uploads: fs.existsSync(UPLOADS_DIR)
@@ -1791,6 +1801,8 @@ function restoreBackupSnapshot(backupId) {
   writeJson(WHOLESALE_FILE, payload.files.wholesale || defaultWholesaleData());
   writeJson(EXPENSE_CONTROL_FILE, payload.files.expenseControl || defaultExpenseControlData());
   writeJson(INVOICES_FILE, Array.isArray(payload.files.invoices) ? payload.files.invoices : []);
+  writeJson(FIELD_TRACKS_FILE, Array.isArray(payload.files.fieldTracks) ? payload.files.fieldTracks : []);
+  writeJson(FIELD_VISITS_FILE, Array.isArray(payload.files.fieldVisits) ? payload.files.fieldVisits : []);
   ensureDataDir();
   fs.readdirSync(UPLOADS_DIR, { withFileTypes: true })
     .filter((entry) => entry.isFile())
